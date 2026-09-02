@@ -1,0 +1,22 @@
+# Environment Variable Files
+.env
+.env.local
+.env.*.local
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE & Tooling
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build Artifacts
+**/target/
+**/node_modules/
+**/dist/
+**/dist-ssr/
+*.log
