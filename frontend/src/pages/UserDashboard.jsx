@@ -54,6 +54,27 @@ export default function UserDashboard() {
     return status.replace(/_/g, ' ')
   }
 
+  const handleDownloadCertificatePdf = async (requestId, trackingNumber) => {
+    try {
+      const token = localStorage.getItem('token')
+      const res = await axios.get(`/api/certificates/request/${requestId}/download`, {
+        headers: { Authorization: `Bearer ${token}` },
+        responseType: 'blob'
+      })
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `Certificate_${trackingNumber || requestId}.pdf`)
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+    } catch (err) {
+      console.error('Failed to download certificate PDF', err)
+      alert('Certificate is available once request status is COMPLETED.')
+    }
+  }
+
   const getLevelBadgeColor = (level) => {
     switch (level) {
       case 'Planet Guardian':
@@ -265,13 +286,21 @@ export default function UserDashboard() {
                             {formatStatus(req.status)}
                           </span>
                         </td>
-                        <td>
+                        <td className="d-flex align-items-center gap-1">
                           <Link
                             to={`/user/requests/${req.id}`}
                             className="btn btn-outline-custom btn-sm py-1 px-2 text-decoration-none"
                           >
                             Details
                           </Link>
+                          <button
+                            onClick={() => handleDownloadCertificatePdf(req.id, req.trackingNumber)}
+                            title="Download PDF Recycling Certificate"
+                            className="btn btn-primary-custom btn-sm py-1 px-2 text-white font-weight-bold d-inline-flex align-items-center gap-1"
+                          >
+                            <i className="bi bi-file-earmark-pdf-fill"></i>
+                            Certificate
+                          </button>
                         </td>
                       </tr>
                     ))}

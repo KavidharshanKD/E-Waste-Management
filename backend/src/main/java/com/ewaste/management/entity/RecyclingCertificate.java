@@ -25,7 +25,7 @@ public class RecyclingCertificate extends BaseEntity {
     private DisposalRequest disposalRequest;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recycler_id", nullable = false)
+    @JoinColumn(name = "recycler_id", nullable = true)
     private Recycler recycler;
 
     @Column(name = "total_weight_kg", precision = 10, scale = 2)

@@ -39,8 +39,15 @@ export default function RequestDetails() {
         const pickupRes = await axios.get(`/api/user/pickups/request/${id}`)
         setPickup(pickupRes.data)
       } catch (pErr) {
-        // No pickup scheduled yet
         setPickup(null)
+      }
+
+      // Try fetching existing certificate
+      try {
+        const certRes = await axios.get(`/api/certificates/request/${id}`)
+        setCertificate(certRes.data)
+      } catch (cErr) {
+        setCertificate(null)
       }
     } catch (err) {
       console.error('Failed to fetch request details', err)
@@ -49,6 +56,30 @@ export default function RequestDetails() {
       )
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDownloadPdf = async () => {
+    try {
+      setDownloadingPdf(true)
+      const token = localStorage.getItem('token')
+      const res = await axios.get(`/api/certificates/request/${id}/download`, {
+        headers: { Authorization: `Bearer ${token}` },
+        responseType: 'blob'
+      })
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `Certificate_${request?.trackingNumber || id}.pdf`)
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+    } catch (err) {
+      console.error('Failed to download certificate', err)
+      alert('Certificate PDF is available once request processing is completed.')
+    } finally {
+      setDownloadingPdf(false)
     }
   }
 
@@ -200,6 +231,46 @@ export default function RequestDetails() {
           )}
         </div>
       </div>
+
+      {/* Digital Recycling Certificate Card */}
+      {certificate && (
+        <div className="glass-card mb-4 border border-success border-opacity-50">
+          <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div className="d-flex align-items-center gap-3">
+              <div className="feature-icon bg-success bg-opacity-20 text-success" style={{ width: '48px', height: '48px', fontSize: '1.4rem' }}>
+                <i className="bi bi-award-fill"></i>
+              </div>
+              <div>
+                <h5 className="text-white font-weight-bold mb-1">Digital Recycling Certificate Available</h5>
+                <div className="d-flex align-items-center gap-2">
+                  <span className="text-muted extra-small font-mono">Certificate ID: {certificate.certificateNumber}</span>
+                  <span className="badge bg-success bg-opacity-20 text-success border border-success extra-small">VERIFIED RECORD</span>
+                </div>
+              </div>
+            </div>
+            <div className="d-flex align-items-center gap-2">
+              <button
+                onClick={handleDownloadPdf}
+                disabled={downloadingPdf}
+                className="btn btn-primary-custom btn-sm text-white font-weight-bold d-flex align-items-center gap-2"
+              >
+                {downloadingPdf ? <span className="spinner-border spinner-border-sm"></span> : <i className="bi bi-file-earmark-pdf-fill"></i>}
+                Download Certificate (PDF)
+              </button>
+              <Link
+                to={`/verify-certificate/${certificate.certificateNumber}`}
+                className="btn btn-outline-custom btn-sm text-white text-decoration-none"
+              >
+                <i className="bi bi-shield-check me-1"></i> Verify Publicly
+              </Link>
+            </div>
+          </div>
+          <p className="extra-small text-muted mt-3 mb-0 italic">
+            <i className="bi bi-info-circle me-1 text-warning"></i>
+            {certificate.disclaimer}
+          </p>
+        </div>
+      )}
 
       {/* Smart Disposal Recommendation Banner */}
       <RecommendationCard

@@ -18,6 +18,7 @@ import CollectorDashboard from './pages/CollectorDashboard'
 import RecyclerDashboard from './pages/RecyclerDashboard'
 import AdminDashboard from './pages/AdminDashboard'
 import PublicTrack from './pages/PublicTrack'
+import VerifyCertificate from './pages/VerifyCertificate'
 
 
 function HeaderNav() {
@@ -252,6 +253,7 @@ export default function App() {
             <Route path="/recycling-centers" element={<FindRecyclingCenter />} />
             <Route path="/architecture" element={<ArchitectureDocs />} />
             <Route path="/track/:trackingId" element={<PublicTrack />} />
+            <Route path="/verify-certificate/:certificateNumber?" element={<VerifyCertificate />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
