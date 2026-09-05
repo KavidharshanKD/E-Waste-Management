@@ -1,6 +1,7 @@
 package com.ewaste.management.service;
 
 import com.ewaste.management.dto.CreateEWasteRequestDTO;
+import com.ewaste.management.dto.DisposalRecommendationResult;
 import com.ewaste.management.dto.DisposalRequestDTO;
 import com.ewaste.management.dto.EWasteItemDTO;
 import com.ewaste.management.dto.UserProfileDTO;
@@ -32,15 +33,18 @@ public class UserEWasteService {
     private final UserProfileRepository userProfileRepository;
     private final DisposalRequestRepository disposalRequestRepository;
     private final FileStorageService fileStorageService;
+    private final RecommendationService recommendationService;
 
     public UserEWasteService(UserRepository userRepository,
                              UserProfileRepository userProfileRepository,
                              DisposalRequestRepository disposalRequestRepository,
-                             FileStorageService fileStorageService) {
+                             FileStorageService fileStorageService,
+                             RecommendationService recommendationService) {
         this.userRepository = userRepository;
         this.userProfileRepository = userProfileRepository;
         this.disposalRequestRepository = disposalRequestRepository;
         this.fileStorageService = fileStorageService;
+        this.recommendationService = recommendationService;
     }
 
     @Transactional
@@ -59,6 +63,12 @@ public class UserEWasteService {
         request.setPickupPostalCode(dto.getPickupPostalCode());
         request.setNotes(dto.getDescription());
 
+        // Evaluate Smart Disposal Recommendation
+        DisposalRecommendationResult recResult = recommendationService.getRecommendationFromDTO(dto);
+        request.setRecommendedAction(recResult.getRecommendedAction());
+        request.setRecommendationExplanation(recResult.getExplanation());
+        request.setHandlingAdvice(recResult.getHandlingAdvice());
+
         // Handle Image Upload
         String imageUrl = null;
         if (imageFile != null && !imageFile.isEmpty()) {
@@ -74,6 +84,8 @@ public class UserEWasteService {
         item.setQuantity(dto.getQuantity() != null ? dto.getQuantity() : 1);
         item.setCondition(dto.getCondition());
         item.setWorkingStatus(dto.getWorkingStatus());
+        item.setDamageCondition(dto.getDamageCondition());
+        item.setBatteryCondition(dto.getBatteryCondition());
         item.setDescription(dto.getDescription());
         item.setImageUrl(imageUrl);
         item.setEstimatedRewardPoints((dto.getQuantity() != null ? dto.getQuantity() : 1) * 50);
@@ -85,7 +97,7 @@ public class UserEWasteService {
         history.setFromStatus(null);
         history.setToStatus(RequestStatus.SUBMITTED);
         history.setChangedBy(user);
-        history.setComment("Disposal request submitted by citizen");
+        history.setComment("Disposal request submitted by citizen (Recommendation: " + recResult.getRecommendedAction() + ")");
         history.setTimestamp(LocalDateTime.now());
         request.addStatusHistory(history);
 
@@ -142,6 +154,12 @@ public class UserEWasteService {
         request.setPickupPostalCode(dto.getPickupPostalCode());
         request.setNotes(dto.getDescription());
 
+        // Re-evaluate Smart Disposal Recommendation
+        DisposalRecommendationResult recResult = recommendationService.getRecommendationFromDTO(dto);
+        request.setRecommendedAction(recResult.getRecommendedAction());
+        request.setRecommendationExplanation(recResult.getExplanation());
+        request.setHandlingAdvice(recResult.getHandlingAdvice());
+
         // Update or store new image
         if (imageFile != null && !imageFile.isEmpty()) {
             String imageUrl = fileStorageService.storeFile(imageFile);
@@ -160,6 +178,8 @@ public class UserEWasteService {
             item.setQuantity(dto.getQuantity() != null ? dto.getQuantity() : 1);
             item.setCondition(dto.getCondition());
             item.setWorkingStatus(dto.getWorkingStatus());
+            item.setDamageCondition(dto.getDamageCondition());
+            item.setBatteryCondition(dto.getBatteryCondition());
             item.setDescription(dto.getDescription());
         }
 
@@ -306,6 +326,8 @@ public class UserEWasteService {
         dto.setUserEmail(req.getUser().getEmail());
         dto.setStatus(req.getStatus());
         dto.setRecommendedAction(req.getRecommendedAction());
+        dto.setRecommendationExplanation(req.getRecommendationExplanation());
+        dto.setHandlingAdvice(req.getHandlingAdvice());
         dto.setPickupRequired(req.getPickupRequired());
         dto.setPickupAddress(req.getPickupAddress());
         dto.setPickupCity(req.getPickupCity());
@@ -333,6 +355,8 @@ public class UserEWasteService {
                 itemDTO.setApproxAgeYears(item.getApproxAgeYears());
                 itemDTO.setCondition(item.getCondition());
                 itemDTO.setWorkingStatus(item.getWorkingStatus());
+                itemDTO.setDamageCondition(item.getDamageCondition());
+                itemDTO.setBatteryCondition(item.getBatteryCondition());
                 itemDTO.setWeightKg(item.getWeightKg());
                 itemDTO.setQuantity(item.getQuantity());
                 itemDTO.setDescription(item.getDescription());

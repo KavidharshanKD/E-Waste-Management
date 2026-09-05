@@ -52,6 +52,12 @@ public class EWasteItem extends BaseEntity {
     @Column(name = "working_status", length = 50)
     private String workingStatus;
 
+    @Column(name = "damage_condition", length = 50)
+    private String damageCondition;
+
+    @Column(name = "battery_condition", length = 50)
+    private String batteryCondition;
+
     @Column(name = "weight_kg", precision = 8, scale = 2)
     private BigDecimal weightKg;
 
@@ -163,6 +169,22 @@ public class EWasteItem extends BaseEntity {
 
     public void setWorkingStatus(String workingStatus) {
         this.workingStatus = workingStatus;
+    }
+
+    public String getDamageCondition() {
+        return damageCondition;
+    }
+
+    public void setDamageCondition(String damageCondition) {
+        this.damageCondition = damageCondition;
+    }
+
+    public String getBatteryCondition() {
+        return batteryCondition;
+    }
+
+    public void setBatteryCondition(String batteryCondition) {
+        this.batteryCondition = batteryCondition;
     }
 
     public String getImageUrl() {

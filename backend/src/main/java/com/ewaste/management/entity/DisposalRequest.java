@@ -62,6 +62,12 @@ public class DisposalRequest extends BaseEntity {
     @Column(name = "notes", length = 1000)
     private String notes;
 
+    @Column(name = "recommendation_explanation", columnDefinition = "TEXT")
+    private String recommendationExplanation;
+
+    @Column(name = "handling_advice", columnDefinition = "TEXT")
+    private String handlingAdvice;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "center_id")
     private RecyclingCenter center;
@@ -154,6 +160,22 @@ public class DisposalRequest extends BaseEntity {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public String getRecommendationExplanation() {
+        return recommendationExplanation;
+    }
+
+    public void setRecommendationExplanation(String recommendationExplanation) {
+        this.recommendationExplanation = recommendationExplanation;
+    }
+
+    public String getHandlingAdvice() {
+        return handlingAdvice;
+    }
+
+    public void setHandlingAdvice(String handlingAdvice) {
+        this.handlingAdvice = handlingAdvice;
     }
 
     public Boolean getPickupRequired() {

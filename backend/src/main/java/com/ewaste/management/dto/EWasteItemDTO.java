@@ -15,6 +15,8 @@ public class EWasteItemDTO {
     private Integer approxAgeYears;
     private DeviceCondition condition;
     private String workingStatus;
+    private String damageCondition;
+    private String batteryCondition;
     private BigDecimal weightKg;
     private Integer quantity;
     private String description;
@@ -52,6 +54,12 @@ public class EWasteItemDTO {
 
     public String getWorkingStatus() { return workingStatus; }
     public void setWorkingStatus(String workingStatus) { this.workingStatus = workingStatus; }
+
+    public String getDamageCondition() { return damageCondition; }
+    public void setDamageCondition(String damageCondition) { this.damageCondition = damageCondition; }
+
+    public String getBatteryCondition() { return batteryCondition; }
+    public void setBatteryCondition(String batteryCondition) { this.batteryCondition = batteryCondition; }
 
     public BigDecimal getWeightKg() { return weightKg; }
     public void setWeightKg(BigDecimal weightKg) { this.weightKg = weightKg; }

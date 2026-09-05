@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import axios from 'axios'
+import RecommendationCard from '../components/RecommendationCard'
 
 export default function RequestDetails() {
   const { id } = useParams()
@@ -113,6 +114,13 @@ export default function RequestDetails() {
         </div>
       </div>
 
+      {/* Smart Disposal Recommendation Banner */}
+      <RecommendationCard
+        action={request.recommendedAction}
+        explanation={request.recommendationExplanation}
+        handlingAdvice={request.handlingAdvice}
+      />
+
       <div className="row g-4">
         {/* Left Column: Request Details & Items */}
         <div className="col-lg-8">
@@ -175,10 +183,13 @@ export default function RequestDetails() {
                     </div>
 
                     <div className="col-6 col-sm-4">
-                      <span className="text-muted extra-small d-block">Reward Points</span>
-                      <span className="text-success font-weight-bold">
-                        <i className="bi bi-coin me-1 text-warning"></i> +{firstItem.estimatedRewardPoints || 50}
-                      </span>
+                      <span className="text-muted extra-small d-block">Damage Condition</span>
+                      <span className="text-white font-weight-semibold">{firstItem.damageCondition || 'None'}</span>
+                    </div>
+
+                    <div className="col-6 col-sm-4">
+                      <span className="text-muted extra-small d-block">Battery Condition</span>
+                      <span className="text-white font-weight-semibold">{firstItem.batteryCondition || 'Normal'}</span>
                     </div>
                   </div>
 

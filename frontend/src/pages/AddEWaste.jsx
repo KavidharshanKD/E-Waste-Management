@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import axios from 'axios'
+import RecommendationCard from '../components/RecommendationCard'
 
 const EWASTE_CATEGORIES = [
   { value: 'MOBILE_PHONE', label: 'Mobile Phone' },
@@ -28,6 +29,22 @@ const DEVICE_CONDITIONS = [
   { value: 'HAZARDOUS', label: 'Hazardous (Leaking/Swollen battery)' },
 ]
 
+const DAMAGE_CONDITIONS = [
+  { value: 'None', label: 'None (No physical damage)' },
+  { value: 'Minor Scratches', label: 'Minor Scratches / Cosmetic Wear' },
+  { value: 'Cracked Glass / Screen', label: 'Cracked Screen / Display Damage' },
+  { value: 'Severe Body Damage', label: 'Severe Body Damage / Bent Chassis' },
+  { value: 'Water / Fluid Damage', label: 'Water / Liquid Damage' },
+]
+
+const BATTERY_CONDITIONS = [
+  { value: 'Normal', label: 'Normal (Holds charge)' },
+  { value: 'Degraded', label: 'Degraded Capacity (Drains quickly)' },
+  { value: 'Swollen / Bloated', label: 'Swollen / Bloated Battery ⚠️' },
+  { value: 'Leaking / Corroded', label: 'Leaking / Corroded Battery ⚠️' },
+  { value: 'Not Applicable', label: 'Not Applicable (No battery)' },
+]
+
 export default function AddEWaste() {
   const navigate = useNavigate()
 
@@ -39,6 +56,8 @@ export default function AddEWaste() {
     quantity: 1,
     condition: 'WORKING',
     workingStatus: 'Functional',
+    damageCondition: 'None',
+    batteryCondition: 'Normal',
     description: '',
     pickupRequired: true,
     pickupAddress: '',
@@ -52,6 +71,9 @@ export default function AddEWaste() {
   const [errors, setErrors] = useState({})
   const [submitting, setSubmitting] = useState(false)
   const [serverError, setServerError] = useState(null)
+
+  // Smart Recommendation Post-submission Result
+  const [createdRequest, setCreatedRequest] = useState(null)
 
   useEffect(() => {
     // Auto-prefill profile address if available
@@ -173,6 +195,8 @@ export default function AddEWaste() {
       bodyData.append('quantity', formData.quantity)
       bodyData.append('condition', formData.condition)
       bodyData.append('workingStatus', formData.workingStatus)
+      bodyData.append('damageCondition', formData.damageCondition)
+      bodyData.append('batteryCondition', formData.batteryCondition)
       bodyData.append('description', formData.description)
       bodyData.append('pickupRequired', formData.pickupRequired)
       bodyData.append('pickupAddress', formData.pickupAddress.trim())
@@ -184,13 +208,14 @@ export default function AddEWaste() {
         bodyData.append('image', imageFile)
       }
 
-      await axios.post('/api/user/ewaste', bodyData, {
+      const res = await axios.post('/api/user/ewaste', bodyData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       })
 
-      navigate('/user/requests', { state: { successMsg: 'E-Waste disposal request created successfully!' } })
+      // Show immediate Smart Disposal Recommendation result
+      setCreatedRequest(res.data)
     } catch (err) {
       console.error('Failed to submit e-waste request', err)
       setServerError(
@@ -201,13 +226,56 @@ export default function AddEWaste() {
     }
   }
 
+  // If request created, show the immediate Recommendation Card overlay
+  if (createdRequest) {
+    return (
+      <div className="container py-5" style={{ maxWidth: '850px' }}>
+        <div className="glass-card text-center p-4 p-md-5 mb-4">
+          <div className="text-success display-3 mb-2">
+            <i className="bi bi-check-circle-fill"></i>
+          </div>
+          <h2 className="text-white font-weight-bold mb-1">E-Waste Disposal Submitted!</h2>
+          <p className="text-muted mb-4">
+            Tracking Number: <code className="text-success font-weight-bold">{createdRequest.trackingNumber}</code>
+          </p>
+
+          <RecommendationCard
+            action={createdRequest.recommendedAction}
+            explanation={createdRequest.recommendationExplanation}
+            handlingAdvice={createdRequest.handlingAdvice}
+          />
+
+          <div className="d-flex align-items-center justify-content-center gap-3 mt-4 flex-wrap">
+            <Link to={`/user/requests/${createdRequest.id}`} className="btn btn-primary-custom py-2.5 px-4 text-white text-decoration-none">
+              <i className="bi bi-eye-fill me-1"></i> View Request Details
+            </Link>
+            <Link to="/user/requests" className="btn btn-outline-custom py-2.5 px-4">
+              <i className="bi bi-list-check me-1"></i> Go to My Requests
+            </Link>
+            <button
+              onClick={() => {
+                setCreatedRequest(null)
+                setFormData(prev => ({ ...prev, deviceName: '', description: '' }))
+                setImageFile(null)
+                setImagePreview(null)
+              }}
+              className="btn btn-outline-secondary py-2.5 px-4 text-white"
+            >
+              <i className="bi bi-plus-lg me-1"></i> Add Another Device
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="container py-4">
       <div className="d-flex align-items-center justify-content-between mb-4">
         <div>
           <h1 className="hero-title h2 mb-1">Add E-Waste Items</h1>
           <p className="text-muted small mb-0">
-            Submit obsolete or damaged electronic equipment for certified eco-friendly recycling.
+            Submit electronic devices to get intelligent disposal recommendations (Reuse, Repair, Donate, Refurbish, Recycle, Special Handling).
           </p>
         </div>
         <button onClick={() => navigate(-1)} className="btn btn-outline-custom">
@@ -301,7 +369,7 @@ export default function AddEWaste() {
                 </div>
 
                 <div className="col-md-6">
-                  <label className="form-label text-muted small font-weight-bold">Device Condition *</label>
+                  <label className="form-label text-muted small font-weight-bold">Overall Condition *</label>
                   <select
                     name="condition"
                     value={formData.condition}
@@ -325,6 +393,34 @@ export default function AddEWaste() {
                     placeholder="e.g. Functional, Degraded battery, Dead"
                     className="form-control form-control-custom"
                   />
+                </div>
+
+                <div className="col-md-6">
+                  <label className="form-label text-muted small font-weight-bold">Physical Damage Condition</label>
+                  <select
+                    name="damageCondition"
+                    value={formData.damageCondition}
+                    onChange={handleChange}
+                    className="form-select form-select-custom"
+                  >
+                    {DAMAGE_CONDITIONS.map(dmg => (
+                      <option key={dmg.value} value={dmg.value}>{dmg.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="col-md-6">
+                  <label className="form-label text-muted small font-weight-bold">Battery Condition (If applicable)</label>
+                  <select
+                    name="batteryCondition"
+                    value={formData.batteryCondition}
+                    onChange={handleChange}
+                    className="form-select form-select-custom"
+                  >
+                    {BATTERY_CONDITIONS.map(bat => (
+                      <option key={bat.value} value={bat.value}>{bat.label}</option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="col-12">
@@ -460,12 +556,15 @@ export default function AddEWaste() {
               </div>
 
               <div className="bg-dark bg-opacity-50 p-3 rounded-4 border border-secondary border-opacity-25 mb-4">
-                <div className="d-flex align-items-center justify-content-between">
+                <div className="d-flex align-items-center justify-content-between mb-1">
                   <span className="text-muted small">Estimated Eco-Reward</span>
                   <span className="text-success font-weight-bold">
                     <i className="bi bi-coin me-1 text-warning"></i> +{formData.quantity * 50} Points
                   </span>
                 </div>
+                <span className="extra-small text-muted d-block">
+                  ⚡ Smart disposal recommendation will be generated instantly upon submission.
+                </span>
               </div>
 
               <button
@@ -475,11 +574,11 @@ export default function AddEWaste() {
               >
                 {submitting ? (
                   <span>
-                    <span className="spinner-border spinner-border-sm me-2" role="status"></span> Submitting Request...
+                    <span className="spinner-border spinner-border-sm me-2" role="status"></span> Submitting &amp; Recommending...
                   </span>
                 ) : (
                   <span>
-                    <i className="bi bi-send-fill me-2"></i> Submit E-Waste Request
+                    <i className="bi bi-magic me-2"></i> Submit &amp; Get Smart Recommendation
                   </span>
                 )}
               </button>

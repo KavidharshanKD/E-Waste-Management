@@ -29,6 +29,10 @@ public class CreateEWasteRequestDTO {
 
     private String workingStatus;
 
+    private String damageCondition;
+
+    private String batteryCondition;
+
     private String description;
 
     @NotNull(message = "Pickup required status is required")
@@ -69,6 +73,12 @@ public class CreateEWasteRequestDTO {
 
     public String getWorkingStatus() { return workingStatus; }
     public void setWorkingStatus(String workingStatus) { this.workingStatus = workingStatus; }
+
+    public String getDamageCondition() { return damageCondition; }
+    public void setDamageCondition(String damageCondition) { this.damageCondition = damageCondition; }
+
+    public String getBatteryCondition() { return batteryCondition; }
+    public void setBatteryCondition(String batteryCondition) { this.batteryCondition = batteryCondition; }
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }

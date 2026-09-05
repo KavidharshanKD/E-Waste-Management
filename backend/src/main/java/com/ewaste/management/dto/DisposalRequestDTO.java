@@ -13,6 +13,8 @@ public class DisposalRequestDTO {
     private String userEmail;
     private RequestStatus status;
     private DisposalAction recommendedAction;
+    private String recommendationExplanation;
+    private String handlingAdvice;
     private Boolean pickupRequired = true;
     private String pickupAddress;
     private String pickupCity;
@@ -45,6 +47,12 @@ public class DisposalRequestDTO {
 
     public DisposalAction getRecommendedAction() { return recommendedAction; }
     public void setRecommendedAction(DisposalAction recommendedAction) { this.recommendedAction = recommendedAction; }
+
+    public String getRecommendationExplanation() { return recommendationExplanation; }
+    public void setRecommendationExplanation(String recommendationExplanation) { this.recommendationExplanation = recommendationExplanation; }
+
+    public String getHandlingAdvice() { return handlingAdvice; }
+    public void setHandlingAdvice(String handlingAdvice) { this.handlingAdvice = handlingAdvice; }
 
     public Boolean getPickupRequired() { return pickupRequired; }
     public void setPickupRequired(Boolean pickupRequired) { this.pickupRequired = pickupRequired; }
