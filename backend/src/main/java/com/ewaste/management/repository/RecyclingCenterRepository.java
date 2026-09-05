@@ -9,5 +9,7 @@ import java.util.List;
 @Repository
 public interface RecyclingCenterRepository extends JpaRepository<RecyclingCenter, Long> {
     List<RecyclingCenter> findByActiveTrue();
-    List<RecyclingCenter> findByCityIgnoreCase(String city);
+    List<RecyclingCenter> findByCityIgnoreCaseAndActiveTrue(String city);
+    List<RecyclingCenter> findByStateIgnoreCaseAndActiveTrue(String state);
+    List<RecyclingCenter> findByPostalCodeAndActiveTrue(String postalCode);
 }

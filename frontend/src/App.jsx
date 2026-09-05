@@ -13,6 +13,7 @@ import AddEWaste from './pages/AddEWaste'
 import MyRequests from './pages/MyRequests'
 import RequestDetails from './pages/RequestDetails'
 import EditProfile from './pages/EditProfile'
+import FindRecyclingCenter from './pages/FindRecyclingCenter'
 import CollectorDashboard from './pages/CollectorDashboard'
 import RecyclerDashboard from './pages/RecyclerDashboard'
 import AdminDashboard from './pages/AdminDashboard'
@@ -39,6 +40,11 @@ function HeaderNav() {
         <ul className="nav-links">
           <li>
             <Link to="/" className="nav-link-item">Home</Link>
+          </li>
+          <li>
+            <Link to="/recycling-centers" className="nav-link-item">
+              <i className="bi bi-geo-alt me-1"></i> Find Centers
+            </Link>
           </li>
           <li>
             <Link to="/architecture" className="nav-link-item">Architecture</Link>
@@ -137,8 +143,8 @@ function Home() {
               <Link to="/register" className="btn-primary-custom">
                 <i className="bi bi-person-plus-fill"></i> Get Started (Register)
               </Link>
-              <Link to="/login" className="btn-outline-custom">
-                <i className="bi bi-shield-lock-fill"></i> Log In
+              <Link to="/recycling-centers" className="btn-outline-custom">
+                <i className="bi bi-geo-alt-fill"></i> Find Recycling Centers
               </Link>
             </>
           )}
@@ -159,11 +165,11 @@ function Home() {
 
         <div className="feature-card">
           <div className="feature-icon">
-            <i className="bi bi-recycle"></i>
+            <i className="bi bi-geo-alt-fill text-info"></i>
           </div>
-          <h3 className="feature-title">Recycling Lifecycle</h3>
+          <h3 className="feature-title">Location Discovery</h3>
           <p className="feature-text">
-            Track hazardous material extraction, component recovery rates, and compliant facility processing in real-time.
+            Discover authorized recycling centers in Indian cities (Chennai, Bengaluru, Mumbai, Delhi, Hyderabad) with distance calculation.
           </p>
         </div>
 
@@ -223,8 +229,8 @@ function ArchitectureDocs() {
         <h4 className="text-white mb-3">Backend Specifications</h4>
         <ul className="mb-4">
           <li><strong>Framework:</strong> Spring Boot 3.4.3 (Java 17 / 21 / 25 compatible)</li>
-          <li><strong>Security Filter:</strong> Stateless <code>JwtAuthenticationFilter</code> before <code>UsernamePasswordAuthenticationFilter</code></li>
-          <li><strong>Database Migrations:</strong> Flyway versioned SQL scripts (V1 Schema + V2 Dev Seed Data + V3 User Workflow)</li>
+          <li><strong>Security Filter:</strong> Stateless <code>JwtAuthenticationFilter</code> before <code>UsernamePasswordPasswordAuthenticationFilter</code></li>
+          <li><strong>Database Migrations:</strong> Flyway versioned SQL scripts (V1 Schema + V2 Dev Seed + V3 User Workflow + V4 Recommendation + V5 Center Finder)</li>
         </ul>
       </div>
     </div>
@@ -241,6 +247,7 @@ export default function App() {
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
+            <Route path="/recycling-centers" element={<FindRecyclingCenter />} />
             <Route path="/architecture" element={<ArchitectureDocs />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
@@ -334,7 +341,7 @@ export default function App() {
         <footer className="footer-custom">
           <div className="container">
             <p className="m-0">
-              &copy; 2026 Smart E-Waste Collection &amp; Recycling Management System. All Citizen Workflow Features Active.
+              &copy; 2026 Smart E-Waste Collection &amp; Recycling Management System. Location Discovery Active.
             </p>
           </div>
         </footer>
