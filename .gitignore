@@ -20,3 +20,4 @@ desktop.ini
 **/dist/
 **/dist-ssr/
 *.log
+**/uploads/

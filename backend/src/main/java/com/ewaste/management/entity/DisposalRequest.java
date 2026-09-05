@@ -56,6 +56,9 @@ public class DisposalRequest extends BaseEntity {
     @Column(name = "preferred_pickup_date")
     private LocalDateTime preferredPickupDate;
 
+    @Column(name = "pickup_required", nullable = false)
+    private Boolean pickupRequired = true;
+
     @Column(name = "notes", length = 1000)
     private String notes;
 
@@ -151,6 +154,14 @@ public class DisposalRequest extends BaseEntity {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public Boolean getPickupRequired() {
+        return pickupRequired;
+    }
+
+    public void setPickupRequired(Boolean pickupRequired) {
+        this.pickupRequired = pickupRequired;
     }
 
     public RecyclingCenter getCenter() {

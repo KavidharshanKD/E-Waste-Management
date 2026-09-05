@@ -29,6 +29,9 @@ public class EWasteItem extends BaseEntity {
     @Column(name = "category", nullable = false, length = 50)
     private EWasteCategory category;
 
+    @Column(name = "device_name", length = 150)
+    private String deviceName;
+
     @Column(name = "brand", length = 100)
     private String brand;
 
@@ -38,10 +41,16 @@ public class EWasteItem extends BaseEntity {
     @Column(name = "serial_number", length = 100)
     private String serialNumber;
 
+    @Column(name = "approx_age_years")
+    private Integer approxAgeYears;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "condition", nullable = false, length = 30)
     private DeviceCondition condition;
+
+    @Column(name = "working_status", length = 50)
+    private String workingStatus;
 
     @Column(name = "weight_kg", precision = 8, scale = 2)
     private BigDecimal weightKg;
@@ -51,6 +60,9 @@ public class EWasteItem extends BaseEntity {
 
     @Column(name = "description", length = 500)
     private String description;
+
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;
 
     @Column(name = "estimated_reward_points")
     private Integer estimatedRewardPoints = 0;
@@ -127,6 +139,38 @@ public class EWasteItem extends BaseEntity {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getDeviceName() {
+        return deviceName;
+    }
+
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
+    }
+
+    public Integer getApproxAgeYears() {
+        return approxAgeYears;
+    }
+
+    public void setApproxAgeYears(Integer approxAgeYears) {
+        this.approxAgeYears = approxAgeYears;
+    }
+
+    public String getWorkingStatus() {
+        return workingStatus;
+    }
+
+    public void setWorkingStatus(String workingStatus) {
+        this.workingStatus = workingStatus;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public Integer getEstimatedRewardPoints() {

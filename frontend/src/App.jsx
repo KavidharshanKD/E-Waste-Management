@@ -9,6 +9,10 @@ import RoleProtectedRoute from './components/RoleProtectedRoute'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import UserDashboard from './pages/UserDashboard'
+import AddEWaste from './pages/AddEWaste'
+import MyRequests from './pages/MyRequests'
+import RequestDetails from './pages/RequestDetails'
+import EditProfile from './pages/EditProfile'
 import CollectorDashboard from './pages/CollectorDashboard'
 import RecyclerDashboard from './pages/RecyclerDashboard'
 import AdminDashboard from './pages/AdminDashboard'
@@ -40,11 +44,32 @@ function HeaderNav() {
             <Link to="/architecture" className="nav-link-item">Architecture</Link>
           </li>
           {user && (
-            <li>
-              <Link to={getDashboardPathByRole(user.role)} className="nav-link-item active">
-                <i className="bi bi-speedometer2 me-1"></i> Dashboard
-              </Link>
-            </li>
+            <>
+              <li>
+                <Link to={getDashboardPathByRole(user.role)} className="nav-link-item active">
+                  <i className="bi bi-speedometer2 me-1"></i> Dashboard
+                </Link>
+              </li>
+              {(user.role === 'USER' || user.role === 'ADMIN') && (
+                <>
+                  <li>
+                    <Link to="/user/ewaste/add" className="nav-link-item">
+                      <i className="bi bi-plus-circle me-1"></i> Add E-Waste
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/user/requests" className="nav-link-item">
+                      <i className="bi bi-list-check me-1"></i> My Requests
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/user/profile" className="nav-link-item">
+                      <i className="bi bi-person me-1"></i> Profile
+                    </Link>
+                  </li>
+                </>
+              )}
+            </>
           )}
         </ul>
 
@@ -199,7 +224,7 @@ function ArchitectureDocs() {
         <ul className="mb-4">
           <li><strong>Framework:</strong> Spring Boot 3.4.3 (Java 17 / 21 / 25 compatible)</li>
           <li><strong>Security Filter:</strong> Stateless <code>JwtAuthenticationFilter</code> before <code>UsernamePasswordAuthenticationFilter</code></li>
-          <li><strong>Database Migrations:</strong> Flyway versioned SQL scripts (V1 Schema + V2 Dev Seed Data)</li>
+          <li><strong>Database Migrations:</strong> Flyway versioned SQL scripts (V1 Schema + V2 Dev Seed Data + V3 User Workflow)</li>
         </ul>
       </div>
     </div>
@@ -220,7 +245,7 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
-            {/* Protected Role Dashboards */}
+            {/* Protected User Citizen Routes */}
             <Route
               path="/user/dashboard"
               element={
@@ -231,6 +256,48 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/user/ewaste/add"
+              element={
+                <ProtectedRoute>
+                  <RoleProtectedRoute allowedRoles={['USER', 'ADMIN']}>
+                    <AddEWaste />
+                  </RoleProtectedRoute>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/user/requests"
+              element={
+                <ProtectedRoute>
+                  <RoleProtectedRoute allowedRoles={['USER', 'ADMIN']}>
+                    <MyRequests />
+                  </RoleProtectedRoute>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/user/requests/:id"
+              element={
+                <ProtectedRoute>
+                  <RoleProtectedRoute allowedRoles={['USER', 'ADMIN']}>
+                    <RequestDetails />
+                  </RoleProtectedRoute>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/user/profile"
+              element={
+                <ProtectedRoute>
+                  <RoleProtectedRoute allowedRoles={['USER', 'ADMIN']}>
+                    <EditProfile />
+                  </RoleProtectedRoute>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Protected Role Dashboards */}
             <Route
               path="/collector/dashboard"
               element={
@@ -267,7 +334,7 @@ export default function App() {
         <footer className="footer-custom">
           <div className="container">
             <p className="m-0">
-              &copy; 2026 Smart E-Waste Collection &amp; Recycling Management System. JWT Security Enabled.
+              &copy; 2026 Smart E-Waste Collection &amp; Recycling Management System. All Citizen Workflow Features Active.
             </p>
           </div>
         </footer>

@@ -2,6 +2,7 @@ package com.ewaste.management.dto;
 
 public class UserProfileDTO {
     private Long id;
+    private Long userId;
     private String firstName;
     private String lastName;
     private String phoneNumber;
@@ -15,6 +16,9 @@ public class UserProfileDTO {
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
+    public Long getUserId() { return userId; }
+    public void setUserId(Long userId) { this.userId = userId; }
 
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }

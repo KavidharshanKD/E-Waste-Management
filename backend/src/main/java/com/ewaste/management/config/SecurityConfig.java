@@ -48,7 +48,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/api/v1/health/**", "/actuator/health", "/error").permitAll()
+                .requestMatchers("/api/auth/**", "/api/v1/health/**", "/actuator/health", "/error", "/uploads/**").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/collector/**").hasAnyRole("COLLECTOR", "ADMIN")
                 .requestMatchers("/api/recycler/**").hasAnyRole("RECYCLER", "ADMIN")
