@@ -6,6 +6,7 @@ public class RewardTransactionDTO {
     private Long id;
     private Long userId;
     private Long disposalRequestId;
+    private String trackingNumber;
     private Integer points;
     private String transactionType;
     private String description;
@@ -21,6 +22,9 @@ public class RewardTransactionDTO {
 
     public Long getDisposalRequestId() { return disposalRequestId; }
     public void setDisposalRequestId(Long disposalRequestId) { this.disposalRequestId = disposalRequestId; }
+
+    public String getTrackingNumber() { return trackingNumber; }
+    public void setTrackingNumber(String trackingNumber) { this.trackingNumber = trackingNumber; }
 
     public Integer getPoints() { return points; }
     public void setPoints(Integer points) { this.points = points; }

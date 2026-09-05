@@ -31,14 +31,18 @@ public class PickupService {
     private final PickupRepository pickupRepository;
     private final DisposalRequestRepository disposalRequestRepository;
     private final UserRepository userRepository;
+    private final GamificationService gamificationService;
 
     public PickupService(PickupRepository pickupRepository,
                          DisposalRequestRepository disposalRequestRepository,
-                         UserRepository userRepository) {
+                         UserRepository userRepository,
+                         GamificationService gamificationService) {
         this.pickupRepository = pickupRepository;
         this.disposalRequestRepository = disposalRequestRepository;
         this.userRepository = userRepository;
+        this.gamificationService = gamificationService;
     }
+
 
     @Transactional
     public PickupDTO schedulePickup(SchedulePickupRequestDTO dto, User user) {
@@ -168,6 +172,10 @@ public class PickupService {
 
             request.addStatusHistory(history);
             disposalRequestRepository.save(request);
+
+            // Award green points automatically for verified doorstep collection
+            gamificationService.awardPointsForCompletedRequest(request);
+
         } else {
             // Log status history update if applicable
             DisposalStatusHistory history = new DisposalStatusHistory();

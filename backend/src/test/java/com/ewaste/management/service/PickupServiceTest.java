@@ -8,18 +8,17 @@ import com.ewaste.management.entity.DisposalRequest;
 import com.ewaste.management.entity.Pickup;
 import com.ewaste.management.entity.User;
 import com.ewaste.management.entity.UserProfile;
-
 import com.ewaste.management.model.enums.PickupStatus;
 import com.ewaste.management.model.enums.PickupTimeSlot;
 import com.ewaste.management.model.enums.RequestStatus;
 import com.ewaste.management.model.enums.UserRole;
 import com.ewaste.management.repository.DisposalRequestRepository;
 import com.ewaste.management.repository.PickupRepository;
+import com.ewaste.management.repository.RewardTransactionRepository;
 import com.ewaste.management.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
@@ -43,7 +42,10 @@ class PickupServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    @InjectMocks
+    @Mock
+    private RewardTransactionRepository rewardTransactionRepository;
+
+    private GamificationService gamificationService;
     private PickupService pickupService;
 
     private User user;
@@ -55,6 +57,9 @@ class PickupServiceTest {
 
     @BeforeEach
     void setUp() {
+        gamificationService = new GamificationService(rewardTransactionRepository, disposalRequestRepository, userRepository);
+        pickupService = new PickupService(pickupRepository, disposalRequestRepository, userRepository, gamificationService);
+
         user = new User();
         user.setId(10L);
         user.setEmail("user@example.com");
@@ -81,7 +86,6 @@ class PickupServiceTest {
         ocp.setFirstName("Collector");
         ocp.setLastName("Bob");
         otherCollector.setProfile(ocp);
-
 
         admin = new User();
         admin.setId(30L);
