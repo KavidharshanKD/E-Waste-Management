@@ -101,4 +101,19 @@ public class User extends BaseEntity {
             profile.setUser(this);
         }
     }
+
+    public String getFullName() {
+        if (profile != null) {
+            String first = profile.getFirstName() != null ? profile.getFirstName() : "";
+            String last = profile.getLastName() != null ? profile.getLastName() : "";
+            String name = (first + " " + last).trim();
+            return name.isEmpty() ? email : name;
+        }
+        return email;
+    }
+
+    public String getPhoneNumber() {
+        return profile != null ? profile.getPhoneNumber() : null;
+    }
 }
+
