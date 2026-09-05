@@ -22,6 +22,16 @@ export default function UserDashboard() {
     badges: [],
     transactions: []
   })
+  const [impact, setImpact] = useState({
+    totalDisposedDevices: 0,
+    reusedOrDonatedDevices: 0,
+    completedRequests: 0,
+    greenPoints: 0,
+    estimatedLandfillDiversionKg: 0,
+    estimatedCo2ReductionKg: 0,
+    hasValidFactors: false,
+    factorSourceReference: ''
+  })
   const [recentRequests, setRecentRequests] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -33,14 +43,16 @@ export default function UserDashboard() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true)
-      const [statsRes, requestsRes, rewardsRes] = await Promise.all([
+      const [statsRes, requestsRes, rewardsRes, impactRes] = await Promise.all([
         axios.get('/api/user/stats'),
         axios.get('/api/user/ewaste'),
-        axios.get('/api/user/rewards')
+        axios.get('/api/user/rewards'),
+        axios.get('/api/analytics/user')
       ])
       setStats(statsRes.data)
       setRecentRequests(requestsRes.data.slice(0, 5))
       setRewards(rewardsRes.data)
+      setImpact(impactRes.data)
     } catch (err) {
       console.error('Failed to load dashboard data', err)
       setError('Unable to load dashboard statistics')
@@ -151,6 +163,84 @@ export default function UserDashboard() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* My Environmental Contribution Card */}
+      <div className="glass-card mb-4 border border-emerald-500/30">
+        <div className="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+          <h5 className="text-white font-weight-bold m-0 d-flex align-items-center gap-2">
+            <i className="bi bi-tree-fill text-success"></i> My Environmental Contribution
+          </h5>
+          <span className="badge bg-success bg-opacity-20 text-success border border-success extra-small">
+            VERIFIED PLATFORM METRICS
+          </span>
+        </div>
+
+        <div className="row g-3">
+          <div className="col-6 col-md-3">
+            <div className="p-3 bg-dark bg-opacity-60 rounded-3 border border-secondary text-center">
+              <span className="text-muted extra-small d-block mb-1 font-weight-semibold">Responsibly Disposed</span>
+              <span className="h3 font-weight-bold text-white mb-0">{impact.totalDisposedDevices}</span>
+              <span className="extra-small text-muted d-block">device(s)</span>
+            </div>
+          </div>
+
+          <div className="col-6 col-md-3">
+            <div className="p-3 bg-dark bg-opacity-60 rounded-3 border border-secondary text-center">
+              <span className="text-muted extra-small d-block mb-1 font-weight-semibold">Reused / Donated</span>
+              <span className="h3 font-weight-bold text-info mb-0">{impact.reusedOrDonatedDevices}</span>
+              <span className="extra-small text-muted d-block">device(s)</span>
+            </div>
+          </div>
+
+          <div className="col-6 col-md-3">
+            <div className="p-3 bg-dark bg-opacity-60 rounded-3 border border-secondary text-center">
+              <span className="text-muted extra-small d-block mb-1 font-weight-semibold">Completed Requests</span>
+              <span className="h3 font-weight-bold text-success mb-0">{impact.completedRequests}</span>
+              <span className="extra-small text-muted d-block">lifecycle completed</span>
+            </div>
+          </div>
+
+          <div className="col-6 col-md-3">
+            <div className="p-3 bg-dark bg-opacity-60 rounded-3 border border-secondary text-center">
+              <span className="text-muted extra-small d-block mb-1 font-weight-semibold">Green Points Earned</span>
+              <span className="h3 font-weight-bold text-warning mb-0">{impact.greenPoints}</span>
+              <span className="extra-small text-muted d-block">reward credits</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Configurable Estimated Impact Metrics */}
+        {impact.hasValidFactors && (
+          <div className="mt-3 pt-3 border-top border-secondary">
+            <div className="d-flex align-items-center justify-content-between mb-2">
+              <span className="text-muted extra-small font-weight-bold d-flex align-items-center gap-1">
+                <i className="bi bi-calculator text-info"></i> Estimated Ecological Savings
+              </span>
+              <span className="badge bg-warning bg-opacity-20 text-warning border border-warning extra-small">
+                ESTIMATE
+              </span>
+            </div>
+            <div className="row g-3">
+              <div className="col-md-6">
+                <div className="p-2.5 bg-black bg-opacity-40 rounded-3 border border-secondary border-opacity-50 d-flex align-items-center justify-content-between">
+                  <span className="text-muted small">Estimated Landfill Diversion:</span>
+                  <span className="text-success font-weight-bold">{impact.estimatedLandfillDiversionKg} kg</span>
+                </div>
+              </div>
+              <div className="col-md-6">
+                <div className="p-2.5 bg-black bg-opacity-40 rounded-3 border border-secondary border-opacity-50 d-flex align-items-center justify-content-between">
+                  <span className="text-muted small">Estimated CO₂ Avoidance:</span>
+                  <span className="text-info font-weight-bold">{impact.estimatedCo2ReductionKg} kg</span>
+                </div>
+              </div>
+            </div>
+            <p className="extra-small text-muted mt-2 mb-0 italic">
+              <i className="bi bi-info-circle me-1 text-warning"></i>
+              Calculated using documented environmental conversion benchmark factors ({impact.factorSourceReference}).
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Statistics Cards */}
