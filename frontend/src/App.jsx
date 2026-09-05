@@ -17,6 +17,8 @@ import FindRecyclingCenter from './pages/FindRecyclingCenter'
 import CollectorDashboard from './pages/CollectorDashboard'
 import RecyclerDashboard from './pages/RecyclerDashboard'
 import AdminDashboard from './pages/AdminDashboard'
+import PublicTrack from './pages/PublicTrack'
+
 
 function HeaderNav() {
   const { user, logout, getDashboardPathByRole } = useAuth()
@@ -249,8 +251,10 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/recycling-centers" element={<FindRecyclingCenter />} />
             <Route path="/architecture" element={<ArchitectureDocs />} />
+            <Route path="/track/:trackingId" element={<PublicTrack />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+
 
             {/* Protected User Citizen Routes */}
             <Route

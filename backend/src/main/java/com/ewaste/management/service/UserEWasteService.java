@@ -53,7 +53,8 @@ public class UserEWasteService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + userEmail));
 
         DisposalRequest request = new DisposalRequest();
-        request.setTrackingNumber("EW-" + System.currentTimeMillis() + "-" + UUID.randomUUID().toString().substring(0, 4).toUpperCase());
+        request.setTrackingNumber("EW-2026-" + UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase());
+
         request.setUser(user);
         request.setStatus(RequestStatus.SUBMITTED);
         request.setPickupRequired(dto.getPickupRequired() != null ? dto.getPickupRequired() : true);

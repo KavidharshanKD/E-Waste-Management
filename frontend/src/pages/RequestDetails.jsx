@@ -177,9 +177,13 @@ export default function RequestDetails() {
         </div>
 
         <div className="d-flex align-items-center gap-2">
+          <Link to={`/track/${request.trackingNumber}`} target="_blank" className="btn btn-success text-white font-weight-bold text-decoration-none">
+            <i className="bi bi-qr-code-scan me-1"></i> Public QR Tracking Page
+          </Link>
           <button onClick={() => navigate('/user/requests')} className="btn btn-outline-custom">
             <i className="bi bi-arrow-left me-1"></i> Back to List
           </button>
+
           {isCancellable && (
             <button
               onClick={handleCancelRequest}
