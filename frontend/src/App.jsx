@@ -19,7 +19,7 @@ import RecyclerDashboard from './pages/RecyclerDashboard'
 import AdminDashboard from './pages/AdminDashboard'
 import PublicTrack from './pages/PublicTrack'
 import VerifyCertificate from './pages/VerifyCertificate'
-
+import InstitutionDashboard from './pages/InstitutionDashboard'
 
 function HeaderNav() {
   const { user, logout, getDashboardPathByRole } = useAuth()
@@ -55,10 +55,17 @@ function HeaderNav() {
           {user && (
             <>
               <li>
-                <Link to={getDashboardPathByRole(user.role)} className="nav-link-item active">
+                <Link to={getDashboardPathByRole(user)} className="nav-link-item active">
                   <i className="bi bi-speedometer2 me-1"></i> Dashboard
                 </Link>
               </li>
+              {user.profile?.userType === 'INSTITUTION' && (
+                <li>
+                  <Link to="/institution/dashboard" className="nav-link-item">
+                    <i className="bi bi-building me-1"></i> Bulk Portal
+                  </Link>
+                </li>
+              )}
               {(user.role === 'USER' || user.role === 'ADMIN') && (
                 <>
                   <li>
@@ -305,6 +312,17 @@ export default function App() {
                 <ProtectedRoute>
                   <RoleProtectedRoute allowedRoles={['USER', 'ADMIN']}>
                     <EditProfile />
+                  </RoleProtectedRoute>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/institution/dashboard"
+              element={
+                <ProtectedRoute>
+                  <RoleProtectedRoute allowedRoles={['USER', 'ADMIN']}>
+                    <InstitutionDashboard />
                   </RoleProtectedRoute>
                 </ProtectedRoute>
               }

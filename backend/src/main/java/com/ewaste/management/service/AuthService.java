@@ -8,6 +8,7 @@ import com.ewaste.management.dto.UserProfileDTO;
 import com.ewaste.management.entity.User;
 import com.ewaste.management.entity.UserProfile;
 import com.ewaste.management.model.enums.UserRole;
+import com.ewaste.management.model.enums.UserType;
 import com.ewaste.management.repository.UserRepository;
 import com.ewaste.management.security.JwtTokenProvider;
 import org.springframework.http.HttpStatus;
@@ -61,6 +62,23 @@ public class AuthService {
         profile.setPostalCode(request.getPincode());
         profile.setCountry("India");
 
+        // Institutional registration fields
+        if (request.getUserType() != null) {
+            profile.setUserType(request.getUserType());
+        }
+        if (request.getOrganizationName() != null && !request.getOrganizationName().isBlank()) {
+            profile.setOrganizationName(request.getOrganizationName().trim());
+        }
+        if (request.getOrganizationType() != null) {
+            profile.setOrganizationType(request.getOrganizationType());
+        }
+        if (request.getGstNumber() != null && !request.getGstNumber().isBlank()) {
+            profile.setGstNumber(request.getGstNumber().trim());
+        }
+        if (request.getContactPerson() != null && !request.getContactPerson().isBlank()) {
+            profile.setContactPerson(request.getContactPerson().trim());
+        }
+
         user.setProfile(profile);
 
         User savedUser = userRepository.save(user);
@@ -110,6 +128,11 @@ public class AuthService {
             UserProfile profile = user.getProfile();
             UserProfileDTO profileDTO = new UserProfileDTO();
             profileDTO.setId(profile.getId());
+            profileDTO.setUserType(profile.getUserType() != null ? profile.getUserType().name() : UserType.INDIVIDUAL.name());
+            profileDTO.setOrganizationName(profile.getOrganizationName());
+            profileDTO.setOrganizationType(profile.getOrganizationType() != null ? profile.getOrganizationType().name() : null);
+            profileDTO.setGstNumber(profile.getGstNumber());
+            profileDTO.setContactPerson(profile.getContactPerson());
             profileDTO.setFirstName(profile.getFirstName());
             profileDTO.setLastName(profile.getLastName());
             profileDTO.setPhoneNumber(profile.getPhoneNumber());

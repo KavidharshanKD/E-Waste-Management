@@ -59,7 +59,11 @@ export const AuthProvider = ({ children }) => {
     setUser(null)
   }
 
-  const getDashboardPathByRole = (role) => {
+  const getDashboardPathByRole = (userObj) => {
+    if (typeof userObj === 'object' && userObj?.profile?.userType === 'INSTITUTION') {
+      return '/institution/dashboard'
+    }
+    const role = typeof userObj === 'string' ? userObj : userObj?.role
     switch (role) {
       case 'ADMIN': return '/admin/dashboard'
       case 'COLLECTOR': return '/collector/dashboard'

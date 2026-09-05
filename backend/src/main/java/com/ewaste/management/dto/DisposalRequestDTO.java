@@ -11,6 +11,7 @@ public class DisposalRequestDTO {
     private String trackingNumber;
     private Long userId;
     private String userEmail;
+    private String userName;
     private RequestStatus status;
     private DisposalAction recommendedAction;
     private String recommendationExplanation;
@@ -41,6 +42,9 @@ public class DisposalRequestDTO {
 
     public String getUserEmail() { return userEmail; }
     public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
+
+    public String getUserName() { return userName; }
+    public void setUserName(String userName) { this.userName = userName; }
 
     public RequestStatus getStatus() { return status; }
     public void setStatus(RequestStatus status) { this.status = status; }

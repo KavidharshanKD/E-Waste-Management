@@ -1,6 +1,8 @@
 package com.ewaste.management.dto;
 
+import com.ewaste.management.model.enums.OrganizationType;
 import com.ewaste.management.model.enums.UserRole;
+import com.ewaste.management.model.enums.UserType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -36,6 +38,13 @@ public class RegisterRequest {
 
     private UserRole role = UserRole.USER;
 
+    // Institution Registration Fields
+    private UserType userType = UserType.INDIVIDUAL;
+    private String organizationName;
+    private OrganizationType organizationType;
+    private String gstNumber;
+    private String contactPerson;
+
     public RegisterRequest() {}
 
     public String getFullName() { return fullName; }
@@ -61,4 +70,19 @@ public class RegisterRequest {
 
     public UserRole getRole() { return role; }
     public void setRole(UserRole role) { this.role = role; }
+
+    public UserType getUserType() { return userType; }
+    public void setUserType(UserType userType) { this.userType = userType; }
+
+    public String getOrganizationName() { return organizationName; }
+    public void setOrganizationName(String organizationName) { this.organizationName = organizationName; }
+
+    public OrganizationType getOrganizationType() { return organizationType; }
+    public void setOrganizationType(OrganizationType organizationType) { this.organizationType = organizationType; }
+
+    public String getGstNumber() { return gstNumber; }
+    public void setGstNumber(String gstNumber) { this.gstNumber = gstNumber; }
+
+    public String getContactPerson() { return contactPerson; }
+    public void setContactPerson(String contactPerson) { this.contactPerson = contactPerson; }
 }

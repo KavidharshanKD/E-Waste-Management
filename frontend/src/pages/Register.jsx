@@ -11,7 +11,12 @@ export default function Register() {
     city: '',
     state: '',
     pincode: '',
-    role: 'USER'
+    role: 'USER',
+    userType: 'INDIVIDUAL',
+    organizationName: '',
+    organizationType: 'COLLEGE',
+    gstNumber: '',
+    contactPerson: ''
   })
 
   const [errors, setErrors] = useState({})
@@ -44,6 +49,15 @@ export default function Register() {
       newErrors.password = 'Password is required'
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters long'
+    }
+
+    if (formData.userType === 'INSTITUTION') {
+      if (!formData.organizationName.trim()) {
+        newErrors.organizationName = 'Organization Name is required for Institutional accounts'
+      }
+      if (!formData.contactPerson.trim()) {
+        newErrors.contactPerson = 'Contact Person name is required'
+      }
     }
 
     if (!formData.city.trim()) {
@@ -81,7 +95,7 @@ export default function Register() {
     try {
       setIsSubmitting(true)
       const user = await register(formData)
-      const redirectPath = getDashboardPathByRole(user.role)
+      const redirectPath = getDashboardPathByRole(user)
       navigate(redirectPath, { replace: true })
     } catch (err) {
       const msg = err.response?.data?.message || err.response?.data?.error || 'Registration failed. Please check your inputs.'
@@ -92,7 +106,7 @@ export default function Register() {
   }
 
   return (
-    <div className="container py-4" style={{ maxWidth: '640px' }}>
+    <div className="container py-4" style={{ maxWidth: '680px' }}>
       <div className="hero-card shadow-lg p-4 p-md-5">
         <div className="text-center mb-4">
           <div className="brand-icon mx-auto mb-3" style={{ width: '48px', height: '48px', fontSize: '1.5rem' }}>
@@ -113,6 +127,93 @@ export default function Register() {
 
         <form onSubmit={handleSubmit} noValidate>
           <div className="row g-3">
+            {/* User Category: Individual vs Institution */}
+            <div className="col-12 mb-2">
+              <label className="form-label text-white small fw-bold">Account Category *</label>
+              <div className="d-flex gap-3">
+                <div
+                  className={`flex-fill p-3 rounded-3 border text-center cursor-pointer ${formData.userType === 'INDIVIDUAL' ? 'border-success bg-success bg-opacity-10 text-white' : 'border-secondary text-muted'}`}
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => setFormData(prev => ({ ...prev, userType: 'INDIVIDUAL' }))}
+                >
+                  <i className="bi bi-person-fill fs-4 d-block mb-1"></i>
+                  <span className="fw-semibold small">Individual Citizen</span>
+                </div>
+                <div
+                  className={`flex-fill p-3 rounded-3 border text-center cursor-pointer ${formData.userType === 'INSTITUTION' ? 'border-success bg-success bg-opacity-10 text-white' : 'border-secondary text-muted'}`}
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => setFormData(prev => ({ ...prev, userType: 'INSTITUTION' }))}
+                >
+                  <i className="bi bi-building-check fs-4 d-block mb-1"></i>
+                  <span className="fw-semibold small">College / Corporate Bulk</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Institutional Fields */}
+            {formData.userType === 'INSTITUTION' && (
+              <div className="col-12 p-3 rounded-3 bg-dark border border-success border-opacity-25 mb-2">
+                <h6 className="text-success small fw-bold mb-3">
+                  <i className="bi bi-building me-2"></i> Organization / Bulk Entity Details
+                </h6>
+                <div className="row g-3">
+                  <div className="col-md-6">
+                    <label className="form-label text-white small fw-bold">Organization Name *</label>
+                    <input
+                      type="text"
+                      name="organizationName"
+                      className={`form-control bg-dark text-white border-secondary ${errors.organizationName ? 'is-invalid' : ''}`}
+                      placeholder="e.g. IIT Madras / Infosys Ltd"
+                      value={formData.organizationName}
+                      onChange={handleChange}
+                    />
+                    {errors.organizationName && <div className="invalid-feedback">{errors.organizationName}</div>}
+                  </div>
+
+                  <div className="col-md-6">
+                    <label className="form-label text-white small fw-bold">Organization Type *</label>
+                    <select
+                      name="organizationType"
+                      className="form-select bg-dark text-white border-secondary"
+                      value={formData.organizationType}
+                      onChange={handleChange}
+                    >
+                      <option value="COLLEGE">Educational Institution / College</option>
+                      <option value="IT_COMPANY">IT / Tech Enterprise</option>
+                      <option value="HOSPITAL">Hospital / Healthcare</option>
+                      <option value="GOVERNMENT">Government Department</option>
+                      <option value="PRIVATE_ENTERPRISE">Private Business</option>
+                      <option value="OTHER">Other Organization</option>
+                    </select>
+                  </div>
+
+                  <div className="col-md-6">
+                    <label className="form-label text-white small fw-bold">Contact Person *</label>
+                    <input
+                      type="text"
+                      name="contactPerson"
+                      className={`form-control bg-dark text-white border-secondary ${errors.contactPerson ? 'is-invalid' : ''}`}
+                      placeholder="e.g. Dr. A. Sharma (IT Head)"
+                      value={formData.contactPerson}
+                      onChange={handleChange}
+                    />
+                    {errors.contactPerson && <div className="invalid-feedback">{errors.contactPerson}</div>}
+                  </div>
+
+                  <div className="col-md-6">
+                    <label className="form-label text-white small fw-bold">GST / Registration No. (Optional)</label>
+                    <input
+                      type="text"
+                      name="gstNumber"
+                      className="form-control bg-dark text-white border-secondary"
+                      placeholder="33AAAAA0000A1Z5"
+                      value={formData.gstNumber}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
             {/* Full Name */}
             <div className="col-12">
               <label className="form-label text-white small fw-bold">Full Name *</label>

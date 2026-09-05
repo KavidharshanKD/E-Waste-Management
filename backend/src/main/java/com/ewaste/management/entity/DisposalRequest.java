@@ -59,6 +59,12 @@ public class DisposalRequest extends BaseEntity {
     @Column(name = "pickup_required", nullable = false)
     private Boolean pickupRequired = true;
 
+    @Column(name = "is_bulk_request", nullable = false)
+    private Boolean isBulkRequest = false;
+
+    @Column(name = "organization_name", length = 150)
+    private String organizationName;
+
     @Column(name = "notes", length = 1000)
     private String notes;
 
@@ -218,5 +224,21 @@ public class DisposalRequest extends BaseEntity {
     public void addStatusHistory(DisposalStatusHistory history) {
         statusHistories.add(history);
         history.setDisposalRequest(this);
+    }
+
+    public Boolean getIsBulkRequest() {
+        return isBulkRequest;
+    }
+
+    public void setIsBulkRequest(Boolean isBulkRequest) {
+        this.isBulkRequest = isBulkRequest;
+    }
+
+    public String getOrganizationName() {
+        return organizationName;
+    }
+
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
     }
 }
