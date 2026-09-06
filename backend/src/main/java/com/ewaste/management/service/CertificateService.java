@@ -20,6 +20,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.ewaste.management.notification.NotificationService;
+
 @Service
 public class CertificateService {
 
@@ -27,6 +29,7 @@ public class CertificateService {
     private final DisposalRequestRepository disposalRequestRepository;
     private final UserRepository userRepository;
     private final CertificatePdfGeneratorService pdfGeneratorService;
+    private final NotificationService notificationService;
 
     @Value("${app.frontend.url:http://localhost:5173}")
     private String frontendBaseUrl;
@@ -39,11 +42,13 @@ public class CertificateService {
     public CertificateService(RecyclingCertificateRepository certificateRepository,
                               DisposalRequestRepository disposalRequestRepository,
                               UserRepository userRepository,
-                              CertificatePdfGeneratorService pdfGeneratorService) {
+                              CertificatePdfGeneratorService pdfGeneratorService,
+                              NotificationService notificationService) {
         this.certificateRepository = certificateRepository;
         this.disposalRequestRepository = disposalRequestRepository;
         this.userRepository = userRepository;
         this.pdfGeneratorService = pdfGeneratorService;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -65,9 +70,21 @@ public class CertificateService {
                         cert.setCertificateUrl(request.getCenter().getName());
                     }
                     
-                    return certificateRepository.save(cert);
+                    RecyclingCertificate savedCert = certificateRepository.save(cert);
+
+                    if (request.getUser() != null) {
+                        notificationService.sendNotification(
+                                request.getUser(),
+                                "Certificate Generated",
+                                "Digital Recycling Certificate " + savedCert.getCertificateNumber() + " generated for request " + request.getTrackingNumber() + ".",
+                                "CERTIFICATE_GENERATED"
+                        );
+                    }
+
+                    return savedCert;
                 });
     }
+
 
     @Transactional(readOnly = true)
     public RecyclingCertificateDTO getCertificateById(Long id, String currentUserEmail) {

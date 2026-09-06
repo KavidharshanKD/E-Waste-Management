@@ -36,6 +36,11 @@ class GamificationServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private com.ewaste.management.repository.NotificationRepository notificationRepository;
+
+    private com.ewaste.management.notification.NotificationService notificationService;
+
     @InjectMocks
     private GamificationService gamificationService;
 
@@ -44,7 +49,11 @@ class GamificationServiceTest {
 
     @BeforeEach
     void setUp() {
+        notificationService = new com.ewaste.management.notification.NotificationService(notificationRepository, java.util.Collections.emptyList());
+        gamificationService = new GamificationService(rewardTransactionRepository, disposalRequestRepository, userRepository, notificationService);
+
         user = new User();
+
         user.setId(1L);
         user.setEmail("user@example.com");
         user.setRewardPointsBalance(0);

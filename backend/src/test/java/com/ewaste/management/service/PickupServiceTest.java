@@ -45,6 +45,10 @@ class PickupServiceTest {
     @Mock
     private RewardTransactionRepository rewardTransactionRepository;
 
+    @Mock
+    private com.ewaste.management.repository.NotificationRepository notificationRepository;
+
+    private com.ewaste.management.notification.NotificationService notificationService;
     private GamificationService gamificationService;
     private PickupService pickupService;
 
@@ -57,8 +61,11 @@ class PickupServiceTest {
 
     @BeforeEach
     void setUp() {
-        gamificationService = new GamificationService(rewardTransactionRepository, disposalRequestRepository, userRepository);
-        pickupService = new PickupService(pickupRepository, disposalRequestRepository, userRepository, gamificationService);
+        notificationService = new com.ewaste.management.notification.NotificationService(notificationRepository, java.util.Collections.emptyList());
+        gamificationService = new GamificationService(rewardTransactionRepository, disposalRequestRepository, userRepository, notificationService);
+        pickupService = new PickupService(pickupRepository, disposalRequestRepository, userRepository, gamificationService, notificationService);
+
+
 
         user = new User();
         user.setId(10L);

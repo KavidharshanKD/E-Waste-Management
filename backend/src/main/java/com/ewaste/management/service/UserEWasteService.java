@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.ewaste.management.notification.NotificationService;
+
 @Service
 public class UserEWasteService {
 
@@ -34,17 +36,20 @@ public class UserEWasteService {
     private final DisposalRequestRepository disposalRequestRepository;
     private final FileStorageService fileStorageService;
     private final RecommendationService recommendationService;
+    private final NotificationService notificationService;
 
     public UserEWasteService(UserRepository userRepository,
                              UserProfileRepository userProfileRepository,
                              DisposalRequestRepository disposalRequestRepository,
                              FileStorageService fileStorageService,
-                             RecommendationService recommendationService) {
+                             RecommendationService recommendationService,
+                             NotificationService notificationService) {
         this.userRepository = userRepository;
         this.userProfileRepository = userProfileRepository;
         this.disposalRequestRepository = disposalRequestRepository;
         this.fileStorageService = fileStorageService;
         this.recommendationService = recommendationService;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -103,8 +108,24 @@ public class UserEWasteService {
         request.addStatusHistory(history);
 
         DisposalRequest saved = disposalRequestRepository.save(request);
+
+        notificationService.sendNotification(
+                user,
+                "Disposal Request Submitted",
+                "Your disposal request " + saved.getTrackingNumber() + " has been submitted successfully.",
+                "DISPOSAL_SUBMITTED"
+        );
+
+        notificationService.sendNotification(
+                user,
+                "Recommendation Generated",
+                "Smart disposal recommendation generated for " + saved.getTrackingNumber() + ": " + recResult.getRecommendedAction() + ".",
+                "RECOMMENDATION_GENERATED"
+        );
+
         return mapToDTO(saved);
     }
+
 
     @Transactional(readOnly = true)
     public List<DisposalRequestDTO> getUserRequests(String userEmail) {

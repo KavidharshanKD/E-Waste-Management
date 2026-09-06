@@ -22,6 +22,8 @@ import VerifyCertificate from './pages/VerifyCertificate'
 import InstitutionDashboard from './pages/InstitutionDashboard'
 import ComplianceSupport from './pages/ComplianceSupport'
 
+import NotificationBell from './components/NotificationBell'
+
 function HeaderNav() {
   const { user, logout, getDashboardPathByRole } = useAuth()
   const navigate = useNavigate()
@@ -98,6 +100,7 @@ function HeaderNav() {
         <div className="d-flex align-items-center gap-2">
           {user ? (
             <div className="d-flex align-items-center gap-3">
+              <NotificationBell />
               <span className="status-badge bg-dark border-secondary text-white">
                 <span className="pulse-dot me-1"></span>
                 {user.email} ({user.role})
@@ -107,6 +110,7 @@ function HeaderNav() {
               </button>
             </div>
           ) : (
+
             <div className="d-flex align-items-center gap-2">
               <Link to="/login" className="btn btn-outline-custom py-1.5 px-3 text-white text-decoration-none">
                 Log In

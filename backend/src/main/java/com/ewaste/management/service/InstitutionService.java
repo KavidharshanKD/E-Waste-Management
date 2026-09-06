@@ -29,8 +29,10 @@ import com.lowagie.text.Phrase;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
+import com.ewaste.management.notification.NotificationService;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import java.awt.Color;
@@ -49,6 +51,7 @@ public class InstitutionService {
     private final UserRepository userRepository;
     private final RecommendationService recommendationService;
     private final PickupService pickupService;
+    private final NotificationService notificationService;
 
     private static final Set<RequestStatus> PENDING_STATUSES = Set.of(
             RequestStatus.SUBMITTED,
@@ -70,11 +73,13 @@ public class InstitutionService {
     public InstitutionService(DisposalRequestRepository disposalRequestRepository,
                               UserRepository userRepository,
                               RecommendationService recommendationService,
-                              PickupService pickupService) {
+                              PickupService pickupService,
+                              NotificationService notificationService) {
         this.disposalRequestRepository = disposalRequestRepository;
         this.userRepository = userRepository;
         this.recommendationService = recommendationService;
         this.pickupService = pickupService;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -176,8 +181,23 @@ public class InstitutionService {
             } catch (Exception ignored) {}
         }
 
+        notificationService.sendNotification(
+                user,
+                "Disposal Request Submitted",
+                "Your institutional bulk disposal request " + savedRequest.getTrackingNumber() + " has been submitted successfully.",
+                "DISPOSAL_SUBMITTED"
+        );
+
+        notificationService.sendNotification(
+                user,
+                "Recommendation Generated",
+                "Bulk disposal recommendation generated for request " + savedRequest.getTrackingNumber() + ": " + (overallAction != null ? overallAction : DisposalAction.RECYCLE) + ".",
+                "RECOMMENDATION_GENERATED"
+        );
+
         return mapToDTO(savedRequest);
     }
+
 
     @Transactional(readOnly = true)
     public InstitutionDashboardDTO getInstitutionDashboard(String userEmail) {

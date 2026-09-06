@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.ewaste.management.notification.NotificationService;
+
 @Service
 public class PickupService {
 
@@ -32,16 +34,20 @@ public class PickupService {
     private final DisposalRequestRepository disposalRequestRepository;
     private final UserRepository userRepository;
     private final GamificationService gamificationService;
+    private final NotificationService notificationService;
 
     public PickupService(PickupRepository pickupRepository,
                          DisposalRequestRepository disposalRequestRepository,
                          UserRepository userRepository,
-                         GamificationService gamificationService) {
+                         GamificationService gamificationService,
+                         NotificationService notificationService) {
         this.pickupRepository = pickupRepository;
         this.disposalRequestRepository = disposalRequestRepository;
         this.userRepository = userRepository;
         this.gamificationService = gamificationService;
+        this.notificationService = notificationService;
     }
+
 
 
     @Transactional
@@ -129,6 +135,22 @@ public class PickupService {
         }
 
         Pickup savedPickup = pickupRepository.save(pickup);
+
+        if (request.getUser() != null) {
+            notificationService.sendNotification(
+                    request.getUser(),
+                    "Request Approved",
+                    "Your disposal request " + request.getTrackingNumber() + " has been approved.",
+                    "REQUEST_APPROVED"
+            );
+            notificationService.sendNotification(
+                    request.getUser(),
+                    "Pickup Assigned",
+                    "Collector " + collector.getFullName() + " has been assigned for your pickup (" + request.getTrackingNumber() + ").",
+                    "PICKUP_ASSIGNED"
+            );
+        }
+
         return mapToDTO(savedPickup);
     }
 
@@ -158,6 +180,17 @@ public class PickupService {
         DisposalRequest request = pickup.getDisposalRequest();
         RequestStatus oldRequestStatus = request.getStatus();
 
+        if (newPickupStatus == PickupStatus.ON_THE_WAY) {
+            if (request.getUser() != null) {
+                notificationService.sendNotification(
+                        request.getUser(),
+                        "Collector On The Way",
+                        "The collector is on the way for your pickup request " + request.getTrackingNumber() + ".",
+                        "COLLECTOR_ON_THE_WAY"
+                );
+            }
+        }
+
         if (newPickupStatus == PickupStatus.COLLECTED) {
             pickup.setActualPickupDate(LocalDateTime.now());
             request.setStatus(RequestStatus.COLLECTED);
@@ -172,6 +205,15 @@ public class PickupService {
 
             request.addStatusHistory(history);
             disposalRequestRepository.save(request);
+
+            if (request.getUser() != null) {
+                notificationService.sendNotification(
+                        request.getUser(),
+                        "Item Collected",
+                        "Your e-waste item(s) for request " + request.getTrackingNumber() + " have been successfully collected.",
+                        "ITEM_COLLECTED"
+                );
+            }
 
             // Award green points automatically for verified doorstep collection
             gamificationService.awardPointsForCompletedRequest(request);
@@ -191,6 +233,45 @@ public class PickupService {
         Pickup savedPickup = pickupRepository.save(pickup);
         return mapToDTO(savedPickup);
     }
+
+    @Transactional
+    public void updateRequestStatusAndNotify(DisposalRequest request, RequestStatus newStatus, User actor, String comment) {
+        RequestStatus oldStatus = request.getStatus();
+        request.setStatus(newStatus);
+
+        DisposalStatusHistory history = new DisposalStatusHistory();
+        history.setFromStatus(oldStatus);
+        history.setToStatus(newStatus);
+        history.setChangedBy(actor);
+        history.setComment(comment != null ? comment : "Status updated to " + newStatus);
+        history.setTimestamp(LocalDateTime.now());
+
+        request.addStatusHistory(history);
+        disposalRequestRepository.save(request);
+
+        if (request.getUser() != null) {
+            switch (newStatus) {
+                case APPROVED:
+                    notificationService.sendNotification(request.getUser(), "Request Approved", "Your disposal request " + request.getTrackingNumber() + " has been approved.", "REQUEST_APPROVED");
+                    break;
+                case AT_RECYCLING_CENTER:
+                    notificationService.sendNotification(request.getUser(), "Item Reached Recycler", "Your e-waste item(s) for request " + request.getTrackingNumber() + " have reached the recycling facility.", "ITEM_REACHES_RECYCLER");
+                    break;
+                case PROCESSING:
+                    notificationService.sendNotification(request.getUser(), "Processing Begins", "Processing and recycling have begun for request " + request.getTrackingNumber() + ".", "PROCESSING_BEGINS");
+                    break;
+                case RECYCLED:
+                case REUSED:
+                case REFURBISHED:
+                case COMPLETED:
+                    notificationService.sendNotification(request.getUser(), "Processing Completed", "Processing completed successfully for request " + request.getTrackingNumber() + ".", "PROCESSING_COMPLETED");
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
 
     @Transactional(readOnly = true)
     public List<PickupDTO> getUserPickups(User user) {

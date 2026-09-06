@@ -37,6 +37,11 @@ class CertificateServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private com.ewaste.management.repository.NotificationRepository notificationRepository;
+
+    private com.ewaste.management.notification.NotificationService notificationService;
+
     private CertificateService certificateService;
     private User testUser;
     private DisposalRequest testRequest;
@@ -46,13 +51,17 @@ class CertificateServiceTest {
     void setUp() {
         QRCodeGeneratorService qrCodeGeneratorService = new QRCodeGeneratorService();
         CertificatePdfGeneratorService pdfGeneratorService = new CertificatePdfGeneratorService(qrCodeGeneratorService);
+        notificationService = new com.ewaste.management.notification.NotificationService(notificationRepository, java.util.Collections.emptyList());
 
         certificateService = new CertificateService(
                 certificateRepository,
                 disposalRequestRepository,
                 userRepository,
-                pdfGeneratorService
+                pdfGeneratorService,
+                notificationService
         );
+
+
 
         testUser = new User();
         testUser.setId(1L);

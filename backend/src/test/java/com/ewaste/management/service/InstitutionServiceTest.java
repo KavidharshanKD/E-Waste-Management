@@ -46,6 +46,10 @@ class InstitutionServiceTest {
     @Mock
     private PickupRepository pickupRepository;
 
+    @Mock
+    private com.ewaste.management.repository.NotificationRepository notificationRepository;
+
+    private com.ewaste.management.notification.NotificationService notificationService;
     private RecommendationService recommendationService;
     private PickupService pickupService;
     private InstitutionService institutionService;
@@ -55,15 +59,19 @@ class InstitutionServiceTest {
 
     @BeforeEach
     void setUp() {
+        notificationService = new com.ewaste.management.notification.NotificationService(notificationRepository, java.util.Collections.emptyList());
         recommendationService = new RecommendationService(new RuleBasedRecommendationEngine());
-        pickupService = new PickupService(pickupRepository, disposalRequestRepository, userRepository, null);
+        pickupService = new PickupService(pickupRepository, disposalRequestRepository, userRepository, null, notificationService);
 
         institutionService = new InstitutionService(
                 disposalRequestRepository,
                 userRepository,
                 recommendationService,
-                pickupService
+                pickupService,
+                notificationService
         );
+
+
         csvParserService = new CsvParserService();
 
         testUser = new User();

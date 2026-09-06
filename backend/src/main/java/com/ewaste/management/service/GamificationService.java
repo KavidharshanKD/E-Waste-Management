@@ -20,20 +20,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.ewaste.management.notification.NotificationService;
+
 @Service
 public class GamificationService {
 
     private final RewardTransactionRepository rewardTransactionRepository;
     private final DisposalRequestRepository disposalRequestRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     public GamificationService(RewardTransactionRepository rewardTransactionRepository,
                                DisposalRequestRepository disposalRequestRepository,
-                               UserRepository userRepository) {
+                               UserRepository userRepository,
+                               NotificationService notificationService) {
         this.rewardTransactionRepository = rewardTransactionRepository;
         this.disposalRequestRepository = disposalRequestRepository;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
+
 
     @Transactional
     public RewardTransaction awardPointsForCompletedRequest(DisposalRequest request) {
@@ -93,8 +99,19 @@ public class GamificationService {
         tx.setTransactionType(type);
         tx.setDescription(description);
 
-        return rewardTransactionRepository.save(tx);
+        RewardTransaction savedTx = rewardTransactionRepository.save(tx);
+        if (notificationService != null) {
+            notificationService.sendNotification(
+                    user,
+                    "Green Points Credited",
+                    "You earned +" + points + " Green Points! " + description,
+                    "GREEN_POINTS_CREDITED"
+            );
+        }
+        return savedTx;
     }
+
+
 
     @Transactional(readOnly = true)
     public GamificationProfileDTO getUserGamificationProfile(User user) {
