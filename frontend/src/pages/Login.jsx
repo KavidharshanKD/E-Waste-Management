@@ -56,12 +56,13 @@ export default function Login() {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label className="form-label text-white small fw-bold">Email Address</label>
+            <label htmlFor="login-email" className="form-label text-white small fw-bold">Email Address</label>
             <div className="input-group">
               <span className="input-group-text bg-dark border-secondary text-muted">
-                <i className="bi bi-envelope"></i>
+                <i className="bi bi-envelope" aria-hidden="true"></i>
               </span>
               <input
+                id="login-email"
                 type="email"
                 className="form-control bg-dark text-white border-secondary"
                 placeholder="name@example.com"
@@ -73,12 +74,13 @@ export default function Login() {
           </div>
 
           <div className="mb-4">
-            <label className="form-label text-white small fw-bold">Password</label>
+            <label htmlFor="login-password" className="form-label text-white small fw-bold">Password</label>
             <div className="input-group">
               <span className="input-group-text bg-dark border-secondary text-muted">
-                <i className="bi bi-key"></i>
+                <i className="bi bi-key" aria-hidden="true"></i>
               </span>
               <input
+                id="login-password"
                 type="password"
                 className="form-control bg-dark text-white border-secondary"
                 placeholder="••••••••"
