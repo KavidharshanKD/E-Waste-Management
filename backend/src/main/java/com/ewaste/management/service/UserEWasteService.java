@@ -340,7 +340,7 @@ public class UserEWasteService {
         return response;
     }
 
-    private DisposalRequestDTO mapToDTO(DisposalRequest req) {
+    public DisposalRequestDTO mapToDTO(DisposalRequest req) {
         DisposalRequestDTO dto = new DisposalRequestDTO();
         dto.setId(req.getId());
         dto.setTrackingNumber(req.getTrackingNumber());

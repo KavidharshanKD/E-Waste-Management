@@ -16,8 +16,13 @@ public class UserProfileDTO {
     private String state;
     private String postalCode;
     private String country;
+    private boolean verified;
 
     public UserProfileDTO() {}
+
+    public boolean isVerified() { return verified; }
+    public void setVerified(boolean verified) { this.verified = verified; }
+
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

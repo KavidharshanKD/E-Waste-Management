@@ -20,4 +20,6 @@ public interface DisposalRequestRepository extends JpaRepository<DisposalRequest
 
     long countByUserId(Long userId);
     long countByUserIdAndStatusIn(Long userId, Collection<RequestStatus> statuses);
+    List<DisposalRequest> findAllByOrderByCreatedAtDesc();
 }
+

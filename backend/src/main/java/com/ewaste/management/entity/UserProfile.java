@@ -62,7 +62,19 @@ public class UserProfile extends BaseEntity {
     @Column(name = "country", length = 100)
     private String country = "India";
 
+    @Column(name = "verified", nullable = false)
+    private boolean verified = false;
+
     public UserProfile() {}
+
+    public boolean isVerified() {
+        return verified;
+    }
+
+    public void setVerified(boolean verified) {
+        this.verified = verified;
+    }
+
 
     public User getUser() {
         return user;
