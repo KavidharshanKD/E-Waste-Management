@@ -1,44 +1,48 @@
-version: '3.8'
-
 services:
-  # PostgreSQL Database Service
   postgres:
-    image: postgres:16-alpine
+    image: postgres:15-alpine
     container_name: ewaste_postgres
     restart: always
     environment:
-      POSTGRES_DB: ${DB_NAME:-ewaste_db}
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-ewastedb}
+      POSTGRES_USER: ${POSTGRES_USER:-ewaste_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ewaste_password_change_in_production}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-ewaste_db}"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ewaste_user} -d ${POSTGRES_DB:-ewastedb}"]
+      interval: 5s
       timeout: 5s
       retries: 5
 
-  # Spring Boot Backend Service
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: ewaste_backend
     restart: always
-    ports:
-      - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-ewaste_db}
-      SPRING_DATASOURCE_USERNAME: ${DB_USER:-postgres}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-postgres}
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-ewastedb}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-ewaste_user}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-ewaste_password_change_in_production}
+      JWT_SECRET: ${JWT_SECRET:-your_super_secret_jwt_key_at_least_32_bytes_long_change_in_prod_12345}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
     depends_on:
       postgres:
         condition: service_healthy
+    volumes:
+      - ewaste_uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
-  # React Vite Frontend Service
   frontend:
     build:
       context: ./frontend
@@ -46,9 +50,13 @@ services:
     container_name: ewaste_frontend
     restart: always
     ports:
-      - "5173:80"
+      - "${FRONTEND_PORT:-5173}:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 
 volumes:
   postgres_data:
+    driver: local
+  ewaste_uploads:
+    driver: local
