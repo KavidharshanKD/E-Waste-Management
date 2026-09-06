@@ -65,4 +65,19 @@ public class RecyclingCenterController {
             return ResponseEntity.status(404).body(err);
         }
     }
+
+    @PostMapping
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<RecyclingCenterDTO> createRecyclingCenter(@RequestBody RecyclingCenterDTO dto) {
+        RecyclingCenterDTO saved = recyclingCenterService.saveCenter(dto);
+        return ResponseEntity.ok(saved);
+    }
+
+    @PutMapping("/{id}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<RecyclingCenterDTO> updateRecyclingCenter(@PathVariable Long id, @RequestBody RecyclingCenterDTO dto) {
+        dto.setId(id);
+        RecyclingCenterDTO updated = recyclingCenterService.saveCenter(dto);
+        return ResponseEntity.ok(updated);
+    }
 }

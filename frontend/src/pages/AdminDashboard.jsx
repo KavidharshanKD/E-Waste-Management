@@ -8,6 +8,7 @@ export default function AdminDashboard() {
   const [collectors, setCollectors] = useState([])
   const [analytics, setAnalytics] = useState(null)
   const [factors, setFactors] = useState([])
+  const [recyclers, setRecyclers] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [selectedCollectors, setSelectedCollectors] = useState({})
@@ -18,6 +19,10 @@ export default function AdminDashboard() {
   const [editingFactor, setEditingFactor] = useState(null)
   const [savingFactor, setSavingFactor] = useState(false)
 
+  // Recycler Editing State
+  const [editingRecycler, setEditingRecycler] = useState(null)
+  const [savingRecycler, setSavingRecycler] = useState(false)
+
   useEffect(() => {
     fetchData()
   }, [])
@@ -26,16 +31,18 @@ export default function AdminDashboard() {
     try {
       setLoading(true)
       setError(null)
-      const [pickupsRes, collectorsRes, analyticsRes, factorsRes] = await Promise.all([
+      const [pickupsRes, collectorsRes, analyticsRes, factorsRes, recyclersRes] = await Promise.all([
         axios.get('/api/admin/pickups'),
         axios.get('/api/admin/collectors'),
         axios.get('/api/analytics/admin'),
-        axios.get('/api/analytics/factors')
+        axios.get('/api/analytics/factors'),
+        axios.get('/api/recycling-centers')
       ])
       setPickups(pickupsRes.data || [])
       setCollectors(collectorsRes.data || [])
       setAnalytics(analyticsRes.data || null)
       setFactors(factorsRes.data || [])
+      setRecyclers(recyclersRes.data || [])
     } catch (err) {
       console.error('Failed to fetch admin dashboard data', err)
       setError(err.response?.data?.error || 'Failed to load dispatch and analytics data.')
@@ -79,6 +86,27 @@ export default function AdminDashboard() {
       alert(err.response?.data?.error || 'Failed to update environmental factor')
     } finally {
       setSavingFactor(false)
+    }
+  }
+
+  const handleUpdateRecyclerSubmit = async (e) => {
+    e.preventDefault()
+    if (!editingRecycler) return
+    try {
+      setSavingRecycler(true)
+      if (editingRecycler.id) {
+        await axios.put(`/api/recycling-centers/${editingRecycler.id}`, editingRecycler)
+        setSuccessMsg(`Recycler facility '${editingRecycler.name}' record updated successfully.`)
+      } else {
+        await axios.post('/api/recycling-centers', editingRecycler)
+        setSuccessMsg(`New recycler facility '${editingRecycler.name}' added successfully.`)
+      }
+      setEditingRecycler(null)
+      await fetchData()
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to save recycler facility record.')
+    } finally {
+      setSavingRecycler(false)
     }
   }
 

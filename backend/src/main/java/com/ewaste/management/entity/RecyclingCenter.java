@@ -60,6 +60,18 @@ public class RecyclingCenter extends BaseEntity {
     @Column(name = "is_demo_facility", nullable = false)
     private boolean isDemoFacility = true;
 
+    @Column(name = "cpcb_registration_ref", length = 100)
+    private String cpcbRegistrationRef;
+
+    @Column(name = "registration_validity_date")
+    private java.time.LocalDate registrationValidityDate;
+
+    @Column(name = "authorized_capacity_tons_per_annum")
+    private Double authorizedCapacityTonsPerAnnum;
+
+    @Column(name = "verification_authority", length = 150)
+    private String verificationAuthority;
+
     public RecyclingCenter() {}
 
     public String getName() { return name; }
@@ -109,4 +121,16 @@ public class RecyclingCenter extends BaseEntity {
 
     public boolean isDemoFacility() { return isDemoFacility; }
     public void setDemoFacility(boolean isDemoFacility) { this.isDemoFacility = isDemoFacility; }
+
+    public String getCpcbRegistrationRef() { return cpcbRegistrationRef; }
+    public void setCpcbRegistrationRef(String cpcbRegistrationRef) { this.cpcbRegistrationRef = cpcbRegistrationRef; }
+
+    public java.time.LocalDate getRegistrationValidityDate() { return registrationValidityDate; }
+    public void setRegistrationValidityDate(java.time.LocalDate registrationValidityDate) { this.registrationValidityDate = registrationValidityDate; }
+
+    public Double getAuthorizedCapacityTonsPerAnnum() { return authorizedCapacityTonsPerAnnum; }
+    public void setAuthorizedCapacityTonsPerAnnum(Double authorizedCapacityTonsPerAnnum) { this.authorizedCapacityTonsPerAnnum = authorizedCapacityTonsPerAnnum; }
+
+    public String getVerificationAuthority() { return verificationAuthority; }
+    public void setVerificationAuthority(String verificationAuthority) { this.verificationAuthority = verificationAuthority; }
 }

@@ -20,6 +20,7 @@ import AdminDashboard from './pages/AdminDashboard'
 import PublicTrack from './pages/PublicTrack'
 import VerifyCertificate from './pages/VerifyCertificate'
 import InstitutionDashboard from './pages/InstitutionDashboard'
+import ComplianceSupport from './pages/ComplianceSupport'
 
 function HeaderNav() {
   const { user, logout, getDashboardPathByRole } = useAuth()
@@ -47,6 +48,11 @@ function HeaderNav() {
           <li>
             <Link to="/recycling-centers" className="nav-link-item">
               <i className="bi bi-geo-alt me-1"></i> Find Centers
+            </Link>
+          </li>
+          <li>
+            <Link to="/compliance" className="nav-link-item">
+              <i className="bi bi-shield-check me-1"></i> E-Waste Compliance
             </Link>
           </li>
           <li>
@@ -258,6 +264,7 @@ export default function App() {
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/recycling-centers" element={<FindRecyclingCenter />} />
+            <Route path="/compliance" element={<ComplianceSupport />} />
             <Route path="/architecture" element={<ArchitectureDocs />} />
             <Route path="/track/:trackingId" element={<PublicTrack />} />
             <Route path="/verify-certificate/:certificateNumber?" element={<VerifyCertificate />} />
@@ -363,9 +370,12 @@ export default function App() {
         </main>
 
         <footer className="footer-custom">
-          <div className="container">
-            <p className="m-0">
-              &copy; 2026 Smart E-Waste Collection &amp; Recycling Management System. Location Discovery Active.
+          <div className="container text-center">
+            <p className="m-0 mb-1">
+              &copy; 2026 Smart E-Waste Collection &amp; Recycling Management System. India E-Waste Regulatory Guidance.
+            </p>
+            <p className="text-muted extra-small m-0 opacity-75">
+              Notice: Registration information should be independently verified with the relevant authority (CPCB / State PCB).
             </p>
           </div>
         </footer>

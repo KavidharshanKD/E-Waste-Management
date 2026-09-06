@@ -97,6 +97,10 @@ public class RecyclingCenterService {
         dto.setProcessingCapacityKgPerDay(center.getProcessingCapacityKgPerDay());
         dto.setActive(center.isActive());
         dto.setDemoFacility(center.isDemoFacility());
+        dto.setCpcbRegistrationRef(center.getCpcbRegistrationRef());
+        dto.setRegistrationValidityDate(center.getRegistrationValidityDate());
+        dto.setAuthorizedCapacityTonsPerAnnum(center.getAuthorizedCapacityTonsPerAnnum());
+        dto.setVerificationAuthority(center.getVerificationAuthority());
 
         if (userLat != null && userLng != null && center.getLatitude() != null && center.getLongitude() != null) {
             Double distance = GeoDistanceUtils.calculateHaversineDistanceKm(userLat, userLng, center.getLatitude(), center.getLongitude());
@@ -104,5 +108,37 @@ public class RecyclingCenterService {
         }
 
         return dto;
+    }
+
+    @Transactional
+    public RecyclingCenterDTO saveCenter(RecyclingCenterDTO dto) {
+        RecyclingCenter center = (dto.getId() != null)
+                ? recyclingCenterRepository.findById(dto.getId()).orElse(new RecyclingCenter())
+                : new RecyclingCenter();
+
+        center.setName(dto.getName());
+        center.setRegistrationNumber(dto.getRegistrationNumber());
+        center.setAddress(dto.getAddress());
+        center.setCity(dto.getCity());
+        center.setDistrict(dto.getDistrict());
+        center.setState(dto.getState());
+        center.setPostalCode(dto.getPostalCode());
+        center.setLatitude(dto.getLatitude());
+        center.setLongitude(dto.getLongitude());
+        center.setContactPhone(dto.getContactPhone());
+        center.setContactEmail(dto.getContactEmail());
+        center.setAcceptedWasteCategories(dto.getAcceptedWasteCategories());
+        center.setOperatingHours(dto.getOperatingHours());
+        center.setProcessingCapacityKgPerDay(dto.getProcessingCapacityKgPerDay());
+        center.setActive(dto.isActive());
+        center.setDemoFacility(dto.isDemoFacility());
+
+        center.setCpcbRegistrationRef(dto.getCpcbRegistrationRef());
+        center.setRegistrationValidityDate(dto.getRegistrationValidityDate());
+        center.setAuthorizedCapacityTonsPerAnnum(dto.getAuthorizedCapacityTonsPerAnnum());
+        center.setVerificationAuthority(dto.getVerificationAuthority());
+
+        RecyclingCenter saved = recyclingCenterRepository.save(center);
+        return mapToDTO(saved, null, null);
     }
 }

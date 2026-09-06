@@ -21,6 +21,10 @@ public class RecyclingCenterDTO {
     private boolean active;
     private boolean isDemoFacility = true;
     private Double distanceKm;
+    private String cpcbRegistrationRef;
+    private java.time.LocalDate registrationValidityDate;
+    private Double authorizedCapacityTonsPerAnnum;
+    private String verificationAuthority;
 
     public RecyclingCenterDTO() {}
 
@@ -77,4 +81,16 @@ public class RecyclingCenterDTO {
 
     public Double getDistanceKm() { return distanceKm; }
     public void setDistanceKm(Double distanceKm) { this.distanceKm = distanceKm; }
+
+    public String getCpcbRegistrationRef() { return cpcbRegistrationRef; }
+    public void setCpcbRegistrationRef(String cpcbRegistrationRef) { this.cpcbRegistrationRef = cpcbRegistrationRef; }
+
+    public java.time.LocalDate getRegistrationValidityDate() { return registrationValidityDate; }
+    public void setRegistrationValidityDate(java.time.LocalDate registrationValidityDate) { this.registrationValidityDate = registrationValidityDate; }
+
+    public Double getAuthorizedCapacityTonsPerAnnum() { return authorizedCapacityTonsPerAnnum; }
+    public void setAuthorizedCapacityTonsPerAnnum(Double authorizedCapacityTonsPerAnnum) { this.authorizedCapacityTonsPerAnnum = authorizedCapacityTonsPerAnnum; }
+
+    public String getVerificationAuthority() { return verificationAuthority; }
+    public void setVerificationAuthority(String verificationAuthority) { this.verificationAuthority = verificationAuthority; }
 }
