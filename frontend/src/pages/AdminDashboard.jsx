@@ -124,7 +124,7 @@ export default function AdminDashboard() {
       setSuccessMsg(`User ${res.data.email} active status updated to ${res.data.active ? 'ACTIVE' : 'INACTIVE'}.`)
       await fetchAllData()
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to toggle user status')
+      setError(err.response?.data?.error || 'Failed to toggle user status')
     }
   }
 
@@ -137,7 +137,7 @@ export default function AdminDashboard() {
       setSuccessMsg(`Profile for user ${res.data.email} verified successfully.`)
       await fetchAllData()
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to verify profile')
+      setError(err.response?.data?.error || 'Failed to verify profile')
     }
   }
 
@@ -151,7 +151,7 @@ export default function AdminDashboard() {
       setSuccessMsg(`Disposal request ID ${requestId} approved successfully.`)
       await fetchAllData()
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to approve request')
+      setError(err.response?.data?.error || 'Failed to approve request')
     }
   }
 
@@ -168,7 +168,7 @@ export default function AdminDashboard() {
       setRejectReason('')
       await fetchAllData()
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to reject request')
+      setError(err.response?.data?.error || 'Failed to reject request')
     }
   }
 
@@ -188,7 +188,7 @@ export default function AdminDashboard() {
       setStatusComment('')
       await fetchAllData()
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to update request status')
+      setError(err.response?.data?.error || 'Failed to update request status')
     }
   }
 
@@ -196,7 +196,7 @@ export default function AdminDashboard() {
   const handleAssignCollector = async (pickupId) => {
     const collectorId = selectedCollectors[pickupId]
     if (!collectorId) {
-      alert('Please select a collector from the dropdown first.')
+      setError('Please select a collector from the dropdown first.')
       return
     }
     try {
@@ -210,7 +210,7 @@ export default function AdminDashboard() {
       setSuccessMsg(`Collector assigned successfully for pickup ID ${pickupId}.`)
       await fetchAllData()
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to assign collector')
+      setError(err.response?.data?.error || 'Failed to assign collector')
     } finally {
       setAssigningPickupId(null)
     }
@@ -234,7 +234,7 @@ export default function AdminDashboard() {
       setEditingCenter(null)
       await fetchAllData()
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to save recycling center')
+      setError(err.response?.data?.error || 'Failed to save recycling center')
     } finally {
       setSavingCenter(false)
     }
@@ -250,7 +250,7 @@ export default function AdminDashboard() {
       setSuccessMsg(`Certificate generated successfully for request ID ${requestId}.`)
       await fetchAllData()
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to generate certificate')
+      setError(err.response?.data?.error || 'Failed to generate certificate')
     }
   }
 

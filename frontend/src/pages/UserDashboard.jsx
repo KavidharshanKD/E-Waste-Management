@@ -66,6 +66,8 @@ export default function UserDashboard() {
     return status.replace(/_/g, ' ')
   }
 
+  const [actionMessage, setActionMessage] = useState(null)
+
   const handleDownloadCertificatePdf = async (requestId, trackingNumber) => {
     try {
       const token = localStorage.getItem('token')
@@ -81,9 +83,10 @@ export default function UserDashboard() {
       link.click()
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
+      setActionMessage({ type: 'success', text: 'Certificate downloaded successfully.' })
     } catch (err) {
       console.error('Failed to download certificate PDF', err)
-      alert('Certificate is available once request status is COMPLETED.')
+      setActionMessage({ type: 'warning', text: 'Certificate PDF is generated once request status reaches COMPLETED.' })
     }
   }
 
@@ -102,6 +105,12 @@ export default function UserDashboard() {
 
   return (
     <div className="container py-4">
+      {actionMessage && (
+        <div className={`alert alert-${actionMessage.type} alert-dismissible fade show mb-4`} role="alert">
+          {actionMessage.text}
+          <button type="button" className="btn-close" onClick={() => setActionMessage(null)}></button>
+        </div>
+      )}
       {/* Hero Welcome Banner */}
       <div className="hero-card mb-4">
         <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">

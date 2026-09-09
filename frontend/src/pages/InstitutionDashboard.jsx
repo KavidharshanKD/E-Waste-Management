@@ -206,7 +206,7 @@ export default function InstitutionDashboard() {
       link.click()
       link.remove()
     } catch (err) {
-      alert('Failed to download asset processing report PDF.')
+      setError('Asset processing report PDF is generated once request status reaches COMPLETED.')
     }
   }
 

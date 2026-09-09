@@ -39,7 +39,7 @@ export default function MyRequests() {
       setSuccessMsg('Disposal request cancelled successfully.')
       fetchRequests()
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to cancel request')
+      setError(err.response?.data?.error || 'Failed to cancel request.')
     } finally {
       setCancellingId(null)
     }

@@ -38,7 +38,7 @@ export default function CollectorDashboard() {
       })
       await fetchAssignedPickups()
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to update pickup status')
+      setError(err.response?.data?.error || 'Failed to update pickup status.')
     } finally {
       setUpdatingId(null)
     }

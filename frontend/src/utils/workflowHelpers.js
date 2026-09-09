@@ -76,3 +76,47 @@ export function getEcoLevel(points = 0) {
     }
   }
 }
+
+/**
+ * Formats Indian Currency (INR) using en-IN locale
+ */
+export function formatCurrency(amount = 0) {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0
+  }).format(amount)
+}
+
+/**
+ * Formats dates in clean Indian format (e.g., "09 Sep 2026")
+ */
+export function formatIndianDate(dateInput) {
+  if (!dateInput) return 'N/A'
+  try {
+    const d = new Date(dateInput)
+    if (isNaN(d.getTime())) return String(dateInput)
+    return d.toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    })
+  } catch (e) {
+    return String(dateInput)
+  }
+}
+
+/**
+ * Formats phone numbers in Indian format (+91 XXXXX XXXXX)
+ */
+export function formatPhone(phoneStr) {
+  if (!phoneStr) return ''
+  const cleaned = String(phoneStr).replace(/\D/g, '')
+  if (cleaned.length === 10) {
+    return `+91 ${cleaned.slice(0, 5)} ${cleaned.slice(5)}`
+  }
+  if (cleaned.length === 12 && cleaned.startsWith('91')) {
+    return `+91 ${cleaned.slice(2, 7)} ${cleaned.slice(7)}`
+  }
+  return String(phoneStr)
+}

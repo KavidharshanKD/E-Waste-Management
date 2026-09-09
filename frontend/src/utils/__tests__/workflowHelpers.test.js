@@ -1,4 +1,4 @@
-import { formatTrackingId, getStatusBadgeClass, getEcoLevel } from '../workflowHelpers.js'
+import { formatTrackingId, getStatusBadgeClass, getEcoLevel, formatCurrency, formatIndianDate, formatPhone } from '../workflowHelpers.js'
 
 describe('Workflow Helper Utility Functions', () => {
   test('formatTrackingId formats string to uppercase', () => {
@@ -24,5 +24,21 @@ describe('Workflow Helper Utility Functions', () => {
     const guardian = getEcoLevel(3500)
     expect(guardian.title).toBe('Planet Guardian')
     expect(guardian.progressPercent).toBe(100)
+  })
+
+  test('formatCurrency formats to Indian Rupee (INR) representation', () => {
+    const formatted = formatCurrency(500)
+    expect(formatted).toContain('₹')
+    expect(formatted).toContain('500')
+  })
+
+  test('formatIndianDate formats dates to clean dd MMM yyyy format', () => {
+    const formatted = formatIndianDate('2026-09-09T10:00:00')
+    expect(formatted).toContain('2026')
+    expect(formatted).toContain('Sep')
+  })
+
+  test('formatPhone formats 10-digit Indian phone numbers', () => {
+    expect(formatPhone('9876543210')).toBe('+91 98765 43210')
   })
 })

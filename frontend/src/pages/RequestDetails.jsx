@@ -59,7 +59,9 @@ export default function RequestDetails() {
     }
   }
 
-  const handleDownloadPdf = async () => {
+  const [actionNotice, setActionNotice] = useState(null)
+
+  const handleDownloadCertificate = async () => {
     try {
       setDownloadingPdf(true)
       const token = localStorage.getItem('token')
@@ -67,17 +69,19 @@ export default function RequestDetails() {
         headers: { Authorization: `Bearer ${token}` },
         responseType: 'blob'
       })
+
       const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }))
       const link = document.createElement('a')
       link.href = url
-      link.setAttribute('download', `Certificate_${request?.trackingNumber || id}.pdf`)
+      link.setAttribute('download', `Certificate_${request.trackingNumber || id}.pdf`)
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
+      setActionNotice({ type: 'success', text: 'Certificate downloaded successfully.' })
     } catch (err) {
       console.error('Failed to download certificate', err)
-      alert('Certificate PDF is available once request processing is completed.')
+      setActionNotice({ type: 'warning', text: 'Certificate PDF is generated once request status reaches COMPLETED.' })
     } finally {
       setDownloadingPdf(false)
     }
@@ -129,8 +133,9 @@ export default function RequestDetails() {
       setCancelling(true)
       await axios.delete(`/api/user/ewaste/${id}`)
       fetchDetails()
+      setActionNotice({ type: 'info', text: 'Request cancelled successfully.' })
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to cancel request')
+      setActionNotice({ type: 'danger', text: err.response?.data?.error || 'Failed to cancel request.' })
     } finally {
       setCancelling(false)
     }
@@ -195,6 +200,12 @@ export default function RequestDetails() {
 
   return (
     <div className="container py-4">
+      {actionNotice && (
+        <div className={`alert alert-${actionNotice.type} alert-dismissible fade show mb-4`} role="alert">
+          {actionNotice.text}
+          <button type="button" className="btn-close" onClick={() => setActionNotice(null)}></button>
+        </div>
+      )}
       {/* Header Bar */}
       <div className="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
         <div>
