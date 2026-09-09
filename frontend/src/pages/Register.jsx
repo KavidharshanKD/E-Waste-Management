@@ -71,7 +71,7 @@ export default function Register() {
     if (!formData.pincode.trim()) {
       newErrors.pincode = 'Pincode is required'
     } else if (!/^[1-9][0-9]{5}$/.test(formData.pincode.trim())) {
-      newErrors.pincode = 'Must be a valid 6-digit Indian PIN code (e.g. 560001)'
+      newErrors.pincode = 'Must be a valid 6-digit Indian PIN code (e.g. 641001)'
     }
 
     setErrors(newErrors)
@@ -106,254 +106,222 @@ export default function Register() {
   }
 
   return (
-    <div className="container py-4" style={{ maxWidth: '680px' }}>
-      <div className="hero-card shadow-lg p-4 p-md-5">
-        <div className="text-center mb-4">
-          <div className="brand-icon mx-auto mb-3" style={{ width: '48px', height: '48px', fontSize: '1.5rem' }}>
-            <i className="bi bi-person-plus-fill"></i>
+    <div className="py-4">
+      <div className="d-flex justify-content-between align-items-baseline mb-4 pb-3 border-bottom border-dark">
+        <div>
+          <div className="editorial-tag">ACCOUNT REGISTRATION</div>
+          <h1 className="h1 text-uppercase fw-bold m-0">JOIN SMART E-WASTE PLATFORM</h1>
+        </div>
+      </div>
+
+      {serverError && <div className="alert alert-danger mb-4">{serverError}</div>}
+
+      <form onSubmit={handleSubmit} noValidate style={{ maxWidth: '800px' }}>
+        <div className="mb-4">
+          <label>Account Category *</label>
+          <div className="d-flex gap-3 mt-1">
+            <button
+              type="button"
+              className={`btn ${formData.userType === 'INDIVIDUAL' ? 'btn-primary-custom' : 'btn-outline-custom'}`}
+              onClick={() => setFormData(prev => ({ ...prev, userType: 'INDIVIDUAL' }))}
+            >
+              Individual Citizen
+            </button>
+            <button
+              type="button"
+              className={`btn ${formData.userType === 'INSTITUTION' ? 'btn-primary-custom' : 'btn-outline-custom'}`}
+              onClick={() => setFormData(prev => ({ ...prev, userType: 'INSTITUTION' }))}
+            >
+              College / Institutional Bulk
+            </button>
           </div>
-          <h2 className="hero-title h3 mb-1">Create an Account</h2>
-          <p className="hero-description text-muted small">
-            Join the Smart E-Waste Management &amp; Recycling Platform.
-          </p>
         </div>
 
-        {serverError && (
-          <div className="alert alert-danger d-flex align-items-center mb-4 rounded-3 text-start small" role="alert">
-            <i className="bi bi-exclamation-octagon-fill me-2 fs-5"></i>
-            <div>{serverError}</div>
+        {formData.userType === 'INSTITUTION' && (
+          <div className="p-3 border border-dark mb-4">
+            <h2 className="h5 text-uppercase fw-bold mb-3">ORGANIZATION DETAILS</h2>
+            <div className="row g-3">
+              <div className="col-md-6">
+                <label>Organization Name *</label>
+                <input
+                  type="text"
+                  name="organizationName"
+                  className={`form-control ${errors.organizationName ? 'is-invalid' : ''}`}
+                  placeholder="e.g. IIT Madras"
+                  value={formData.organizationName}
+                  onChange={handleChange}
+                />
+                {errors.organizationName && <div className="invalid-feedback">{errors.organizationName}</div>}
+              </div>
+
+              <div className="col-md-6">
+                <label>Organization Type *</label>
+                <select
+                  name="organizationType"
+                  className="form-select"
+                  value={formData.organizationType}
+                  onChange={handleChange}
+                >
+                  <option value="COLLEGE">Educational Institution / College</option>
+                  <option value="IT_COMPANY">IT / Tech Enterprise</option>
+                  <option value="HOSPITAL">Hospital / Healthcare</option>
+                  <option value="GOVERNMENT">Government Department</option>
+                  <option value="PRIVATE_ENTERPRISE">Private Business</option>
+                  <option value="OTHER">Other Organization</option>
+                </select>
+              </div>
+
+              <div className="col-md-6">
+                <label>Contact Person *</label>
+                <input
+                  type="text"
+                  name="contactPerson"
+                  className={`form-control ${errors.contactPerson ? 'is-invalid' : ''}`}
+                  placeholder="Contact officer name"
+                  value={formData.contactPerson}
+                  onChange={handleChange}
+                />
+                {errors.contactPerson && <div className="invalid-feedback">{errors.contactPerson}</div>}
+              </div>
+
+              <div className="col-md-6">
+                <label>GST / Registration No. (Optional)</label>
+                <input
+                  type="text"
+                  name="gstNumber"
+                  className="form-control"
+                  placeholder="33AAAAA0000A1Z5"
+                  value={formData.gstNumber}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} noValidate>
-          <div className="row g-3">
-            {/* User Category: Individual vs Institution */}
-            <div className="col-12 mb-2">
-              <label className="form-label text-white small fw-bold">Account Category *</label>
-              <div className="d-flex gap-3">
-                <div
-                  className={`flex-fill p-3 rounded-3 border text-center cursor-pointer ${formData.userType === 'INDIVIDUAL' ? 'border-success bg-success bg-opacity-10 text-white' : 'border-secondary text-muted'}`}
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => setFormData(prev => ({ ...prev, userType: 'INDIVIDUAL' }))}
-                >
-                  <i className="bi bi-person-fill fs-4 d-block mb-1"></i>
-                  <span className="fw-semibold small">Individual Citizen</span>
-                </div>
-                <div
-                  className={`flex-fill p-3 rounded-3 border text-center cursor-pointer ${formData.userType === 'INSTITUTION' ? 'border-success bg-success bg-opacity-10 text-white' : 'border-secondary text-muted'}`}
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => setFormData(prev => ({ ...prev, userType: 'INSTITUTION' }))}
-                >
-                  <i className="bi bi-building-check fs-4 d-block mb-1"></i>
-                  <span className="fw-semibold small">College / Corporate Bulk</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Institutional Fields */}
-            {formData.userType === 'INSTITUTION' && (
-              <div className="col-12 p-3 rounded-3 bg-dark border border-success border-opacity-25 mb-2">
-                <h6 className="text-success small fw-bold mb-3">
-                  <i className="bi bi-building me-2"></i> Organization / Bulk Entity Details
-                </h6>
-                <div className="row g-3">
-                  <div className="col-md-6">
-                    <label className="form-label text-white small fw-bold">Organization Name *</label>
-                    <input
-                      type="text"
-                      name="organizationName"
-                      className={`form-control bg-dark text-white border-secondary ${errors.organizationName ? 'is-invalid' : ''}`}
-                      placeholder="e.g. IIT Madras / Infosys Ltd"
-                      value={formData.organizationName}
-                      onChange={handleChange}
-                    />
-                    {errors.organizationName && <div className="invalid-feedback">{errors.organizationName}</div>}
-                  </div>
-
-                  <div className="col-md-6">
-                    <label className="form-label text-white small fw-bold">Organization Type *</label>
-                    <select
-                      name="organizationType"
-                      className="form-select bg-dark text-white border-secondary"
-                      value={formData.organizationType}
-                      onChange={handleChange}
-                    >
-                      <option value="COLLEGE">Educational Institution / College</option>
-                      <option value="IT_COMPANY">IT / Tech Enterprise</option>
-                      <option value="HOSPITAL">Hospital / Healthcare</option>
-                      <option value="GOVERNMENT">Government Department</option>
-                      <option value="PRIVATE_ENTERPRISE">Private Business</option>
-                      <option value="OTHER">Other Organization</option>
-                    </select>
-                  </div>
-
-                  <div className="col-md-6">
-                    <label className="form-label text-white small fw-bold">Contact Person *</label>
-                    <input
-                      type="text"
-                      name="contactPerson"
-                      className={`form-control bg-dark text-white border-secondary ${errors.contactPerson ? 'is-invalid' : ''}`}
-                      placeholder="e.g. Dr. A. Sharma (IT Head)"
-                      value={formData.contactPerson}
-                      onChange={handleChange}
-                    />
-                    {errors.contactPerson && <div className="invalid-feedback">{errors.contactPerson}</div>}
-                  </div>
-
-                  <div className="col-md-6">
-                    <label className="form-label text-white small fw-bold">GST / Registration No. (Optional)</label>
-                    <input
-                      type="text"
-                      name="gstNumber"
-                      className="form-control bg-dark text-white border-secondary"
-                      placeholder="33AAAAA0000A1Z5"
-                      value={formData.gstNumber}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-            {/* Full Name */}
-            <div className="col-12">
-              <label className="form-label text-white small fw-bold">Full Name *</label>
-              <input
-                type="text"
-                name="fullName"
-                className={`form-control bg-dark text-white border-secondary ${errors.fullName ? 'is-invalid' : ''}`}
-                placeholder="e.g. Ramesh Kumar"
-                value={formData.fullName}
-                onChange={handleChange}
-              />
-              {errors.fullName && <div className="invalid-feedback">{errors.fullName}</div>}
-            </div>
-
-            {/* Email */}
-            <div className="col-md-6">
-              <label className="form-label text-white small fw-bold">Email Address *</label>
-              <input
-                type="email"
-                name="email"
-                className={`form-control bg-dark text-white border-secondary ${errors.email ? 'is-invalid' : ''}`}
-                placeholder="name@example.com"
-                value={formData.email}
-                onChange={handleChange}
-              />
-              {errors.email && <div className="invalid-feedback">{errors.email}</div>}
-            </div>
-
-            {/* Phone Number */}
-            <div className="col-md-6">
-              <label className="form-label text-white small fw-bold">10-Digit Mobile Number *</label>
-              <input
-                type="tel"
-                name="phoneNumber"
-                className={`form-control bg-dark text-white border-secondary ${errors.phoneNumber ? 'is-invalid' : ''}`}
-                placeholder="9876543210"
-                value={formData.phoneNumber}
-                onChange={handleChange}
-              />
-              {errors.phoneNumber && <div className="invalid-feedback">{errors.phoneNumber}</div>}
-            </div>
-
-            {/* Password */}
-            <div className="col-md-6">
-              <label className="form-label text-white small fw-bold">Password *</label>
-              <input
-                type="password"
-                name="password"
-                className={`form-control bg-dark text-white border-secondary ${errors.password ? 'is-invalid' : ''}`}
-                placeholder="••••••••"
-                value={formData.password}
-                onChange={handleChange}
-              />
-              {errors.password && <div className="invalid-feedback">{errors.password}</div>}
-            </div>
-
-            {/* Account Role */}
-            <div className="col-md-6">
-              <label className="form-label text-white small fw-bold">Account Role *</label>
-              <select
-                name="role"
-                className="form-select bg-dark text-white border-secondary"
-                value={formData.role}
-                onChange={handleChange}
-              >
-                <option value="USER">Resident / Business (User)</option>
-                <option value="COLLECTOR">E-Waste Collector</option>
-                <option value="RECYCLER">Recycling Partner</option>
-              </select>
-            </div>
-
-            {/* City */}
-            <div className="col-md-4">
-              <label className="form-label text-white small fw-bold">City *</label>
-              <input
-                type="text"
-                name="city"
-                className={`form-control bg-dark text-white border-secondary ${errors.city ? 'is-invalid' : ''}`}
-                placeholder="Bengaluru"
-                value={formData.city}
-                onChange={handleChange}
-              />
-              {errors.city && <div className="invalid-feedback">{errors.city}</div>}
-            </div>
-
-            {/* State */}
-            <div className="col-md-4">
-              <label className="form-label text-white small fw-bold">State *</label>
-              <input
-                type="text"
-                name="state"
-                className={`form-control bg-dark text-white border-secondary ${errors.state ? 'is-invalid' : ''}`}
-                placeholder="Karnataka"
-                value={formData.state}
-                onChange={handleChange}
-              />
-              {errors.state && <div className="invalid-feedback">{errors.state}</div>}
-            </div>
-
-            {/* Pincode */}
-            <div className="col-md-4">
-              <label className="form-label text-white small fw-bold">Pincode *</label>
-              <input
-                type="text"
-                name="pincode"
-                className={`form-control bg-dark text-white border-secondary ${errors.pincode ? 'is-invalid' : ''}`}
-                placeholder="560001"
-                value={formData.pincode}
-                onChange={handleChange}
-              />
-              {errors.pincode && <div className="invalid-feedback">{errors.pincode}</div>}
-            </div>
+        <div className="row g-3">
+          <div className="col-12">
+            <label>Full Name *</label>
+            <input
+              type="text"
+              name="fullName"
+              className={`form-control ${errors.fullName ? 'is-invalid' : ''}`}
+              placeholder="e.g. Ramesh Kumar"
+              value={formData.fullName}
+              onChange={handleChange}
+            />
+            {errors.fullName && <div className="invalid-feedback">{errors.fullName}</div>}
           </div>
 
-          <div className="mt-4 pt-2">
-            <button
-              type="submit"
-              className="btn btn-primary-custom w-100 py-2.5 justify-content-center fw-bold"
-              disabled={isSubmitting}
+          <div className="col-md-6">
+            <label>Email Address *</label>
+            <input
+              type="email"
+              name="email"
+              className={`form-control ${errors.email ? 'is-invalid' : ''}`}
+              placeholder="name@example.com"
+              value={formData.email}
+              onChange={handleChange}
+            />
+            {errors.email && <div className="invalid-feedback">{errors.email}</div>}
+          </div>
+
+          <div className="col-md-6">
+            <label>10-Digit Indian Mobile Number *</label>
+            <input
+              type="tel"
+              name="phoneNumber"
+              className={`form-control ${errors.phoneNumber ? 'is-invalid' : ''}`}
+              placeholder="9876543210"
+              value={formData.phoneNumber}
+              onChange={handleChange}
+            />
+            {errors.phoneNumber && <div className="invalid-feedback">{errors.phoneNumber}</div>}
+          </div>
+
+          <div className="col-md-6">
+            <label>Password *</label>
+            <input
+              type="password"
+              name="password"
+              className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+              placeholder="••••••••"
+              value={formData.password}
+              onChange={handleChange}
+            />
+            {errors.password && <div className="invalid-feedback">{errors.password}</div>}
+          </div>
+
+          <div className="col-md-6">
+            <label>Account Role *</label>
+            <select
+              name="role"
+              className="form-select"
+              value={formData.role}
+              onChange={handleChange}
             >
-              {isSubmitting ? (
-                <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                  Creating Account...
-                </>
-              ) : (
-                <>
-                  <i className="bi bi-check-circle-fill me-2"></i> Register Account
-                </>
-              )}
-            </button>
+              <option value="USER">Resident / Business (User)</option>
+              <option value="COLLECTOR">E-Waste Collector</option>
+              <option value="RECYCLER">Recycling Partner</option>
+            </select>
           </div>
-        </form>
 
-        <div className="text-center mt-4 pt-3 border-top border-secondary border-opacity-25 small text-muted">
-          Already have an account?{' '}
-          <Link to="/login" className="text-success text-decoration-none fw-semibold">
-            Log In Here
-          </Link>
+          <div className="col-md-4">
+            <label>City *</label>
+            <input
+              type="text"
+              name="city"
+              className={`form-control ${errors.city ? 'is-invalid' : ''}`}
+              placeholder="Coimbatore"
+              value={formData.city}
+              onChange={handleChange}
+            />
+            {errors.city && <div className="invalid-feedback">{errors.city}</div>}
+          </div>
+
+          <div className="col-md-4">
+            <label>State *</label>
+            <input
+              type="text"
+              name="state"
+              className={`form-control ${errors.state ? 'is-invalid' : ''}`}
+              placeholder="Tamil Nadu"
+              value={formData.state}
+              onChange={handleChange}
+            />
+            {errors.state && <div className="invalid-feedback">{errors.state}</div>}
+          </div>
+
+          <div className="col-md-4">
+            <label>PIN Code (Indian 6-digit) *</label>
+            <input
+              type="text"
+              name="pincode"
+              className={`form-control ${errors.pincode ? 'is-invalid' : ''}`}
+              placeholder="641001"
+              value={formData.pincode}
+              onChange={handleChange}
+            />
+            {errors.pincode && <div className="invalid-feedback">{errors.pincode}</div>}
+          </div>
         </div>
+
+        <div className="mt-4 pt-2">
+          <button
+            type="submit"
+            className="btn btn-primary-custom px-5 py-3"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Creating Account...' : 'CREATE ACCOUNT ↗'}
+          </button>
+        </div>
+      </form>
+
+      <div className="mt-4 pt-3 border-top border-dark text-muted small">
+        Already have an account?{' '}
+        <Link to="/login" className="text-dark fw-bold">
+          Log In Here ↗
+        </Link>
       </div>
     </div>
   )

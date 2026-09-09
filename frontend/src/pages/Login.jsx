@@ -35,85 +35,67 @@ export default function Login() {
   }
 
   return (
-    <div className="container py-4" style={{ maxWidth: '480px' }}>
-      <div className="hero-card shadow-lg p-4 p-md-5">
-        <div className="text-center mb-4">
-          <div className="brand-icon mx-auto mb-3" style={{ width: '48px', height: '48px', fontSize: '1.5rem' }}>
-            <i className="bi bi-shield-lock-fill"></i>
-          </div>
-          <h2 className="hero-title h3 mb-1">Welcome Back</h2>
-          <p className="hero-description text-muted small">
-            Log in to manage e-waste requests, track recycling status &amp; view eco-rewards.
+    <div className="py-5">
+      <div className="grid-split-50-50 my-4">
+        {/* Left Column: Brand Statement */}
+        <div className="pe-md-4">
+          <div className="editorial-tag">SECURE ACCESS PORTAL</div>
+          <h1 className="display-hero-title mb-4">ACCESS YOUR ACCOUNT</h1>
+          <p className="fs-5 text-secondary">
+            Log in to schedule e-waste disposal dispatches, monitor recycling facility stages, and manage eco-credit rewards.
           </p>
         </div>
 
-        {error && (
-          <div className="alert alert-danger d-flex align-items-center mb-4 rounded-3 text-start small" role="alert">
-            <i className="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
-            <div>{error}</div>
-          </div>
-        )}
+        {/* Right Column: Clean Form Controls */}
+        <div className="border-start ps-md-5 pt-3 pt-md-0">
+          <h2 className="h4 text-uppercase fw-bold mb-4 pb-2 border-bottom border-dark">USER AUTHENTICATION</h2>
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label htmlFor="login-email" className="form-label text-white small fw-bold">Email Address</label>
-            <div className="input-group">
-              <span className="input-group-text bg-dark border-secondary text-muted">
-                <i className="bi bi-envelope" aria-hidden="true"></i>
-              </span>
+          {error && <div className="alert alert-danger mb-4">{error}</div>}
+
+          <form onSubmit={handleSubmit} className="d-flex flex-column gap-3">
+            <div>
+              <label htmlFor="login-email">Email Address *</label>
               <input
                 id="login-email"
                 type="email"
-                className="form-control bg-dark text-white border-secondary"
+                className="form-control"
                 placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
-          </div>
 
-          <div className="mb-4">
-            <label htmlFor="login-password" className="form-label text-white small fw-bold">Password</label>
-            <div className="input-group">
-              <span className="input-group-text bg-dark border-secondary text-muted">
-                <i className="bi bi-key" aria-hidden="true"></i>
-              </span>
+            <div>
+              <label htmlFor="login-password">Password *</label>
               <input
                 id="login-password"
                 type="password"
-                className="form-control bg-dark text-white border-secondary"
+                className="form-control"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>
+
+            <div className="pt-2">
+              <button
+                type="submit"
+                className="btn btn-primary-custom w-100"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Logging in...' : 'LOG IN ↗'}
+              </button>
+            </div>
+          </form>
+
+          <div className="mt-4 pt-3 border-top border-dark text-muted small">
+            Don't have an account yet?{' '}
+            <Link to="/register" className="text-dark fw-bold">
+              Register Here ↗
+            </Link>
           </div>
-
-          <button
-            type="submit"
-            className="btn btn-primary-custom w-100 py-2.5 justify-content-center fw-bold"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                Logging in...
-              </>
-            ) : (
-              <>
-                <i className="bi bi-box-arrow-in-right me-2"></i> Log In
-              </>
-            )}
-          </button>
-        </form>
-
-        <div className="text-center mt-4 pt-3 border-top border-secondary border-opacity-25 small text-muted">
-          Don't have an account?{' '}
-          <Link to="/register" className="text-success text-decoration-none fw-semibold">
-            Create an Account
-          </Link>
         </div>
       </div>
     </div>

@@ -5,40 +5,30 @@ export default function RecyclerDashboard() {
   const { user } = useAuth()
 
   return (
-    <div className="container py-4">
-      <div className="hero-card mb-4">
-        <span className="hero-tag">♻️ Recycling Partner Portal</span>
-        <h1 className="hero-title h2 mb-1">
-          Facility Control Center
-        </h1>
-        <p className="hero-description small mb-0">
-          Logged in as <strong>{user?.email}</strong>. Manage incoming e-waste inventory, material segregation, and issue recycling certificates.
-        </p>
+    <div className="py-4">
+      <div className="editorial-tag">RECYCLING FACILITY CONSOLE</div>
+      <div className="d-flex justify-content-between align-items-baseline mb-4 pb-3 border-bottom border-dark flex-wrap gap-3">
+        <div>
+          <h1 className="h1 text-uppercase fw-bold m-0">FACILITY OPERATIONS</h1>
+          <p className="text-secondary small mt-1">
+            Logged in as <strong>{user?.email}</strong>. Manage incoming material inventory, chemical segregation, and issue verifiable digital recycling certificates.
+          </p>
+        </div>
       </div>
 
-      <div className="row g-4">
-        <div className="col-md-6">
-          <div className="feature-card">
-            <div className="feature-icon">
-              <i className="bi bi-box-seam-fill"></i>
-            </div>
-            <h3 className="feature-title">Facility Inventory</h3>
-            <p className="feature-text">
-              Inspect e-waste items received at the recycling center and update recovery status (RECYCLED, REFURBISHED, REUSED).
-            </p>
-          </div>
+      <div className="grid-split-50-50 my-4">
+        <div>
+          <h2 className="h4 text-uppercase fw-bold mb-3 pb-2 border-bottom border-dark">01 / FACILITY INVENTORY</h2>
+          <p className="text-secondary">
+            Inspect e-waste items received at the facility hub. Update recovery status (RECYCLED, REFURBISHED, REUSED) and track rare earth metal recovery rates.
+          </p>
         </div>
 
-        <div className="col-md-6">
-          <div className="feature-card">
-            <div className="feature-icon">
-              <i className="bi bi-patch-check-fill"></i>
-            </div>
-            <h3 className="feature-title">Issue Green Certificates</h3>
-            <p className="feature-text">
-              Generate official recycling certificates documenting hazardous material diversion and weight compliance.
-            </p>
-          </div>
+        <div>
+          <h2 className="h4 text-uppercase fw-bold mb-3 pb-2 border-bottom border-dark">02 / CERTIFICATE ISSUANCE</h2>
+          <p className="text-secondary">
+            Generate official CPCB / State PCB compliant digital recycling certificates documenting zero-landfill diversion and safe battery handling.
+          </p>
         </div>
       </div>
     </div>

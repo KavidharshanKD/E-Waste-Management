@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import axios from 'axios'
+import { formatIndianDate } from '../utils/workflowHelpers'
 
 export default function MyRequests() {
   const location = useLocation()
@@ -65,181 +66,124 @@ export default function MyRequests() {
   })
 
   return (
-    <div className="container py-4">
+    <div className="py-4">
       {/* Header */}
-      <div className="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+      <div className="editorial-tag">MY DISPOSAL STREAM</div>
+      <div className="d-flex justify-content-between align-items-baseline mb-4 pb-3 border-bottom border-dark flex-wrap gap-3">
         <div>
-          <h1 className="hero-title h2 mb-1">My Disposal Requests</h1>
-          <p className="text-muted small mb-0">
-            Track the status of all your submitted e-waste collections and recycling lifecycle stages.
+          <h1 className="h1 text-uppercase fw-bold m-0">DISPOSAL REQUESTS HISTORY</h1>
+          <p className="text-secondary small mt-1">
+            Track collection status, inspection stages, and certificates issued.
           </p>
         </div>
-        <Link to="/user/ewaste/add" className="btn btn-primary-custom py-2 px-3 text-white text-decoration-none">
-          <i className="bi bi-plus-lg me-1"></i> Submit New E-Waste
+        <Link to="/user/ewaste/add" className="btn btn-primary-custom">
+          Dispose E-Waste ↗
         </Link>
       </div>
 
-      {successMsg && (
-        <div className="alert alert-success border-0 rounded-4 shadow-sm mb-4 alert-dismissible fade show" role="alert">
-          <i className="bi bi-check-circle-fill me-2"></i> {successMsg}
-          <button type="button" className="btn-close" onClick={() => setSuccessMsg(null)}></button>
-        </div>
-      )}
-
-      {error && (
-        <div className="alert alert-danger border-0 rounded-4 shadow-sm mb-4">
-          <i className="bi bi-exclamation-triangle-fill me-2"></i> {error}
-        </div>
-      )}
+      {successMsg && <div className="alert alert-success mb-4">{successMsg}</div>}
+      {error && <div className="alert alert-danger mb-4">{error}</div>}
 
       {/* Filter Tabs */}
-      <div className="d-flex align-items-center gap-2 mb-4 overflow-x-auto pb-2">
+      <div className="d-flex gap-2 mb-4 border-bottom border-dark pb-2 flex-wrap">
         <button
           onClick={() => setActiveFilter('ALL')}
-          className={`btn btn-sm rounded-pill px-3 ${activeFilter === 'ALL' ? 'btn-primary-custom text-white' : 'btn-outline-custom text-muted'}`}
+          className={`btn ${activeFilter === 'ALL' ? 'btn-primary-custom' : 'btn-outline-custom'}`}
         >
           All ({requests.length})
         </button>
         <button
           onClick={() => setActiveFilter('ACTIVE')}
-          className={`btn btn-sm rounded-pill px-3 ${activeFilter === 'ACTIVE' ? 'btn-primary-custom text-white' : 'btn-outline-custom text-muted'}`}
+          className={`btn ${activeFilter === 'ACTIVE' ? 'btn-primary-custom' : 'btn-outline-custom'}`}
         >
-          Awaiting Pickup / Active
+          Active Dispatches
         </button>
         <button
           onClick={() => setActiveFilter('PROCESSED')}
-          className={`btn btn-sm rounded-pill px-3 ${activeFilter === 'PROCESSED' ? 'btn-primary-custom text-white' : 'btn-outline-custom text-muted'}`}
+          className={`btn ${activeFilter === 'PROCESSED' ? 'btn-primary-custom' : 'btn-outline-custom'}`}
         >
-          Collected &amp; Processed
+          Collected &amp; Recycled
         </button>
         <button
           onClick={() => setActiveFilter('CANCELLED')}
-          className={`btn btn-sm rounded-pill px-3 ${activeFilter === 'CANCELLED' ? 'btn-primary-custom text-white' : 'btn-outline-custom text-muted'}`}
+          className={`btn ${activeFilter === 'CANCELLED' ? 'btn-primary-custom' : 'btn-outline-custom'}`}
         >
           Cancelled
         </button>
       </div>
 
       {/* Content Table */}
-      <div className="glass-card">
-        {loading ? (
-          <div className="text-center py-5 text-muted">
-            <span className="spinner-border spinner-border-sm me-2" role="status"></span>
-            Loading your requests...
-          </div>
-        ) : filteredRequests.length === 0 ? (
-          <div className="text-center py-5 border border-dashed border-secondary border-opacity-25 rounded-4">
-            <i className="bi bi-search text-muted display-4 d-block mb-2"></i>
-            <h5 className="text-white mb-2">No Requests Found</h5>
-            <p className="text-muted small mb-3">
-              {activeFilter === 'ALL'
-                ? "You haven't created any e-waste disposal requests yet."
-                : `No requests match the "${activeFilter}" filter.`}
-            </p>
-            {activeFilter === 'ALL' && (
-              <Link to="/user/ewaste/add" className="btn btn-primary-custom text-white text-decoration-none">
-                <i className="bi bi-plus-lg me-1"></i> Add E-Waste Now
-              </Link>
-            )}
-          </div>
-        ) : (
-          <div className="table-responsive">
-            <table className="table table-custom align-middle">
-              <thead>
-                <tr>
-                  <th>Tracking #</th>
-                  <th>Device / Specs</th>
-                  <th>Pickup Address</th>
-                  <th>Status</th>
-                  <th>Date</th>
-                  <th className="text-end">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRequests.map((req) => {
-                  const firstItem = req.items && req.items.length > 0 ? req.items[0] : null
-                  const isCancellable = ['SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'PICKUP_ASSIGNED'].includes(req.status)
+      {loading ? (
+        <div className="py-4 text-muted small">Loading requests...</div>
+      ) : filteredRequests.length === 0 ? (
+        <div className="py-4 text-muted small">
+          No disposal requests match the selected filter.
+        </div>
+      ) : (
+        <div className="table-responsive">
+          <table className="editorial-table">
+            <thead>
+              <tr>
+                <th>TRACKING NUMBER</th>
+                <th>EQUIPMENT</th>
+                <th>PICKUP LOCATION</th>
+                <th>STATUS</th>
+                <th>SUBMITTED DATE</th>
+                <th className="text-end">ACTION</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredRequests.map((req) => {
+                const firstItem = req.items && req.items.length > 0 ? req.items[0] : null
+                const isCancellable = ['SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'PICKUP_ASSIGNED'].includes(req.status)
 
-                  return (
-                    <tr key={req.id}>
-                      <td>
-                        <span className="font-weight-bold text-success d-block">
-                          <code>{req.trackingNumber}</code>
-                        </span>
-                        <small className="text-muted">
-                          {req.pickupRequired ? '🚚 Doorstep Pickup' : '🏢 Self Drop-off'}
-                        </small>
-                      </td>
-
-                      <td>
-                        <div className="d-flex align-items-center gap-2">
-                          {firstItem?.imageUrl ? (
-                            <img
-                              src={firstItem.imageUrl}
-                              alt="Device"
-                              style={{ width: '40px', height: '40px', objectFit: 'cover' }}
-                              className="rounded-2 border border-secondary"
-                            />
-                          ) : (
-                            <div className="bg-dark p-2 rounded-2 border border-secondary text-success text-center" style={{ width: '40px', height: '40px' }}>
-                              <i className="bi bi-box-seam"></i>
-                            </div>
-                          )}
-                          <div>
-                            <span className="text-white font-weight-semibold d-block">
-                              {firstItem?.deviceName || firstItem?.category || 'E-Waste Item'}
-                            </span>
-                            <span className="extra-small text-muted">
-                              Qty: {firstItem?.quantity || 1} • {firstItem?.condition || 'WORKING'}
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-
-                      <td style={{ maxWidth: '200px' }} className="text-truncate">
-                        <span className="d-block text-white small">{req.pickupAddress}</span>
-                        <span className="text-muted extra-small">{req.pickupCity}, {req.pickupPostalCode}</span>
-                      </td>
-
-                      <td>
-                        <span className={`badge-status badge-status-${req.status}`}>
-                          {formatStatus(req.status)}
-                        </span>
-                      </td>
-
-                      <td className="text-muted small">
-                        {req.createdAt ? new Date(req.createdAt).toLocaleDateString() : 'N/A'}
-                      </td>
-
-                      <td className="text-end">
-                        <div className="d-inline-flex gap-2">
-                          <Link to={`/user/requests/${req.id}`} className="btn btn-outline-custom btn-sm">
-                            <i className="bi bi-eye-fill me-1"></i> Details
-                          </Link>
-                          {isCancellable && (
-                            <button
-                              onClick={() => handleCancelRequest(req.id)}
-                              disabled={cancellingId === req.id}
-                              className="btn btn-outline-danger btn-sm rounded-3"
-                              title="Cancel Request"
-                            >
-                              {cancellingId === req.id ? (
-                                <span className="spinner-border spinner-border-sm"></span>
-                              ) : (
-                                <i className="bi bi-x-circle-fill"></i>
-                              )}
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+                return (
+                  <tr key={req.id}>
+                    <td>
+                      <code className="fw-bold">{req.trackingNumber}</code>
+                    </td>
+                    <td>
+                      <span className="fw-bold">{firstItem?.deviceName || firstItem?.category || 'E-Waste'}</span>
+                      <span className="text-muted extra-small d-block">Qty: {firstItem?.quantity || 1}</span>
+                    </td>
+                    <td className="small">
+                      {req.pickupAddress}, {req.pickupCity}
+                    </td>
+                    <td>
+                      <span className="status-dot-item">
+                        <span className={`status-dot ${
+                          req.status === 'COMPLETED' ? 'status-dot-emerald' :
+                          req.status === 'PICKUP_ASSIGNED' ? 'status-dot-info' : 'status-dot-warning'
+                        }`}></span>
+                        {formatStatus(req.status)}
+                      </span>
+                    </td>
+                    <td className="text-muted small">
+                      {req.createdAt ? formatIndianDate(req.createdAt) : 'N/A'}
+                    </td>
+                    <td className="text-end">
+                      <div className="d-inline-flex gap-2">
+                        <Link to={`/user/requests/${req.id}`} className="btn btn-outline-custom btn-sm">
+                          Details
+                        </Link>
+                        {isCancellable && (
+                          <button
+                            onClick={() => handleCancelRequest(req.id)}
+                            disabled={cancellingId === req.id}
+                            className="btn btn-secondary btn-sm"
+                          >
+                            Cancel
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
 }

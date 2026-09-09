@@ -36,8 +36,7 @@ export default function FindRecyclingCenter() {
   const [geoLocating, setGeoLocating] = useState(false)
   const [geoError, setGeoError] = useState(null)
 
-  // Configurable Map Provider Template (Default: Google Maps Directions API)
-  const generateDirectionsUrl = (lat, lng, name) => {
+  const generateDirectionsUrl = (lat, lng) => {
     if (!lat || !lng) return '#'
     return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`
   }
@@ -59,7 +58,6 @@ export default function FindRecyclingCenter() {
         params.lng = userCoords.lng
       }
 
-      // Remove empty params
       Object.keys(params).forEach(key => {
         if (!params[key]) delete params[key]
       })
@@ -117,7 +115,7 @@ export default function FindRecyclingCenter() {
       },
       (err) => {
         console.error('Geolocation error', err)
-        setGeoError('Unable to retrieve your location. Please search by City or Pincode.')
+        setGeoError('Unable to retrieve location. Search by City or PIN code.')
         setGeoLocating(false)
       },
       { timeout: 10000, enableHighAccuracy: true }
@@ -125,107 +123,86 @@ export default function FindRecyclingCenter() {
   }
 
   return (
-    <div className="container py-4">
-      {/* Header */}
-      <div className="hero-card mb-4">
-        <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
-          <div>
-            <span className="hero-tag">📍 Geographic Discovery</span>
-            <h1 className="hero-title h2 mb-1">Find Recycling Center</h1>
-            <p className="hero-description small mb-0">
-              Locate authorized e-waste processing centers across Indian cities, check accepted waste categories, and calculate distance.
-            </p>
-          </div>
-          <button
-            onClick={handleUseCurrentLocation}
-            disabled={geoLocating}
-            className="btn btn-primary-custom py-2.5 px-4 text-white text-decoration-none shadow-sm"
-          >
-            {geoLocating ? (
-              <span>
-                <span className="spinner-border spinner-border-sm me-2" role="status"></span> Locating You...
-              </span>
-            ) : (
-              <span>
-                <i className="bi bi-geo-alt-fill me-1.5 text-warning"></i> Use My Current Location
-              </span>
-            )}
-          </button>
+    <div className="py-4">
+      {/* Header Banner */}
+      <div className="d-flex justify-content-between align-items-baseline mb-4 pb-3 border-bottom border-dark flex-wrap gap-3">
+        <div>
+          <div className="editorial-tag">GEOGRAPHIC DISCOVERY</div>
+          <h1 className="h1 text-uppercase fw-bold m-0">RECYCLING CENTERS INDIA</h1>
         </div>
+        <button
+          onClick={handleUseCurrentLocation}
+          disabled={geoLocating}
+          className="btn btn-primary-custom"
+        >
+          {geoLocating ? 'Locating...' : 'Use My Current Location ↗'}
+        </button>
       </div>
 
-      {geoError && (
-        <div className="alert alert-warning border-0 rounded-4 shadow-sm mb-4">
-          <i className="bi bi-exclamation-triangle-fill me-2"></i> {geoError}
-        </div>
-      )}
+      {geoError && <div className="alert alert-warning mb-4">{geoError}</div>}
+      {error && <div className="alert alert-danger mb-4">{error}</div>}
 
-      {error && (
-        <div className="alert alert-danger border-0 rounded-4 shadow-sm mb-4">
-          <i className="bi bi-exclamation-triangle-fill me-2"></i> {error}
-        </div>
-      )}
-
-      {/* Filter Form Card */}
-      <div className="glass-card mb-4">
-        <form onSubmit={handleSearchSubmit}>
-          <div className="row g-3 align-items-end">
-            <div className="col-12 col-sm-6 col-md-3">
-              <label className="form-label text-muted small font-weight-bold">Search Query</label>
+      <div className="grid-split-33-67 my-4" style={{ display: 'grid', gridTemplateColumns: '1fr 2.5fr', gap: '3rem' }}>
+        {/* Left Column: Filter Controls */}
+        <div>
+          <h2 className="h4 text-uppercase fw-bold mb-3 pb-2 border-bottom border-dark">FILTER FACILITIES</h2>
+          <form onSubmit={handleSearchSubmit} className="d-flex flex-direction-column flex-column gap-3">
+            <div>
+              <label>Search Keyword</label>
               <input
                 type="text"
                 name="search"
                 value={searchParams.search}
                 onChange={handleInputChange}
-                placeholder="Center name or keyword"
-                className="form-control form-control-custom"
+                placeholder="Center name or facility"
+                className="form-control"
               />
             </div>
 
-            <div className="col-6 col-sm-6 col-md-2">
-              <label className="form-label text-muted small font-weight-bold">City</label>
+            <div>
+              <label>City</label>
               <input
                 type="text"
                 name="city"
                 value={searchParams.city}
                 onChange={handleInputChange}
-                placeholder="e.g. Chennai"
-                className="form-control form-control-custom"
+                placeholder="e.g. Coimbatore"
+                className="form-control"
               />
             </div>
 
-            <div className="col-6 col-sm-6 col-md-2">
-              <label className="form-label text-muted small font-weight-bold">State</label>
+            <div>
+              <label>State</label>
               <input
                 type="text"
                 name="state"
                 value={searchParams.state}
                 onChange={handleInputChange}
                 placeholder="e.g. Tamil Nadu"
-                className="form-control form-control-custom"
+                className="form-control"
               />
             </div>
 
-            <div className="col-6 col-sm-6 col-md-2">
-              <label className="form-label text-muted small font-weight-bold">PIN Code</label>
+            <div>
+              <label>PIN Code</label>
               <input
                 type="text"
                 name="pincode"
                 maxLength="6"
                 value={searchParams.pincode}
                 onChange={handleInputChange}
-                placeholder="e.g. 600032"
-                className="form-control form-control-custom"
+                placeholder="e.g. 641001"
+                className="form-control"
               />
             </div>
 
-            <div className="col-6 col-sm-6 col-md-3">
-              <label className="form-label text-muted small font-weight-bold">Waste Category</label>
+            <div>
+              <label>Equipment Category</label>
               <select
                 name="category"
                 value={searchParams.category}
                 onChange={handleInputChange}
-                className="form-select form-select-custom"
+                className="form-select"
               >
                 {EWASTE_CATEGORIES.map(cat => (
                   <option key={cat.value} value={cat.value}>{cat.label}</option>
@@ -233,132 +210,65 @@ export default function FindRecyclingCenter() {
               </select>
             </div>
 
-            <div className="col-12 d-flex gap-2 justify-content-end mt-3">
-              <button type="button" onClick={handleClearFilters} className="btn btn-outline-custom">
-                <i className="bi bi-x-circle me-1"></i> Clear Filters
+            <div className="pt-2 d-flex flex-column gap-2">
+              <button type="submit" className="btn btn-primary-custom w-100">
+                Search Centers ↗
               </button>
-              <button type="submit" className="btn btn-primary-custom px-4 text-white">
-                <i className="bi bi-search me-1"></i> Search Centers
+              <button type="button" onClick={handleClearFilters} className="btn btn-outline-custom w-100">
+                Clear Filters
               </button>
             </div>
+          </form>
+        </div>
+
+        {/* Right Column: Horizontal Editorial Rows */}
+        <div>
+          <div className="d-flex justify-content-between align-items-baseline mb-3 pb-2 border-bottom border-dark">
+            <h2 className="h4 text-uppercase fw-bold m-0">MATCHING FACILITIES ({centers.length})</h2>
+            {userCoords && <span className="status-dot-item"><span className="status-dot status-dot-emerald"></span> SORTED BY DISTANCE</span>}
           </div>
-        </form>
-      </div>
 
-      {/* Results Header */}
-      <div className="d-flex align-items-center justify-content-between mb-3">
-        <h5 className="text-white font-weight-bold m-0 d-flex align-items-center gap-2">
-          <i className="bi bi-building-check text-success"></i> Matching Facilities ({centers.length})
-        </h5>
-        {userCoords && (
-          <span className="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25 px-3 py-1.5 rounded-pill">
-            <i className="bi bi-geo-alt me-1"></i> Sorted by Haversine Distance
-          </span>
-        )}
-      </div>
-
-      {/* Facility Cards Grid */}
-      {loading ? (
-        <div className="text-center py-5 text-muted">
-          <span className="spinner-border spinner-border-sm me-2" role="status"></span>
-          Searching recycling facilities...
-        </div>
-      ) : centers.length === 0 ? (
-        <div className="glass-card text-center py-5">
-          <i className="bi bi-geo-off text-muted display-4 d-block mb-2"></i>
-          <h5 className="text-white mb-2">No Centers Found</h5>
-          <p className="text-muted small mb-3">No recycling centers match your current filter parameters.</p>
-          <button onClick={handleClearFilters} className="btn btn-outline-custom">
-            Clear Filters &amp; View All
-          </button>
-        </div>
-      ) : (
-        <div className="row g-4">
-          {centers.map(center => (
-            <div key={center.id} className="col-12 col-md-6 col-lg-4">
-              <div className="glass-card h-100 d-flex flex-column justify-content-between p-4 border border-secondary border-opacity-25 shadow-sm">
-                <div>
-                  <div className="d-flex align-items-start justify-content-between gap-2 mb-2">
-                    <h5 className="text-white font-weight-bold mb-0 text-truncate" title={center.name}>
-                      {center.name}
-                    </h5>
-                    {center.isDemoFacility && (
-                      <span className="badge bg-warning bg-opacity-25 text-warning border border-warning border-opacity-25 extra-small px-2 py-1" title="Sample demonstration facility for testing">
-                        DEMO FACILITY
-                      </span>
+          {loading ? (
+            <div className="py-4 text-muted small">Loading registered facilities...</div>
+          ) : centers.length === 0 ? (
+            <div className="py-4 text-muted small">
+              No recycling facilities found matching your criteria. <button onClick={handleClearFilters} className="btn btn-link p-0 text-success">Clear filters</button>.
+            </div>
+          ) : (
+            <div className="editorial-timeline">
+              {centers.map((center, index) => (
+                <div key={center.id} className="editorial-timeline-row">
+                  <div className="editorial-timeline-num">{String(index + 1).padStart(2, '0')}</div>
+                  <div>
+                    <div className="editorial-timeline-title">{center.name}</div>
+                    <div className="text-secondary small mt-1">
+                      {center.address}, {center.city}, {center.state} - {center.postalCode}
+                    </div>
+                    {center.acceptedWasteCategories && (
+                      <div className="text-muted extra-small mt-2">
+                        ACCEPTED: {center.acceptedWasteCategories}
+                      </div>
                     )}
                   </div>
-
-                  {center.registrationNumber && (
-                    <span className="text-muted extra-small d-block mb-2">
-                      Reg No: <code>{center.registrationNumber}</code>
-                    </span>
-                  )}
-
-                  {center.distanceKm != null && (
-                    <div className="mb-3">
-                      <span className="badge bg-success text-white font-weight-bold px-2.5 py-1">
-                        📍 {center.distanceKm} km away
-                      </span>
-                    </div>
-                  )}
-
-                  <div className="mb-3 text-muted small">
-                    <i className="bi bi-geo-alt me-1 text-info"></i>
-                    {center.address}, {center.city}, {center.district ? `${center.district}, ` : ''}{center.state} - {center.postalCode}
+                  <div className="text-md-end">
+                    {center.distanceKm != null && (
+                      <div className="fw-bold text-success fs-5 mb-1">{center.distanceKm} KM</div>
+                    )}
+                    <a
+                      href={generateDirectionsUrl(center.latitude, center.longitude)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-link-action"
+                    >
+                      DIRECTIONS ↗
+                    </a>
                   </div>
-
-                  {center.operatingHours && (
-                    <div className="mb-3 text-muted small">
-                      <i className="bi bi-clock me-1 text-warning"></i>
-                      <span>{center.operatingHours}</span>
-                    </div>
-                  )}
-
-                  {(center.contactPhone || center.contactEmail) && (
-                    <div className="mb-3 small">
-                      {center.contactPhone && (
-                        <span className="d-block text-white mb-1">
-                          <i className="bi bi-telephone-fill me-1 text-success"></i> {center.contactPhone}
-                        </span>
-                      )}
-                      {center.contactEmail && (
-                        <span className="d-block text-muted text-truncate">
-                          <i className="bi bi-envelope-fill me-1 text-info"></i> {center.contactEmail}
-                        </span>
-                      )}
-                    </div>
-                  )}
-
-                  {center.acceptedWasteCategories && (
-                    <div className="mb-3">
-                      <span className="text-muted extra-small d-block mb-1.5 font-weight-bold">Accepted E-Waste Categories:</span>
-                      <div className="d-flex flex-wrap gap-1">
-                        {center.acceptedWasteCategories.split(',').map(cat => (
-                          <span key={cat.trim()} className="badge bg-dark border border-secondary text-success extra-small">
-                            {cat.trim()}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                 </div>
-
-                <div className="pt-3 border-top border-secondary border-opacity-25 mt-3">
-                  <a
-                    href={generateDirectionsUrl(center.latitude, center.longitude, center.name)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-outline-custom w-100 py-2 font-weight-semibold"
-                  >
-                    <i className="bi bi-sign-turn-right-fill me-1.5 text-success"></i> Get Directions (Map)
-                  </a>
-                </div>
-              </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
-      )}
+      </div>
     </div>
   )
 }

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
+import { formatIndianDate } from '../utils/workflowHelpers'
 
 export default function UserDashboard() {
   const { user } = useAuth()
@@ -35,6 +36,7 @@ export default function UserDashboard() {
   const [recentRequests, setRecentRequests] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [actionMessage, setActionMessage] = useState(null)
 
   useEffect(() => {
     fetchDashboardData()
@@ -66,8 +68,6 @@ export default function UserDashboard() {
     return status.replace(/_/g, ' ')
   }
 
-  const [actionMessage, setActionMessage] = useState(null)
-
   const handleDownloadCertificatePdf = async (requestId, trackingNumber) => {
     try {
       const token = localStorage.getItem('token')
@@ -90,372 +90,216 @@ export default function UserDashboard() {
     }
   }
 
-  const getLevelBadgeColor = (level) => {
-    switch (level) {
-      case 'Planet Guardian':
-        return 'bg-gradient-purple text-white'
-      case 'Eco Champion':
-        return 'bg-gradient-gold text-dark'
-      case 'Eco Contributor':
-        return 'bg-success text-white'
-      default:
-        return 'bg-info text-dark'
-    }
-  }
-
   return (
-    <div className="container py-4">
+    <div className="editorial-dashboard-container py-3">
       {actionMessage && (
         <div className={`alert alert-${actionMessage.type} alert-dismissible fade show mb-4`} role="alert">
           {actionMessage.text}
           <button type="button" className="btn-close" onClick={() => setActionMessage(null)}></button>
         </div>
       )}
-      {/* Hero Welcome Banner */}
-      <div className="hero-card mb-4">
-        <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
+
+      {/* Header Banner Stream */}
+      <section className="mb-4">
+        <div className="editorial-tag">CITIZEN DISPOSAL DASHBOARD</div>
+        <div className="d-flex justify-content-between align-items-baseline flex-wrap gap-3 pb-3 border-bottom border-dark">
           <div>
-            <span className="hero-tag">🌱 Resident Citizen Portal</span>
-            <h1 className="hero-title h2 mb-1">
-              Welcome back, {user?.profile?.firstName || user?.email?.split('@')[0] || 'Citizen'}!
+            <h1 className="h2 text-uppercase fw-bold m-0">
+              WELCOME, {user?.profile?.firstName || user?.email?.split('@')[0] || 'CITIZEN'}
             </h1>
-            <p className="hero-description small mb-0">
-              Schedule e-waste pickups, monitor recycling stages, and track your environmental green points balance.
+            <p className="text-secondary small m-0">
+              Track active dispatches, monitor environmental savings, and manage recycling credentials.
             </p>
           </div>
 
-          <div className="text-end bg-dark bg-opacity-60 p-3.5 px-4 rounded-4 border border-secondary border-opacity-25 shadow-sm">
-            <span className="text-muted extra-small d-block mb-1 font-weight-bold">Current Tier &amp; Balance</span>
-            <div className="d-flex align-items-center justify-content-end gap-2">
-              <span className={`badge ${getLevelBadgeColor(rewards.currentLevel)} p-2 px-3`}>
-                <i className="bi bi-shield-fill-check me-1"></i>{rewards.currentLevel}
-              </span>
-              <span className="h2 font-weight-bold text-success m-0">
-                <i className="bi bi-coin text-warning me-1"></i>{rewards.totalPoints}
-              </span>
+          <div className="d-flex align-items-center gap-3">
+            <span className="status-dot-item">
+              <span className="status-dot status-dot-emerald"></span>
+              {rewards.currentLevel}
+            </span>
+            <div className="fs-4 fw-bold">
+              {rewards.totalPoints} <span className="fs-6 text-muted font-weight-normal">PTS</span>
             </div>
+            <Link to="/user/ewaste/add" className="btn btn-primary-custom">
+              DISPOSE E-WASTE ↗
+            </Link>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Gamification Tier & Progress Card */}
-      <div className="glass-card mb-4">
-        <div className="row align-items-center g-3">
-          <div className="col-md-6">
-            <h5 className="text-white font-weight-bold mb-1 d-flex align-items-center gap-2">
-              <i className="bi bi-award-fill text-warning"></i> Level Progression: {rewards.currentLevel}
-            </h5>
-            <p className="text-muted extra-small m-0">
-              Earn green points by completing verified e-waste disposal, device reuse, or battery recycling.
-            </p>
+      {/* Linear Stat Summary Stream — No Cards */}
+      <section className="py-3">
+        <div className="row g-4 text-start">
+          <div className="col-6 col-md-3">
+            <div className="text-uppercase small font-weight-bold text-muted">TOTAL SUBMITTED</div>
+            <div className="fs-2 fw-bold">{stats.totalSubmitted}</div>
+            <div className="text-secondary extra-small">Requests initiated</div>
           </div>
-
-          <div className="col-md-6">
-            <div className="d-flex align-items-center justify-content-between mb-1 extra-small">
-              <span className="text-muted">Progress to {rewards.nextLevel}</span>
-              <span className="text-success font-weight-bold">{rewards.progressPercentage}% ({rewards.totalPoints} / {rewards.nextLevelThreshold} pts)</span>
-            </div>
-            <div className="progress bg-dark border border-secondary border-opacity-50" style={{ height: '10px' }}>
-              <div
-                className="progress-bar bg-success progress-bar-striped progress-bar-animated"
-                role="progressbar"
-                style={{ width: `${rewards.progressPercentage}%` }}
-                aria-valuenow={rewards.progressPercentage}
-                aria-valuemin="0"
-                aria-valuemax="100"
-              ></div>
-            </div>
-            {rewards.pointsToNextLevel > 0 && (
-              <span className="text-muted extra-small d-block mt-1 text-end">
-                {rewards.pointsToNextLevel} more points needed to unlock {rewards.nextLevel}
-              </span>
-            )}
+          <div className="col-6 col-md-3">
+            <div className="text-uppercase small font-weight-bold text-muted">AWAITING PICKUP</div>
+            <div className="fs-2 fw-bold">{stats.awaitingPickup}</div>
+            <div className="text-secondary extra-small">Collector scheduled</div>
+          </div>
+          <div className="col-6 col-md-3">
+            <div className="text-uppercase small font-weight-bold text-muted">COLLECTED</div>
+            <div className="fs-2 fw-bold">{stats.collected}</div>
+            <div className="text-secondary extra-small">At facility hub</div>
+          </div>
+          <div className="col-6 col-md-3">
+            <div className="text-uppercase small font-weight-bold text-muted">ECO RECYCLED</div>
+            <div className="fs-2 fw-bold text-success">{stats.successfullyProcessed}</div>
+            <div className="text-secondary extra-small">Certificate issued</div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* My Environmental Contribution Card */}
-      <div className="glass-card mb-4 border border-emerald-500/30">
-        <div className="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
-          <h5 className="text-white font-weight-bold m-0 d-flex align-items-center gap-2">
-            <i className="bi bi-tree-fill text-success"></i> My Environmental Contribution
-          </h5>
-          <span className="badge bg-success bg-opacity-20 text-success border border-success extra-small">
-            VERIFIED PLATFORM METRICS
-          </span>
-        </div>
+      <div className="thin-rule"></div>
 
-        <div className="row g-3">
-          <div className="col-6 col-md-3">
-            <div className="p-3 bg-dark bg-opacity-60 rounded-3 border border-secondary text-center">
-              <span className="text-muted extra-small d-block mb-1 font-weight-semibold">Responsibly Disposed</span>
-              <span className="h3 font-weight-bold text-white mb-0">{impact.totalDisposedDevices}</span>
-              <span className="extra-small text-muted d-block">device(s)</span>
-            </div>
-          </div>
-
-          <div className="col-6 col-md-3">
-            <div className="p-3 bg-dark bg-opacity-60 rounded-3 border border-secondary text-center">
-              <span className="text-muted extra-small d-block mb-1 font-weight-semibold">Reused / Donated</span>
-              <span className="h3 font-weight-bold text-info mb-0">{impact.reusedOrDonatedDevices}</span>
-              <span className="extra-small text-muted d-block">device(s)</span>
-            </div>
-          </div>
-
-          <div className="col-6 col-md-3">
-            <div className="p-3 bg-dark bg-opacity-60 rounded-3 border border-secondary text-center">
-              <span className="text-muted extra-small d-block mb-1 font-weight-semibold">Completed Requests</span>
-              <span className="h3 font-weight-bold text-success mb-0">{impact.completedRequests}</span>
-              <span className="extra-small text-muted d-block">lifecycle completed</span>
-            </div>
-          </div>
-
-          <div className="col-6 col-md-3">
-            <div className="p-3 bg-dark bg-opacity-60 rounded-3 border border-secondary text-center">
-              <span className="text-muted extra-small d-block mb-1 font-weight-semibold">Green Points Earned</span>
-              <span className="h3 font-weight-bold text-warning mb-0">{impact.greenPoints}</span>
-              <span className="extra-small text-muted d-block">reward credits</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Configurable Estimated Impact Metrics */}
-        {impact.hasValidFactors && (
-          <div className="mt-3 pt-3 border-top border-secondary">
-            <div className="d-flex align-items-center justify-content-between mb-2">
-              <span className="text-muted extra-small font-weight-bold d-flex align-items-center gap-1">
-                <i className="bi bi-calculator text-info"></i> Estimated Ecological Savings
-              </span>
-              <span className="badge bg-warning bg-opacity-20 text-warning border border-warning extra-small">
-                ESTIMATE
-              </span>
-            </div>
-            <div className="row g-3">
-              <div className="col-md-6">
-                <div className="p-2.5 bg-black bg-opacity-40 rounded-3 border border-secondary border-opacity-50 d-flex align-items-center justify-content-between">
-                  <span className="text-muted small">Estimated Landfill Diversion:</span>
-                  <span className="text-success font-weight-bold">{impact.estimatedLandfillDiversionKg} kg</span>
-                </div>
+      {/* Environmental Contribution Stream */}
+      <section className="py-3">
+        <div className="editorial-tag">ENVIRONMENTAL AUDIT IMPACT</div>
+        <div className="grid-split-60-40 my-3">
+          <div>
+            <h2 className="h4 text-uppercase fw-bold mb-3">YOUR ECOLOGICAL FOOTPRINT</h2>
+            <div className="d-flex flex-column gap-2 text-secondary fs-6">
+              <div className="d-flex justify-content-between pb-2 border-bottom">
+                <span>Total Disposed Equipment:</span>
+                <strong className="text-dark">{impact.totalDisposedDevices} units</strong>
               </div>
-              <div className="col-md-6">
-                <div className="p-2.5 bg-black bg-opacity-40 rounded-3 border border-secondary border-opacity-50 d-flex align-items-center justify-content-between">
-                  <span className="text-muted small">Estimated CO₂ Avoidance:</span>
-                  <span className="text-info font-weight-bold">{impact.estimatedCo2ReductionKg} kg</span>
-                </div>
+              <div className="d-flex justify-content-between pb-2 border-bottom">
+                <span>Reused or Donated Devices:</span>
+                <strong className="text-dark">{impact.reusedOrDonatedDevices} units</strong>
+              </div>
+              <div className="d-flex justify-content-between pb-2 border-bottom">
+                <span>Completed Request Lifecycles:</span>
+                <strong className="text-dark">{impact.completedRequests} requests</strong>
+              </div>
+              <div className="d-flex justify-content-between">
+                <span>Green Points Credit Balance:</span>
+                <strong className="text-success">{impact.greenPoints} PTS</strong>
               </div>
             </div>
-            <p className="extra-small text-muted mt-2 mb-0 italic">
-              <i className="bi bi-info-circle me-1 text-warning"></i>
-              Calculated using documented environmental conversion benchmark factors ({impact.factorSourceReference}).
-            </p>
+          </div>
+
+          {impact.hasValidFactors && (
+            <div className="border-start ps-md-4 pt-3 pt-md-0">
+              <h3 className="h5 text-uppercase fw-bold mb-3">ESTIMATED DIVERSION &amp; CO2</h3>
+              <div className="mb-3">
+                <div className="small text-muted text-uppercase fw-bold">Landfill Diversion</div>
+                <div className="fs-3 fw-bold text-success">{impact.estimatedLandfillDiversionKg} KG</div>
+              </div>
+              <div>
+                <div className="small text-muted text-uppercase fw-bold">CO2 Emissions Avoided</div>
+                <div className="fs-3 fw-bold text-info">{impact.estimatedCo2ReductionKg} KG CO2e</div>
+              </div>
+              <p className="extra-small text-muted mt-3 m-0">
+                Calculated using environmental conversion benchmarks ({impact.factorSourceReference}).
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <div className="thin-rule"></div>
+
+      {/* Recent Requests Table */}
+      <section className="py-3">
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h2 className="h4 text-uppercase fw-bold m-0">RECENT DISPOSAL REQUESTS</h2>
+          <Link to="/user/requests" className="btn-link-action">
+            VIEW ALL ↗
+          </Link>
+        </div>
+
+        {loading ? (
+          <div className="py-4 text-muted small">Loading disposal records...</div>
+        ) : recentRequests.length === 0 ? (
+          <div className="py-4 text-muted small">
+            No disposal requests registered yet. <Link to="/user/ewaste/add">Submit a request</Link> to start.
+          </div>
+        ) : (
+          <div className="table-responsive">
+            <table className="editorial-table">
+              <thead>
+                <tr>
+                  <th>TRACKING ID</th>
+                  <th>CATEGORY</th>
+                  <th>STATUS</th>
+                  <th>ACTION</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentRequests.map((req) => (
+                  <tr key={req.id}>
+                    <td>
+                      <code className="fw-bold">{req.trackingNumber}</code>
+                    </td>
+                    <td>
+                      {req.items && req.items.length > 0 ? req.items[0].category : 'E-Waste'}
+                    </td>
+                    <td>
+                      <span className="status-dot-item">
+                        <span className={`status-dot ${
+                          req.status === 'COMPLETED' ? 'status-dot-emerald' :
+                          req.status === 'PICKUP_ASSIGNED' ? 'status-dot-info' : 'status-dot-warning'
+                        }`}></span>
+                        {formatStatus(req.status)}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="d-flex align-items-center gap-2">
+                        <Link to={`/user/requests/${req.id}`} className="btn btn-outline-custom btn-sm">
+                          Details
+                        </Link>
+                        <button
+                          onClick={() => handleDownloadCertificatePdf(req.id, req.trackingNumber)}
+                          className="btn btn-secondary btn-sm"
+                        >
+                          Certificate
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
-      </div>
+      </section>
 
-      {/* Statistics Cards */}
-      <div className="row g-3 mb-4">
-        <div className="col-12 col-sm-6 col-lg-3">
-          <div className="stat-card">
-            <div className="stat-icon-wrapper stat-icon-blue">
-              <i className="bi bi-box-seam-fill"></i>
-            </div>
-            <div>
-              <span className="text-muted small d-block">Total Submitted</span>
-              <span className="h3 text-white font-weight-bold mb-0">{stats.totalSubmitted}</span>
-            </div>
+      {/* Green Points Ledger */}
+      {rewards.transactions && rewards.transactions.length > 0 && (
+        <section className="py-3">
+          <h2 className="h4 text-uppercase fw-bold mb-3">GREEN POINTS LEDGER</h2>
+          <div className="table-responsive">
+            <table className="editorial-table">
+              <thead>
+                <tr>
+                  <th>DATE</th>
+                  <th>DESCRIPTION</th>
+                  <th>POINTS</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rewards.transactions.map((tx) => (
+                  <tr key={tx.id}>
+                    <td className="text-muted small">
+                      {tx.createdAt ? formatIndianDate(tx.createdAt) : 'N/A'}
+                    </td>
+                    <td>
+                      {tx.description}
+                      {tx.trackingNumber && <code className="ms-2 small">{tx.trackingNumber}</code>}
+                    </td>
+                    <td className="fw-bold text-success">
+                      +{tx.points} PTS
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </div>
-
-        <div className="col-12 col-sm-6 col-lg-3">
-          <div className="stat-card">
-            <div className="stat-icon-wrapper stat-icon-amber">
-              <i className="bi bi-truck-front-fill"></i>
-            </div>
-            <div>
-              <span className="text-muted small d-block">Awaiting Pickup</span>
-              <span className="h3 text-white font-weight-bold mb-0">{stats.awaitingPickup}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-12 col-sm-6 col-lg-3">
-          <div className="stat-card">
-            <div className="stat-icon-wrapper stat-icon-cyan">
-              <i className="bi bi-building-check"></i>
-            </div>
-            <div>
-              <span className="text-muted small d-block">Collected</span>
-              <span className="h3 text-white font-weight-bold mb-0">{stats.collected}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-12 col-sm-6 col-lg-3">
-          <div className="stat-card">
-            <div className="stat-icon-wrapper stat-icon-emerald">
-              <i className="bi bi-recycle"></i>
-            </div>
-            <div>
-              <span className="text-muted small d-block">Eco Recycled</span>
-              <span className="h3 text-white font-weight-bold mb-0">{stats.successfullyProcessed}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Badges & Achievements Section */}
-      <div className="glass-card mb-4">
-        <h5 className="text-white font-weight-bold mb-3 d-flex align-items-center gap-2">
-          <i className="bi bi-trophy-fill text-warning"></i> Environmental Achievements &amp; Badges
-        </h5>
-        <div className="row g-3">
-          {rewards.badges && rewards.badges.map((badge) => (
-            <div key={badge.id} className="col-6 col-md-4 col-lg-2.4">
-              <div className={`p-3 rounded-4 border text-center h-100 transition-all ${
-                badge.unlocked
-                  ? 'bg-dark bg-opacity-60 border-success shadow-sm'
-                  : 'bg-dark bg-opacity-20 border-secondary border-opacity-25 opacity-60'
-              }`}>
-                <div className={`feature-icon mx-auto mb-2 ${badge.unlocked ? 'text-warning' : 'text-muted'}`} style={{ width: '42px', height: '42px', fontSize: '1.2rem' }}>
-                  <i className={`bi ${badge.icon}`}></i>
-                </div>
-                <h6 className={`small font-weight-bold mb-1 ${badge.unlocked ? 'text-white' : 'text-muted'}`}>
-                  {badge.title}
-                </h6>
-                <p className="extra-small text-muted mb-2 lh-sm">{badge.description}</p>
-                <span className={`badge ${badge.unlocked ? 'bg-success text-white' : 'bg-secondary text-dark'} extra-small`}>
-                  {badge.progressText}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Action Quick Links & Transaction History */}
-      <div className="row g-4 mb-4">
-        <div className="col-lg-7">
-          <div className="glass-card h-100">
-            <div className="d-flex align-items-center justify-content-between mb-3">
-              <h5 className="text-white font-weight-bold m-0 d-flex align-items-center gap-2">
-                <i className="bi bi-clock-history text-info"></i> Recent Disposal Requests
-              </h5>
-              <Link to="/user/requests" className="text-success extra-small text-decoration-none font-weight-bold">
-                View All <i className="bi bi-arrow-right"></i>
-              </Link>
-            </div>
-
-            {loading ? (
-              <div className="text-center py-4 text-muted">
-                <span className="spinner-border spinner-border-sm me-2 text-success"></span>
-                Loading request records...
-              </div>
-            ) : recentRequests.length === 0 ? (
-              <div className="text-center py-4 text-muted">
-                <i className="bi bi-inbox display-6 d-block mb-2"></i>
-                <p className="small mb-3">No e-waste disposal requests registered yet.</p>
-                <Link to="/user/ewaste/add" className="btn btn-primary-custom btn-sm text-white text-decoration-none">
-                  Submit First Request
-                </Link>
-              </div>
-            ) : (
-              <div className="table-responsive">
-                <table className="table table-dark table-hover align-middle mb-0 custom-table">
-                  <thead>
-                    <tr>
-                      <th>Tracking ID</th>
-                      <th>Category</th>
-                      <th>Status</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentRequests.map((req) => (
-                      <tr key={req.id}>
-                        <td>
-                          <code className="text-success">{req.trackingNumber}</code>
-                        </td>
-                        <td>
-                          <span className="text-white small">
-                            {req.items && req.items.length > 0 ? req.items[0].category : 'E-Waste'}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={`badge-status badge-status-${req.status}`}>
-                            {formatStatus(req.status)}
-                          </span>
-                        </td>
-                        <td className="d-flex align-items-center gap-1">
-                          <Link
-                            to={`/user/requests/${req.id}`}
-                            className="btn btn-outline-custom btn-sm py-1 px-2 text-decoration-none"
-                          >
-                            Details
-                          </Link>
-                          <button
-                            onClick={() => handleDownloadCertificatePdf(req.id, req.trackingNumber)}
-                            title="Download PDF Recycling Certificate"
-                            className="btn btn-primary-custom btn-sm py-1 px-2 text-white font-weight-bold d-inline-flex align-items-center gap-1"
-                          >
-                            <i className="bi bi-file-earmark-pdf-fill"></i>
-                            Certificate
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="col-lg-5">
-          <div className="glass-card h-100">
-            <h5 className="text-white font-weight-bold mb-3 d-flex align-items-center gap-2">
-              <i className="bi bi-coin text-warning"></i> Green Points Transaction Ledger
-            </h5>
-
-            {rewards.transactions && rewards.transactions.length > 0 ? (
-              <div className="table-responsive" style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                <table className="table table-dark table-hover align-middle mb-0 custom-table">
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Reason / Action</th>
-                      <th>Points</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rewards.transactions.map((tx) => (
-                      <tr key={tx.id}>
-                        <td className="text-muted extra-small">
-                          {tx.createdAt ? new Date(tx.createdAt).toLocaleDateString() : 'N/A'}
-                        </td>
-                        <td>
-                          <div className="text-white small font-weight-medium">{tx.description}</div>
-                          {tx.trackingNumber && (
-                            <code className="text-info extra-small">{tx.trackingNumber}</code>
-                          )}
-                        </td>
-                        <td>
-                          <span className="badge bg-success text-white font-weight-bold">
-                            +{tx.points} pts
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <p className="text-muted small text-center py-4">
-                No green points transactions recorded yet. Complete a verified disposal request to earn your first reward!
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
+        </section>
+      )}
     </div>
   )
 }
