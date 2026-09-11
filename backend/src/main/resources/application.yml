@@ -10,8 +10,12 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD:}
     driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.h2.Driver}
     hikari:
-      initialization-fail-timeout: -1
-      connection-timeout: 3000
+      connection-timeout: ${DB_CONNECTION_TIMEOUT:30000}
+      validation-timeout: ${DB_VALIDATION_TIMEOUT:5000}
+      initialization-fail-timeout: ${DB_INITIALIZATION_FAIL_TIMEOUT:60000}
+      maximum-pool-size: ${DB_MAX_POOL_SIZE:5}
+      minimum-idle: ${DB_MIN_IDLE:1}
+      keepalive-time: ${DB_KEEPALIVE_TIME:30000}
   flyway:
     enabled: ${SPRING_FLYWAY_ENABLED:true}
     baseline-on-migrate: true
