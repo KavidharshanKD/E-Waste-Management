@@ -8,6 +8,10 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('jwt_token') || null)
   const [loading, setLoading] = useState(true)
 
+  if (import.meta.env.VITE_API_BASE_URL) {
+    axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL
+  }
+
   // Configure axios default authorization header
   if (token) {
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
