@@ -2,7 +2,7 @@
 
 ALTER TABLE recycling_centers ADD COLUMN IF NOT EXISTS cpcb_registration_ref VARCHAR(100);
 ALTER TABLE recycling_centers ADD COLUMN IF NOT EXISTS registration_validity_date DATE;
-ALTER TABLE recycling_centers ADD COLUMN IF NOT EXISTS authorized_capacity_tons_per_annum DOUBLE;
+ALTER TABLE recycling_centers ADD COLUMN IF NOT EXISTS authorized_capacity_tons_per_annum DOUBLE PRECISION;
 ALTER TABLE recycling_centers ADD COLUMN IF NOT EXISTS verification_authority VARCHAR(150) DEFAULT 'State Pollution Control Board / CPCB';
 
 CREATE TABLE IF NOT EXISTS compliance_guidelines (
