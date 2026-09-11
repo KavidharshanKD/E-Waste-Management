@@ -1,6 +1,7 @@
 package com.ewaste.management.config;
 
 import com.ewaste.management.security.JwtAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,9 +17,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +54,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/auth/**", "/api/v1/health/**", "/actuator/health", "/error", "/uploads/**", "/api/recycling-centers/**", "/api/public/**").permitAll()
 
@@ -72,16 +73,22 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        List<String> allowedOrigins = new ArrayList<>(List.of("http://localhost:5173", "http://127.0.0.1:5173"));
+        List<String> allowedOriginPatterns = new ArrayList<>(List.of(
+            "http://localhost:5173",
+            "http://127.0.0.1:5173",
+            "https://*.vercel.app"
+        ));
+
         if (frontendUrl != null && !frontendUrl.isBlank()) {
             for (String origin : frontendUrl.split(",")) {
                 String trimmed = origin.trim().replaceAll("/+$", "");
-                if (!trimmed.isEmpty() && !allowedOrigins.contains(trimmed)) {
-                    allowedOrigins.add(trimmed);
+                if (!trimmed.isEmpty() && !allowedOriginPatterns.contains(trimmed)) {
+                    allowedOriginPatterns.add(trimmed);
                 }
             }
         }
-        configuration.setAllowedOrigins(allowedOrigins);
+
+        configuration.setAllowedOriginPatterns(allowedOriginPatterns);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With", "*"));
         configuration.setExposedHeaders(List.of("Authorization", "Link", "X-Total-Count"));

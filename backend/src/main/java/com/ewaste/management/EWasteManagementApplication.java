@@ -24,6 +24,9 @@ public class EWasteManagementApplication {
     @Value("${spring.datasource.hikari.connection-timeout:30000}")
     private long connectionTimeout;
 
+    @Value("${app.frontend.url:http://localhost:5173}")
+    private String frontendUrl;
+
     public static void main(String[] args) {
         SpringApplication.run(EWasteManagementApplication.class, args);
     }
@@ -51,12 +54,13 @@ public class EWasteManagementApplication {
                 }
             }
 
-            log.info("=== Production Datasource Diagnostics ===");
+            log.info("=== Production Datasource & Environment Diagnostics ===");
             log.info("Database Host: {}", sanitizedHost);
             log.info("Database Port: {}", sanitizedPort);
             log.info("Database Name: {}", sanitizedDbName);
             log.info("JDBC Driver: {}", driverClassName);
             log.info("Hikari Connection Timeout: {} ms", connectionTimeout);
+            log.info("Configured frontend origin: {}", frontendUrl);
             log.info("==========================================");
         } catch (Exception e) {
             log.info("Database diagnostics logged cleanly.");
