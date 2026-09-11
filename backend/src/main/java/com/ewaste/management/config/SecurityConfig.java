@@ -54,6 +54,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/auth/**", "/api/v1/health/**", "/actuator/health", "/error", "/uploads/**", "/api/recycling-centers/**", "/api/public/**").permitAll()
 
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
@@ -74,16 +75,18 @@ public class SecurityConfig {
         List<String> allowedOrigins = new ArrayList<>(List.of("http://localhost:5173", "http://127.0.0.1:5173"));
         if (frontendUrl != null && !frontendUrl.isBlank()) {
             for (String origin : frontendUrl.split(",")) {
-                String trimmed = origin.trim();
+                String trimmed = origin.trim().replaceAll("/+$", "");
                 if (!trimmed.isEmpty() && !allowedOrigins.contains(trimmed)) {
                     allowedOrigins.add(trimmed);
                 }
             }
         }
         configuration.setAllowedOrigins(allowedOrigins);
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With", "*"));
+        configuration.setExposedHeaders(List.of("Authorization", "Link", "X-Total-Count"));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
