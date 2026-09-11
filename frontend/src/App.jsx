@@ -118,28 +118,28 @@ function HeaderNav() {
             )}
           </ul>
 
-          <div className="d-flex align-items-center gap-3 mt-3 mt-lg-0">
+          <div className="d-flex align-items-center gap-2 gap-lg-3 mt-3 mt-lg-0 flex-shrink-0 text-nowrap">
             {user ? (
-              <div className="d-flex align-items-center gap-3">
+              <div className="d-flex align-items-center gap-2 gap-lg-3 text-nowrap">
                 <NotificationBell />
-                <span className="status-dot-item text-truncate" style={{ maxWidth: '180px' }}>
-                  <span className="status-dot status-dot-emerald"></span>
+                <span className="status-dot-item text-truncate d-inline-block align-middle me-1" style={{ maxWidth: '140px' }}>
+                  <span className="status-dot status-dot-emerald me-1"></span>
                   {user.email}
                 </span>
                 <button
                   onClick={handleLogout}
-                  className="btn btn-outline-custom py-1.5 px-3 btn-sm"
+                  className="btn btn-outline-custom py-1 px-2.5 btn-sm text-nowrap"
                   aria-label="Log out of account"
                 >
                   Logout
                 </button>
               </div>
             ) : (
-              <div className="d-flex align-items-center gap-2">
-                <Link to="/login" className="btn btn-outline-custom py-1.5 px-3">
+              <div className="d-flex align-items-center gap-2 text-nowrap">
+                <Link to="/login" className="btn btn-outline-custom py-1.5 px-3 text-nowrap">
                   Log In
                 </Link>
-                <Link to="/register" className="btn btn-primary-custom py-1.5 px-3">
+                <Link to="/register" className="btn btn-primary-custom py-1.5 px-3 text-nowrap">
                   Register
                 </Link>
               </div>
