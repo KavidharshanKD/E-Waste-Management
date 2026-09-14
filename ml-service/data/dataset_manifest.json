@@ -1,0 +1,135 @@
+{
+  "manifest_version": "3.0.0-calibrated",
+  "creation_timestamp_utc": "2026-09-14T10:20:37.708996+00:00",
+  "random_seed": 42,
+  "source_datasets": [
+    {
+      "name": "Open Repair Alliance",
+      "archive": "OpenRepairData_v0.3_aggregate_202507.zip",
+      "raw_records": 305649,
+      "accepted_records": 11874,
+      "outliers_removed": 412,
+      "provenance_tag": "REAL_OPEN_REPAIR"
+    },
+    {
+      "name": "TU Delft Consumer Survey",
+      "archive": "Consumer survey product lifetimes and durability of electronics.zip",
+      "raw_records": 1037,
+      "accepted_records": 982,
+      "outliers_removed": 27,
+      "provenance_tag": "REAL_TU_DELFT"
+    },
+    {
+      "name": "Calibrated Circular Synthetic Generator",
+      "sample_count": 4334,
+      "provenance_tag": "SYNTHETIC_DEVELOPMENT"
+    }
+  ],
+  "level_1_physical_feasibility": {
+    "dataset_file": "data/processed/physical_feasibility_real.csv",
+    "objective": "Classify device recovery feasibility vs end-of-life",
+    "total_records": 12856,
+    "features": [
+      "category",
+      "approx_age_years",
+      "condition"
+    ],
+    "target_column": "feasibility_label",
+    "target_classes": [
+      "SALVAGEABLE",
+      "END_OF_LIFE"
+    ],
+    "target_distribution": {
+      "SALVAGEABLE": 0.7615,
+      "END_OF_LIFE": 0.2385
+    },
+    "provenance_distribution": {
+      "REAL_OPEN_REPAIR": 11874,
+      "REAL_TU_DELFT": 982
+    },
+    "splits": {
+      "train": 9630,
+      "test": 1626,
+      "val": 1600
+    },
+    "category_distribution": {
+      "LAPTOP": 4207,
+      "PRINTER": 2017,
+      "MOBILE_PHONE": 1579,
+      "TELEVISION": 1560,
+      "MONITOR": 1462,
+      "OTHER": 1230,
+      "DESKTOP": 801
+    },
+    "age_summary": {
+      "min": 0.1,
+      "median": 6.0,
+      "p75": 10.0,
+      "max": 25.0,
+      "mean": 7.29
+    }
+  },
+  "level_2_circular_pathway": {
+    "dataset_file": "data/processed/circular_pathway_development.csv",
+    "objective": "Classify optimal circular pathway for salvageable devices",
+    "total_records": 4916,
+    "features": [
+      "category",
+      "approx_age_years",
+      "condition",
+      "powers_on",
+      "screen_condition",
+      "battery_condition",
+      "damage_severity"
+    ],
+    "target_column": "circular_action",
+    "target_classes": [
+      "KEEP_USING",
+      "REPAIR",
+      "REFURBISH",
+      "REFURBISH_AND_SELL",
+      "DONATE"
+    ],
+    "target_distribution": {
+      "DONATE": 0.3267,
+      "REFURBISH_AND_SELL": 0.217,
+      "KEEP_USING": 0.2063,
+      "REPAIR": 0.1932,
+      "REFURBISH": 0.0568
+    },
+    "provenance_distribution": {
+      "SYNTHETIC_DEVELOPMENT": 4334,
+      "REAL_TU_DELFT": 582
+    },
+    "splits": {
+      "train": 3441,
+      "val": 740,
+      "test": 735
+    },
+    "category_distribution": {
+      "MOBILE_PHONE": 1167,
+      "LAPTOP": 1033,
+      "DESKTOP": 733,
+      "MONITOR": 467,
+      "TELEVISION": 342,
+      "PRINTER": 334,
+      "REFRIGERATOR": 165,
+      "CHARGER": 158,
+      "BATTERY": 114,
+      "WASHING_MACHINE": 91,
+      "AIR_CONDITIONER": 79,
+      "OTHER": 79,
+      "CABLE": 62,
+      "KEYBOARD": 50,
+      "MOUSE": 42
+    }
+  },
+  "excluded_features_and_rationale": {
+    "user_intention": "Excluded from ML feature matrix; handled via Post-Model Policy Layer to avoid circular bias",
+    "safety_flags": "Excluded from ML feature matrix; handled via Deterministic Layer 1 Safety Gate",
+    "repair_barrier_if_end_of_life": "Excluded due to 100% target leakage (post-repair diagnosis)",
+    "problem": "Excluded due to unnormalized multilingual free text with post-repair leakage",
+    "out_method": "Excluded due to target leakage (disposition outcome label)",
+    "fail_rep": "Excluded from feature inputs (retirement failure label)"
+  }
+}

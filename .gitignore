@@ -39,3 +39,7 @@ ENV/
 # External datasets (research sources - do not commit)
 ml-service/data/external/
 
+# Processed and split ML datasets (reproducible via code - do not commit large CSVs)
+ml-service/data/processed/
+ml-service/data/splits/
+
