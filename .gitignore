@@ -23,3 +23,16 @@ desktop.ini
 **/dist-ssr/
 *.log
 **/uploads/
+
+# Python & ML Artifacts
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+ENV/
+*.joblib
+*.pkl
+

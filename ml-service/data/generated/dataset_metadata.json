@@ -1,0 +1,74 @@
+{
+  "dataset_name": "device_lifecycle_synthetic",
+  "dataset_type": "DEVELOPMENT_SYNTHETIC_DATA",
+  "generation_timestamp_utc": "2026-09-14T09:24:55.449371+00:00",
+  "random_seed": 42,
+  "sample_count": 10000,
+  "ml_predictive_features": [
+    "category",
+    "approx_age_years",
+    "condition",
+    "user_intention",
+    "powers_on",
+    "screen_condition",
+    "battery_condition",
+    "damage_severity"
+  ],
+  "safety_gate_features": [
+    "battery_swollen",
+    "battery_leaking",
+    "overheating_evidence",
+    "severe_physical_damage"
+  ],
+  "target_column": "recommended_action",
+  "audit_statistics": {
+    "total_records": 10000,
+    "duplicate_predictive_vectors": 808,
+    "missing_values_by_column": {},
+    "hazardous_safety_gate_count": 700,
+    "hazardous_safety_gate_rate_pct": 7.0,
+    "user_intention_target_match_rate_pct": 24.99,
+    "category_distribution_pct": {
+      "MOBILE_PHONE": 21.6,
+      "LAPTOP": 17.98,
+      "DESKTOP": 9.57,
+      "MONITOR": 8.38,
+      "TELEVISION": 6.92,
+      "BATTERY": 5.88,
+      "CHARGER": 5.31,
+      "CABLE": 5.23,
+      "PRINTER": 5.13,
+      "KEYBOARD": 3.15,
+      "REFRIGERATOR": 3.09,
+      "MOUSE": 2.88,
+      "AIR_CONDITIONER": 1.98,
+      "WASHING_MACHINE": 1.96,
+      "OTHER": 0.94
+    },
+    "condition_distribution_pct": {
+      "WORKING": 35.78,
+      "PARTIALLY_WORKING": 30.55,
+      "DAMAGED": 15.94,
+      "NOT_WORKING": 14.3,
+      "HAZARDOUS": 3.43
+    },
+    "user_intention_distribution_pct": {
+      "RECYCLE": 22.28,
+      "REFURBISH_AND_SELL": 17.75,
+      "REPAIR": 15.89,
+      "REFURBISH": 12.94,
+      "UNSURE": 11.91,
+      "KEEP_USING": 9.69,
+      "DONATE": 9.54
+    },
+    "target_distribution_pct": {
+      "RECYCLE": 57.3,
+      "DONATE": 11.61,
+      "REPAIR": 7.78,
+      "REFURBISH_AND_SELL": 7.12,
+      "KEEP_USING": 7.1,
+      "SPECIAL_HANDLING": 7.0,
+      "REFURBISH": 2.09
+    }
+  }
+}
