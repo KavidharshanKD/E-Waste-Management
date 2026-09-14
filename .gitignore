@@ -36,3 +36,6 @@ ENV/
 *.joblib
 *.pkl
 
+# External datasets (research sources - do not commit)
+ml-service/data/external/
+
