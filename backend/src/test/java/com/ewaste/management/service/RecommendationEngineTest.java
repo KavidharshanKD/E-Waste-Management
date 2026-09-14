@@ -5,6 +5,7 @@ import com.ewaste.management.dto.RecommendationInput;
 import com.ewaste.management.model.enums.DeviceCondition;
 import com.ewaste.management.model.enums.DisposalAction;
 import com.ewaste.management.model.enums.EWasteCategory;
+import com.ewaste.management.model.enums.UserIntention;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -158,4 +159,80 @@ class RecommendationEngineTest {
         assertEquals(DisposalAction.RECYCLE, result.getRecommendedAction());
         assertNotNull(result.getDisclaimer());
     }
+
+    @Test
+    @DisplayName("Safety Flag: batterySwollen triggers SPECIAL_HANDLING even on working device")
+    void testBatterySwollenFlagTriggersSpecialHandling() {
+        RecommendationInput input = new RecommendationInput();
+        input.setCategory(EWasteCategory.LAPTOP);
+        input.setDeviceAgeYears(1);
+        input.setCondition(DeviceCondition.WORKING);
+        input.setUserIntention(UserIntention.KEEP_USING);
+        input.setBatterySwollen(true);
+
+        DisposalRecommendationResult result = recommendationEngine.evaluateRecommendation(input);
+
+        assertEquals(DisposalAction.SPECIAL_HANDLING, result.getRecommendedAction());
+        assertTrue(result.getExplanation().contains("hazardous") || result.getExplanation().contains("swollen"));
+    }
+
+    @Test
+    @DisplayName("Safety Flag: batteryLeaking triggers SPECIAL_HANDLING")
+    void testBatteryLeakingFlagTriggersSpecialHandling() {
+        RecommendationInput input = new RecommendationInput();
+        input.setCategory(EWasteCategory.BATTERY);
+        input.setDeviceAgeYears(1);
+        input.setCondition(DeviceCondition.WORKING);
+        input.setBatteryLeaking(true);
+
+        DisposalRecommendationResult result = recommendationEngine.evaluateRecommendation(input);
+
+        assertEquals(DisposalAction.SPECIAL_HANDLING, result.getRecommendedAction());
+    }
+
+    @Test
+    @DisplayName("Safety Flag: overheatingEvidence triggers SPECIAL_HANDLING")
+    void testOverheatingEvidenceFlagTriggersSpecialHandling() {
+        RecommendationInput input = new RecommendationInput();
+        input.setCategory(EWasteCategory.CHARGER);
+        input.setDeviceAgeYears(1);
+        input.setCondition(DeviceCondition.WORKING);
+        input.setOverheatingEvidence(true);
+
+        DisposalRecommendationResult result = recommendationEngine.evaluateRecommendation(input);
+
+        assertEquals(DisposalAction.SPECIAL_HANDLING, result.getRecommendedAction());
+    }
+
+    @Test
+    @DisplayName("Safety Flag: severePhysicalDamage triggers SPECIAL_HANDLING")
+    void testSeverePhysicalDamageFlagTriggersSpecialHandling() {
+        RecommendationInput input = new RecommendationInput();
+        input.setCategory(EWasteCategory.MOBILE_PHONE);
+        input.setDeviceAgeYears(1);
+        input.setCondition(DeviceCondition.WORKING);
+        input.setSeverePhysicalDamage(true);
+
+        DisposalRecommendationResult result = recommendationEngine.evaluateRecommendation(input);
+
+        assertEquals(DisposalAction.SPECIAL_HANDLING, result.getRecommendedAction());
+    }
+
+    @Test
+    @DisplayName("RecommendationInput properly holds user intention and diagnostic attributes")
+    void testRecommendationInputPreservesExtendedFields() {
+        RecommendationInput input = new RecommendationInput(
+                EWasteCategory.MOBILE_PHONE, 2, DeviceCondition.PARTIALLY_WORKING,
+                "Broken screen", "Cracked front glass", "Good",
+                UserIntention.REFURBISH_AND_SELL, true, "CRACKED",
+                false, false, false, false, "Screen replacement needed"
+        );
+
+        assertEquals(UserIntention.REFURBISH_AND_SELL, input.getUserIntention());
+        assertTrue(input.getPowersOn());
+        assertEquals("CRACKED", input.getScreenCondition());
+        assertFalse(input.getBatterySwollen());
+        assertEquals("Screen replacement needed", input.getFunctionalIssues());
+    }
 }
+

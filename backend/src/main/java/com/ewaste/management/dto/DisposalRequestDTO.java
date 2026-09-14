@@ -2,6 +2,7 @@ package com.ewaste.management.dto;
 
 import com.ewaste.management.model.enums.DisposalAction;
 import com.ewaste.management.model.enums.RequestStatus;
+import com.ewaste.management.model.enums.UserIntention;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,6 +15,7 @@ public class DisposalRequestDTO {
     private String userName;
     private RequestStatus status;
     private DisposalAction recommendedAction;
+    private UserIntention userIntention;
     private String recommendationExplanation;
     private String handlingAdvice;
     private Boolean pickupRequired = true;
@@ -51,6 +53,9 @@ public class DisposalRequestDTO {
 
     public DisposalAction getRecommendedAction() { return recommendedAction; }
     public void setRecommendedAction(DisposalAction recommendedAction) { this.recommendedAction = recommendedAction; }
+
+    public UserIntention getUserIntention() { return userIntention; }
+    public void setUserIntention(UserIntention userIntention) { this.userIntention = userIntention; }
 
     public String getRecommendationExplanation() { return recommendationExplanation; }
     public void setRecommendationExplanation(String recommendationExplanation) { this.recommendationExplanation = recommendationExplanation; }

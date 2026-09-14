@@ -3,6 +3,7 @@ package com.ewaste.management.entity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ewaste.management.model.enums.DisposalAction;
 import com.ewaste.management.model.enums.RequestStatus;
+import com.ewaste.management.model.enums.UserIntention;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,6 +41,10 @@ public class DisposalRequest extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "recommended_action", length = 30)
     private DisposalAction recommendedAction;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_intention", length = 30)
+    private UserIntention userIntention = UserIntention.UNSURE;
 
     @Column(name = "pickup_address", nullable = false, length = 255)
     private String pickupAddress;
@@ -240,5 +245,13 @@ public class DisposalRequest extends BaseEntity {
 
     public void setOrganizationName(String organizationName) {
         this.organizationName = organizationName;
+    }
+
+    public UserIntention getUserIntention() {
+        return userIntention;
+    }
+
+    public void setUserIntention(UserIntention userIntention) {
+        this.userIntention = userIntention;
     }
 }

@@ -2,6 +2,7 @@ package com.ewaste.management.dto;
 
 import com.ewaste.management.model.enums.DeviceCondition;
 import com.ewaste.management.model.enums.EWasteCategory;
+import com.ewaste.management.model.enums.UserIntention;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -32,6 +33,23 @@ public class CreateEWasteRequestDTO {
     private String damageCondition;
 
     private String batteryCondition;
+
+    // Module 1: User Intention & Extended Assessment fields
+    private UserIntention userIntention = UserIntention.UNSURE;
+
+    private Boolean powersOn;
+
+    private String screenCondition;
+
+    private Boolean batterySwollen = false;
+
+    private Boolean batteryLeaking = false;
+
+    private Boolean overheatingEvidence = false;
+
+    private Boolean severePhysicalDamage = false;
+
+    private String functionalIssues;
 
     private String description;
 
@@ -79,6 +97,30 @@ public class CreateEWasteRequestDTO {
 
     public String getBatteryCondition() { return batteryCondition; }
     public void setBatteryCondition(String batteryCondition) { this.batteryCondition = batteryCondition; }
+
+    public UserIntention getUserIntention() { return userIntention; }
+    public void setUserIntention(UserIntention userIntention) { this.userIntention = userIntention; }
+
+    public Boolean getPowersOn() { return powersOn; }
+    public void setPowersOn(Boolean powersOn) { this.powersOn = powersOn; }
+
+    public String getScreenCondition() { return screenCondition; }
+    public void setScreenCondition(String screenCondition) { this.screenCondition = screenCondition; }
+
+    public Boolean getBatterySwollen() { return batterySwollen; }
+    public void setBatterySwollen(Boolean batterySwollen) { this.batterySwollen = batterySwollen; }
+
+    public Boolean getBatteryLeaking() { return batteryLeaking; }
+    public void setBatteryLeaking(Boolean batteryLeaking) { this.batteryLeaking = batteryLeaking; }
+
+    public Boolean getOverheatingEvidence() { return overheatingEvidence; }
+    public void setOverheatingEvidence(Boolean overheatingEvidence) { this.overheatingEvidence = overheatingEvidence; }
+
+    public Boolean getSeverePhysicalDamage() { return severePhysicalDamage; }
+    public void setSeverePhysicalDamage(Boolean severePhysicalDamage) { this.severePhysicalDamage = severePhysicalDamage; }
+
+    public String getFunctionalIssues() { return functionalIssues; }
+    public void setFunctionalIssues(String functionalIssues) { this.functionalIssues = functionalIssues; }
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }

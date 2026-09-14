@@ -32,6 +32,10 @@ public class RuleBasedRecommendationEngine implements DisposalRecommendationEngi
 
         // 1. HAZARDOUS or Swollen / Leaking Battery Check -> SPECIAL_HANDLING
         if (condition == DeviceCondition.HAZARDOUS ||
+            Boolean.TRUE.equals(input.getBatterySwollen()) ||
+            Boolean.TRUE.equals(input.getBatteryLeaking()) ||
+            Boolean.TRUE.equals(input.getOverheatingEvidence()) ||
+            Boolean.TRUE.equals(input.getSeverePhysicalDamage()) ||
             batteryCond.contains("swollen") ||
             batteryCond.contains("leak") ||
             batteryCond.contains("hazard") ||

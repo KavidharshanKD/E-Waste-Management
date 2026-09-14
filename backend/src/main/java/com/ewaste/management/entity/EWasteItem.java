@@ -3,6 +3,7 @@ package com.ewaste.management.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.ewaste.management.model.enums.DeviceCondition;
 import com.ewaste.management.model.enums.EWasteCategory;
+import com.ewaste.management.model.enums.UserIntention;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -57,6 +58,31 @@ public class EWasteItem extends BaseEntity {
 
     @Column(name = "battery_condition", length = 50)
     private String batteryCondition;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_intention", length = 30)
+    private UserIntention userIntention = UserIntention.UNSURE;
+
+    @Column(name = "powers_on")
+    private Boolean powersOn;
+
+    @Column(name = "screen_condition", length = 50)
+    private String screenCondition;
+
+    @Column(name = "battery_swollen")
+    private Boolean batterySwollen = false;
+
+    @Column(name = "battery_leaking")
+    private Boolean batteryLeaking = false;
+
+    @Column(name = "overheating_evidence")
+    private Boolean overheatingEvidence = false;
+
+    @Column(name = "severe_physical_damage")
+    private Boolean severePhysicalDamage = false;
+
+    @Column(name = "functional_issues", length = 500)
+    private String functionalIssues;
 
     @Column(name = "weight_kg", precision = 8, scale = 2)
     private BigDecimal weightKg;
@@ -201,5 +227,69 @@ public class EWasteItem extends BaseEntity {
 
     public void setEstimatedRewardPoints(Integer estimatedRewardPoints) {
         this.estimatedRewardPoints = estimatedRewardPoints;
+    }
+
+    public UserIntention getUserIntention() {
+        return userIntention;
+    }
+
+    public void setUserIntention(UserIntention userIntention) {
+        this.userIntention = userIntention;
+    }
+
+    public Boolean getPowersOn() {
+        return powersOn;
+    }
+
+    public void setPowersOn(Boolean powersOn) {
+        this.powersOn = powersOn;
+    }
+
+    public String getScreenCondition() {
+        return screenCondition;
+    }
+
+    public void setScreenCondition(String screenCondition) {
+        this.screenCondition = screenCondition;
+    }
+
+    public Boolean getBatterySwollen() {
+        return batterySwollen;
+    }
+
+    public void setBatterySwollen(Boolean batterySwollen) {
+        this.batterySwollen = batterySwollen;
+    }
+
+    public Boolean getBatteryLeaking() {
+        return batteryLeaking;
+    }
+
+    public void setBatteryLeaking(Boolean batteryLeaking) {
+        this.batteryLeaking = batteryLeaking;
+    }
+
+    public Boolean getOverheatingEvidence() {
+        return overheatingEvidence;
+    }
+
+    public void setOverheatingEvidence(Boolean overheatingEvidence) {
+        this.overheatingEvidence = overheatingEvidence;
+    }
+
+    public Boolean getSeverePhysicalDamage() {
+        return severePhysicalDamage;
+    }
+
+    public void setSeverePhysicalDamage(Boolean severePhysicalDamage) {
+        this.severePhysicalDamage = severePhysicalDamage;
+    }
+
+    public String getFunctionalIssues() {
+        return functionalIssues;
+    }
+
+    public void setFunctionalIssues(String functionalIssues) {
+        this.functionalIssues = functionalIssues;
     }
 }

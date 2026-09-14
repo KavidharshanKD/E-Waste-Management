@@ -12,6 +12,7 @@ import com.ewaste.management.entity.EWasteItem;
 import com.ewaste.management.entity.User;
 import com.ewaste.management.entity.UserProfile;
 import com.ewaste.management.model.enums.RequestStatus;
+import com.ewaste.management.model.enums.UserIntention;
 import com.ewaste.management.repository.DisposalRequestRepository;
 import com.ewaste.management.repository.UserProfileRepository;
 import com.ewaste.management.repository.UserRepository;
@@ -68,6 +69,7 @@ public class UserEWasteService {
         request.setPickupState(dto.getPickupState());
         request.setPickupPostalCode(dto.getPickupPostalCode());
         request.setNotes(dto.getDescription());
+        request.setUserIntention(dto.getUserIntention() != null ? dto.getUserIntention() : UserIntention.UNSURE);
 
         // Evaluate Smart Disposal Recommendation
         DisposalRecommendationResult recResult = recommendationService.getRecommendationFromDTO(dto);
@@ -92,6 +94,14 @@ public class UserEWasteService {
         item.setWorkingStatus(dto.getWorkingStatus());
         item.setDamageCondition(dto.getDamageCondition());
         item.setBatteryCondition(dto.getBatteryCondition());
+        item.setUserIntention(dto.getUserIntention() != null ? dto.getUserIntention() : UserIntention.UNSURE);
+        item.setPowersOn(dto.getPowersOn());
+        item.setScreenCondition(dto.getScreenCondition());
+        item.setBatterySwollen(Boolean.TRUE.equals(dto.getBatterySwollen()));
+        item.setBatteryLeaking(Boolean.TRUE.equals(dto.getBatteryLeaking()));
+        item.setOverheatingEvidence(Boolean.TRUE.equals(dto.getOverheatingEvidence()));
+        item.setSeverePhysicalDamage(Boolean.TRUE.equals(dto.getSeverePhysicalDamage()));
+        item.setFunctionalIssues(dto.getFunctionalIssues());
         item.setDescription(dto.getDescription());
         item.setImageUrl(imageUrl);
         item.setEstimatedRewardPoints((dto.getQuantity() != null ? dto.getQuantity() : 1) * 50);
@@ -175,6 +185,9 @@ public class UserEWasteService {
         request.setPickupState(dto.getPickupState());
         request.setPickupPostalCode(dto.getPickupPostalCode());
         request.setNotes(dto.getDescription());
+        if (dto.getUserIntention() != null) {
+            request.setUserIntention(dto.getUserIntention());
+        }
 
         // Re-evaluate Smart Disposal Recommendation
         DisposalRecommendationResult recResult = recommendationService.getRecommendationFromDTO(dto);
@@ -202,6 +215,14 @@ public class UserEWasteService {
             item.setWorkingStatus(dto.getWorkingStatus());
             item.setDamageCondition(dto.getDamageCondition());
             item.setBatteryCondition(dto.getBatteryCondition());
+            if (dto.getUserIntention() != null) item.setUserIntention(dto.getUserIntention());
+            if (dto.getPowersOn() != null) item.setPowersOn(dto.getPowersOn());
+            if (dto.getScreenCondition() != null) item.setScreenCondition(dto.getScreenCondition());
+            if (dto.getBatterySwollen() != null) item.setBatterySwollen(dto.getBatterySwollen());
+            if (dto.getBatteryLeaking() != null) item.setBatteryLeaking(dto.getBatteryLeaking());
+            if (dto.getOverheatingEvidence() != null) item.setOverheatingEvidence(dto.getOverheatingEvidence());
+            if (dto.getSeverePhysicalDamage() != null) item.setSeverePhysicalDamage(dto.getSeverePhysicalDamage());
+            if (dto.getFunctionalIssues() != null) item.setFunctionalIssues(dto.getFunctionalIssues());
             item.setDescription(dto.getDescription());
         }
 
@@ -348,6 +369,7 @@ public class UserEWasteService {
         dto.setUserEmail(req.getUser().getEmail());
         dto.setStatus(req.getStatus());
         dto.setRecommendedAction(req.getRecommendedAction());
+        dto.setUserIntention(req.getUserIntention());
         dto.setRecommendationExplanation(req.getRecommendationExplanation());
         dto.setHandlingAdvice(req.getHandlingAdvice());
         dto.setPickupRequired(req.getPickupRequired());
@@ -379,6 +401,14 @@ public class UserEWasteService {
                 itemDTO.setWorkingStatus(item.getWorkingStatus());
                 itemDTO.setDamageCondition(item.getDamageCondition());
                 itemDTO.setBatteryCondition(item.getBatteryCondition());
+                itemDTO.setUserIntention(item.getUserIntention());
+                itemDTO.setPowersOn(item.getPowersOn());
+                itemDTO.setScreenCondition(item.getScreenCondition());
+                itemDTO.setBatterySwollen(item.getBatterySwollen());
+                itemDTO.setBatteryLeaking(item.getBatteryLeaking());
+                itemDTO.setOverheatingEvidence(item.getOverheatingEvidence());
+                itemDTO.setSeverePhysicalDamage(item.getSeverePhysicalDamage());
+                itemDTO.setFunctionalIssues(item.getFunctionalIssues());
                 itemDTO.setWeightKg(item.getWeightKg());
                 itemDTO.setQuantity(item.getQuantity());
                 itemDTO.setDescription(item.getDescription());
