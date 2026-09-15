@@ -1,0 +1,102 @@
+{
+  "service_name": "ewaste-ml-inference-service",
+  "model_version": "1.0.0",
+  "dataset_version": "2025.07",
+  "training_timestamp_utc": "2026-09-15T10:40:26.912339+00:00",
+  "git_commit": "f0cb4ca",
+  "level1_model": {
+    "name": "RecoveryFeasibilityClassifier",
+    "algorithm": "LogisticRegression(C=0.1, class_weight='balanced')",
+    "calibration_method": "CalibratedClassifierCV(method='sigmoid', cv='prefit')",
+    "target_column": "feasibility_label",
+    "classes": [
+      "SALVAGEABLE",
+      "END_OF_LIFE"
+    ],
+    "features": [
+      "category",
+      "approx_age_years",
+      "condition"
+    ],
+    "conservative_gate_thresholds": {
+      "recovery_feasible_upper": 0.35,
+      "recovery_unlikely_lower": 0.7
+    },
+    "internal_semantic_status": [
+      "RECOVERY_FEASIBLE",
+      "AMBIGUOUS_TRIAGE",
+      "RECOVERY_UNLIKELY"
+    ]
+  },
+  "level2_model": {
+    "name": "CircularPathwayClassifier",
+    "algorithm": "RandomForestClassifier(n_estimators=100, max_depth=8, min_samples_leaf=3, class_weight='balanced')",
+    "target_column": "circular_action",
+    "classes": [
+      "KEEP_USING",
+      "REPAIR",
+      "REFURBISH",
+      "REFURBISH_AND_SELL",
+      "DONATE"
+    ],
+    "features": [
+      "category",
+      "approx_age_years",
+      "condition",
+      "powers_on",
+      "screen_condition",
+      "battery_condition",
+      "damage_severity"
+    ],
+    "confidence_thresholds": {
+      "high": 0.7,
+      "medium": 0.4,
+      "low": 0.0
+    }
+  },
+  "stage0_safety_gate": {
+    "deterministic": true,
+    "priority": "ABOVE_ALL_ML",
+    "features": [
+      "battery_swollen",
+      "battery_leaking",
+      "overheating_evidence",
+      "severe_physical_damage"
+    ],
+    "trigger_action": "SPECIAL_HANDLING"
+  },
+  "intake_abstractions": {
+    "restore_grouping": {
+      "input_classes": [
+        "REPAIR",
+        "REFURBISH"
+      ],
+      "display_recommendation": "RESTORE",
+      "rationale": "Intake telemetry cannot reliably distinguish single-part repair vs full refurbishment prior to bench diagnostic inspection."
+    },
+    "resale_grouping": {
+      "input_classes": [
+        "REFURBISH_AND_SELL"
+      ],
+      "display_recommendation": "POTENTIAL_RESALE_CANDIDATE",
+      "rationale": "Commercial eligibility, grading, and pricing require human technician appraisal."
+    }
+  },
+  "marketplace_policy": {
+    "mode": "OPTION_A_HUMAN_IN_THE_LOOP",
+    "ml_auto_approval": false,
+    "default_eligibility": "NOT_ASSESSED",
+    "resale_candidate_eligibility": "TECHNICIAN_REVIEW_REQUIRED"
+  },
+  "training_provenance_summary": {
+    "level1_sources": [
+      "REAL_OPEN_REPAIR",
+      "REAL_TU_DELFT"
+    ],
+    "level2_sources": [
+      "REAL_TU_DELFT",
+      "SYNTHETIC_DEVELOPMENT"
+    ],
+    "zero_leakage_guarantee": true
+  }
+}

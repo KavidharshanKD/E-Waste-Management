@@ -43,7 +43,8 @@ ml-service/data/external/
 ml-service/data/processed/
 ml-service/data/splits/
 
-# Experimental model artifacts and generated metric reports
-ml-service/models/
+# Model artifacts (binary joblib/pkl ignored, manifest tracked)
+ml-service/models/*
+!ml-service/models/model_manifest.json
 ml-service/reports/
 
