@@ -77,6 +77,20 @@ public class UserEWasteService {
         request.setRecommendationExplanation(recResult.getExplanation());
         request.setHandlingAdvice(recResult.getHandlingAdvice());
 
+        // Persist Module 6 ML Audit Fields
+        request.setRecommendationSource(recResult.getRecommendationSource());
+        request.setMlModelVersion(recResult.getModelVersion());
+        request.setMlRecoveryStatus(recResult.getRecoveryStatus());
+        request.setMlRecoveryProbability(recResult.getRecoveryProbability());
+        request.setMlRawPathway(recResult.getRawPathway());
+        request.setMlDisplayRecommendation(recResult.getDisplayRecommendation());
+        request.setMlPathwayProbability(recResult.getPathwayProbability());
+        request.setMlConfidenceLevel(recResult.getConfidenceLevel());
+        request.setTechnicianReviewRequired(recResult.getTechnicianReviewRequired());
+        request.setInspectionRecommended(recResult.getInspectionRecommended());
+        request.setMarketplaceEligibility(recResult.getMarketplaceEligibility());
+        request.setMlExplanation(recResult.getMlExplanation());
+
         // Handle Image Upload
         String imageUrl = null;
         if (imageFile != null && !imageFile.isEmpty()) {
@@ -194,6 +208,20 @@ public class UserEWasteService {
         request.setRecommendedAction(recResult.getRecommendedAction());
         request.setRecommendationExplanation(recResult.getExplanation());
         request.setHandlingAdvice(recResult.getHandlingAdvice());
+
+        // Persist Module 6 ML Audit Fields
+        request.setRecommendationSource(recResult.getRecommendationSource());
+        request.setMlModelVersion(recResult.getModelVersion());
+        request.setMlRecoveryStatus(recResult.getRecoveryStatus());
+        request.setMlRecoveryProbability(recResult.getRecoveryProbability());
+        request.setMlRawPathway(recResult.getRawPathway());
+        request.setMlDisplayRecommendation(recResult.getDisplayRecommendation());
+        request.setMlPathwayProbability(recResult.getPathwayProbability());
+        request.setMlConfidenceLevel(recResult.getConfidenceLevel());
+        request.setTechnicianReviewRequired(recResult.getTechnicianReviewRequired());
+        request.setInspectionRecommended(recResult.getInspectionRecommended());
+        request.setMarketplaceEligibility(recResult.getMarketplaceEligibility());
+        request.setMlExplanation(recResult.getMlExplanation());
 
         // Update or store new image
         if (imageFile != null && !imageFile.isEmpty()) {
@@ -385,6 +413,20 @@ public class UserEWasteService {
         }
         dto.setCreatedAt(req.getCreatedAt());
         dto.setUpdatedAt(req.getUpdatedAt());
+
+        // Map Module 6 ML Audit Fields to DTO
+        dto.setRecommendationSource(req.getRecommendationSource());
+        dto.setMlModelVersion(req.getMlModelVersion());
+        dto.setMlRecoveryStatus(req.getMlRecoveryStatus());
+        dto.setMlRecoveryProbability(req.getMlRecoveryProbability());
+        dto.setMlRawPathway(req.getMlRawPathway());
+        dto.setMlDisplayRecommendation(req.getMlDisplayRecommendation());
+        dto.setMlPathwayProbability(req.getMlPathwayProbability());
+        dto.setMlConfidenceLevel(req.getMlConfidenceLevel());
+        dto.setTechnicianReviewRequired(req.getTechnicianReviewRequired());
+        dto.setInspectionRecommended(req.getInspectionRecommended());
+        dto.setMarketplaceEligibility(req.getMarketplaceEligibility());
+        dto.setMlExplanation(req.getMlExplanation());
 
         if (req.getItems() != null) {
             dto.setItems(req.getItems().stream().map(item -> {

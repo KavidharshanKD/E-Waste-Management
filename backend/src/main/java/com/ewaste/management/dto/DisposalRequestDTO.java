@@ -98,4 +98,54 @@ public class DisposalRequestDTO {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    // Module 6: ML Audit Fields in DTO
+    private com.ewaste.management.model.enums.RecommendationSource recommendationSource;
+    private String mlModelVersion;
+    private String mlRecoveryStatus;
+    private Double mlRecoveryProbability;
+    private String mlRawPathway;
+    private String mlDisplayRecommendation;
+    private Double mlPathwayProbability;
+    private String mlConfidenceLevel;
+    private Boolean technicianReviewRequired;
+    private Boolean inspectionRecommended;
+    private String marketplaceEligibility;
+    private String mlExplanation;
+
+    public com.ewaste.management.model.enums.RecommendationSource getRecommendationSource() { return recommendationSource; }
+    public void setRecommendationSource(com.ewaste.management.model.enums.RecommendationSource recommendationSource) { this.recommendationSource = recommendationSource; }
+
+    public String getMlModelVersion() { return mlModelVersion; }
+    public void setMlModelVersion(String mlModelVersion) { this.mlModelVersion = mlModelVersion; }
+
+    public String getMlRecoveryStatus() { return mlRecoveryStatus; }
+    public void setMlRecoveryStatus(String mlRecoveryStatus) { this.mlRecoveryStatus = mlRecoveryStatus; }
+
+    public Double getMlRecoveryProbability() { return mlRecoveryProbability; }
+    public void setMlRecoveryProbability(Double mlRecoveryProbability) { this.mlRecoveryProbability = mlRecoveryProbability; }
+
+    public String getMlRawPathway() { return mlRawPathway; }
+    public void setMlRawPathway(String mlRawPathway) { this.mlRawPathway = mlRawPathway; }
+
+    public String getMlDisplayRecommendation() { return mlDisplayRecommendation; }
+    public void setMlDisplayRecommendation(String mlDisplayRecommendation) { this.mlDisplayRecommendation = mlDisplayRecommendation; }
+
+    public Double getMlPathwayProbability() { return mlPathwayProbability; }
+    public void setMlPathwayProbability(Double mlPathwayProbability) { this.mlPathwayProbability = mlPathwayProbability; }
+
+    public String getMlConfidenceLevel() { return mlConfidenceLevel; }
+    public void setMlConfidenceLevel(String mlConfidenceLevel) { this.mlConfidenceLevel = mlConfidenceLevel; }
+
+    public Boolean getTechnicianReviewRequired() { return technicianReviewRequired; }
+    public void setTechnicianReviewRequired(Boolean technicianReviewRequired) { this.technicianReviewRequired = technicianReviewRequired; }
+
+    public Boolean getInspectionRecommended() { return inspectionRecommended; }
+    public void setInspectionRecommended(Boolean inspectionRecommended) { this.inspectionRecommended = inspectionRecommended; }
+
+    public String getMarketplaceEligibility() { return marketplaceEligibility; }
+    public void setMarketplaceEligibility(String marketplaceEligibility) { this.marketplaceEligibility = marketplaceEligibility; }
+
+    public String getMlExplanation() { return mlExplanation; }
+    public void setMlExplanation(String mlExplanation) { this.mlExplanation = mlExplanation; }
 }

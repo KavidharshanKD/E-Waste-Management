@@ -254,4 +254,138 @@ public class DisposalRequest extends BaseEntity {
     public void setUserIntention(UserIntention userIntention) {
         this.userIntention = userIntention;
     }
+
+    // Module 6: ML Audit & Recommendation Metadata Fields
+    @Enumerated(EnumType.STRING)
+    @Column(name = "recommendation_source", length = 30)
+    private com.ewaste.management.model.enums.RecommendationSource recommendationSource = com.ewaste.management.model.enums.RecommendationSource.RULE_BASED_FALLBACK;
+
+    @Column(name = "ml_model_version", length = 50)
+    private String mlModelVersion;
+
+    @Column(name = "ml_recovery_status", length = 50)
+    private String mlRecoveryStatus;
+
+    @Column(name = "ml_recovery_probability", precision = 5, scale = 4)
+    private java.math.BigDecimal mlRecoveryProbability;
+
+    @Column(name = "ml_raw_pathway", length = 50)
+    private String mlRawPathway;
+
+    @Column(name = "ml_display_recommendation", length = 50)
+    private String mlDisplayRecommendation;
+
+    @Column(name = "ml_pathway_probability", precision = 5, scale = 4)
+    private java.math.BigDecimal mlPathwayProbability;
+
+    @Column(name = "ml_confidence_level", length = 20)
+    private String mlConfidenceLevel;
+
+    @Column(name = "technician_review_required")
+    private Boolean technicianReviewRequired = false;
+
+    @Column(name = "inspection_recommended")
+    private Boolean inspectionRecommended = false;
+
+    @Column(name = "marketplace_eligibility", length = 50)
+    private String marketplaceEligibility = "NOT_ASSESSED";
+
+    @Column(name = "ml_explanation", columnDefinition = "TEXT")
+    private String mlExplanation;
+
+    public com.ewaste.management.model.enums.RecommendationSource getRecommendationSource() {
+        return recommendationSource;
+    }
+
+    public void setRecommendationSource(com.ewaste.management.model.enums.RecommendationSource recommendationSource) {
+        this.recommendationSource = recommendationSource;
+    }
+
+    public String getMlModelVersion() {
+        return mlModelVersion;
+    }
+
+    public void setMlModelVersion(String mlModelVersion) {
+        this.mlModelVersion = mlModelVersion;
+    }
+
+    public String getMlRecoveryStatus() {
+        return mlRecoveryStatus;
+    }
+
+    public void setMlRecoveryStatus(String mlRecoveryStatus) {
+        this.mlRecoveryStatus = mlRecoveryStatus;
+    }
+
+    public Double getMlRecoveryProbability() {
+        return mlRecoveryProbability != null ? mlRecoveryProbability.doubleValue() : null;
+    }
+
+    public void setMlRecoveryProbability(Double mlRecoveryProbability) {
+        this.mlRecoveryProbability = mlRecoveryProbability != null ? java.math.BigDecimal.valueOf(mlRecoveryProbability) : null;
+    }
+
+    public String getMlRawPathway() {
+        return mlRawPathway;
+    }
+
+    public void setMlRawPathway(String mlRawPathway) {
+        this.mlRawPathway = mlRawPathway;
+    }
+
+    public String getMlDisplayRecommendation() {
+        return mlDisplayRecommendation;
+    }
+
+    public void setMlDisplayRecommendation(String mlDisplayRecommendation) {
+        this.mlDisplayRecommendation = mlDisplayRecommendation;
+    }
+
+    public Double getMlPathwayProbability() {
+        return mlPathwayProbability != null ? mlPathwayProbability.doubleValue() : null;
+    }
+
+    public void setMlPathwayProbability(Double mlPathwayProbability) {
+        this.mlPathwayProbability = mlPathwayProbability != null ? java.math.BigDecimal.valueOf(mlPathwayProbability) : null;
+    }
+
+    public String getMlConfidenceLevel() {
+        return mlConfidenceLevel;
+    }
+
+    public void setMlConfidenceLevel(String mlConfidenceLevel) {
+        this.mlConfidenceLevel = mlConfidenceLevel;
+    }
+
+    public Boolean getTechnicianReviewRequired() {
+        return technicianReviewRequired;
+    }
+
+    public void setTechnicianReviewRequired(Boolean technicianReviewRequired) {
+        this.technicianReviewRequired = technicianReviewRequired;
+    }
+
+    public Boolean getInspectionRecommended() {
+        return inspectionRecommended;
+    }
+
+    public void setInspectionRecommended(Boolean inspectionRecommended) {
+        this.inspectionRecommended = inspectionRecommended;
+    }
+
+    public String getMarketplaceEligibility() {
+        return marketplaceEligibility;
+    }
+
+    public void setMarketplaceEligibility(String marketplaceEligibility) {
+        this.marketplaceEligibility = marketplaceEligibility;
+    }
+
+    public String getMlExplanation() {
+        return mlExplanation;
+    }
+
+    public void setMlExplanation(String mlExplanation) {
+        this.mlExplanation = mlExplanation;
+    }
 }
