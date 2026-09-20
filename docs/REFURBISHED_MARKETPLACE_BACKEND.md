@@ -44,7 +44,7 @@ Atomic Checkout & Pessimistic Write Lock (StockStatus: RESERVED, Status: PLACED)
         ├── [Order Cancelled] ──> Inventory Rollback (StockStatus: AVAILABLE)
         │
         ▼
-Operational Fulfillment (DELIVERED) ──> Permanent Sale (StockStatus: SOLD, Payment: PAID)
+Operational Fulfillment (DELIVERED) ──> Permanent Sale (StockStatus: SOLD, Payment: PENDING)
         │
         ▼
 Second-Life Ownership (Circular reuse loop successfully closed)
@@ -170,10 +170,15 @@ If an order in `PLACED` status is cancelled:
 1. Order status transitions to `CANCELLED`.
 2. Each associated listing is re-locked and its `stockStatus` rolls back from `RESERVED` to `AVAILABLE`.
 
-### 5.4. Permanent Sale on Fulfillment
+### 5.4. Permanent Sale on Fulfillment (SOLD ≠ PAID)
 When operational staff transition the order to `DELIVERED`:
-1. Payment status transitions to `PAID`.
-2. Associated listings transition `stockStatus` to `SOLD`, recording `soldAt = LocalDateTime.now()`.
+1. Associated listings transition `stockStatus` to `SOLD`, recording `soldAt = LocalDateTime.now()`.
+2. **Honest Payment State Enforcement**:
+   - `paymentStatus` remains `PENDING` (or `NOT_APPLICABLE` if demo without payment).
+   - Delivery does **NOT** automatically imply `paymentStatus = PAID`.
+   - The platform does not currently have an active payment gateway (e.g. Razorpay/Stripe); therefore, payment success is never fabricated.
+   - Future payment gateway integration (or an authorized manual payment confirmation workflow) will update payment status from an authentic payment provider or finance confirmation.
+   - **`SOLD ≠ PAID`**: Physical device stock disposition and financial payment capture are distinct, uncoupled concepts.
 
 ---
 

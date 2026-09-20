@@ -238,7 +238,9 @@ public class MarketplaceOrderService {
             order.setShippedAt(now);
         } else if (newStatus == MarketplaceOrderStatus.DELIVERED) {
             order.setDeliveredAt(now);
-            order.setPaymentStatus(MarketplacePaymentStatus.PAID);
+            // NOTE: Payment gateway is not integrated yet.
+            // Fulfillment/delivery does NOT imply payment is PAID (SOLD != PAID).
+            // paymentStatus remains PENDING until a legitimate payment confirmation mechanism exists.
 
             // Device is permanently sold to customer for its second life
             List<MarketplaceOrderItem> items = marketplaceOrderItemRepository.findByOrderId(order.getId());

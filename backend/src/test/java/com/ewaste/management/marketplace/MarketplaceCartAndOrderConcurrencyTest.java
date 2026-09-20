@@ -302,9 +302,9 @@ public class MarketplaceCartAndOrderConcurrencyTest {
     }
 
     @Test
-    @DisplayName("Order fulfillment to DELIVERED transitions listing stockStatus to SOLD")
-    void testOrderFulfillmentTransitionsToSold() throws Exception {
-        // Place order
+    @DisplayName("Order fulfillment to DELIVERED transitions listing stockStatus to SOLD while paymentStatus remains honestly PENDING (SOLD != PAID)")
+    void testOrderFulfillmentTransitionsToSoldWithoutFakingPaid() throws Exception {
+        // 1. Place order -> initial payment state is PENDING
         CreateOrderDTO orderDTO = new CreateOrderDTO();
         orderDTO.setRecipientName("Alice Buyer");
         orderDTO.setPhoneNumber("9876543210");
@@ -319,20 +319,41 @@ public class MarketplaceCartAndOrderConcurrencyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(orderDTO)))
                 .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.status").value("PLACED"))
+                .andExpect(jsonPath("$.paymentStatus").value("PENDING"))
                 .andReturn().getResponse().getContentAsString();
 
         Long orderId = objectMapper.readTree(orderRes).get("id").asLong();
 
-        // Recycler fulfills order to DELIVERED
+        // 2. Fulfill to CONFIRMED -> paymentStatus remains PENDING
+        mockMvc.perform(post("/api/recycler/marketplace/orders/" + orderId + "/fulfill?status=CONFIRMED")
+                        .header("Authorization", "Bearer " + tokenRecycler))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("CONFIRMED"))
+                .andExpect(jsonPath("$.paymentStatus").value("PENDING"));
+
+        // 3. Fulfill to SHIPPED -> paymentStatus remains PENDING
+        mockMvc.perform(post("/api/recycler/marketplace/orders/" + orderId + "/fulfill?status=SHIPPED")
+                        .header("Authorization", "Bearer " + tokenRecycler))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("SHIPPED"))
+                .andExpect(jsonPath("$.paymentStatus").value("PENDING"));
+
+        // 4. Fulfill to DELIVERED -> paymentStatus remains PENDING (SOLD != PAID, no fake payment success)
         mockMvc.perform(post("/api/recycler/marketplace/orders/" + orderId + "/fulfill?status=DELIVERED")
                         .header("Authorization", "Bearer " + tokenRecycler))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("DELIVERED"))
-                .andExpect(jsonPath("$.paymentStatus").value("PAID"));
+                .andExpect(jsonPath("$.paymentStatus").value("PENDING"));
 
-        // Verify listing stock status in DB is now permanently SOLD
+        // 5. Verify listing stock status in DB is now permanently SOLD
         MarketplaceListing soldListing = marketplaceListingRepository.findById(listing.getId()).orElseThrow();
         assertEquals(MarketplaceStockStatus.SOLD, soldListing.getStockStatus());
         assertNotNull(soldListing.getSoldAt());
+
+        // 6. Verify order payment status in DB is strictly PENDING (not PAID)
+        MarketplaceOrder dbOrder = marketplaceOrderRepository.findById(orderId).orElseThrow();
+        assertEquals(MarketplacePaymentStatus.PENDING, dbOrder.getPaymentStatus());
+        assertEquals(MarketplaceOrderStatus.DELIVERED, dbOrder.getStatus());
     }
 }
