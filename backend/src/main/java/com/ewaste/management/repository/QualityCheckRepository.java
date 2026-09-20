@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface QualityCheckRepository extends JpaRepository<QualityCheck, Long> {
     Optional<QualityCheck> findByRestorationJobId(Long jobId);
     boolean existsByRestorationJobId(Long jobId);
+    java.util.List<QualityCheck> findByOverallResultAndMarketplaceCandidateTrue(com.ewaste.management.model.enums.QualityCheckResult overallResult);
 }

@@ -57,6 +57,7 @@ public class SecurityConfig {
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/auth/**", "/api/v1/health/**", "/actuator/health", "/error", "/uploads/**", "/api/recycling-centers/**", "/api/public/**").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/marketplace/listings/**").permitAll()
 
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/collector/**").hasAnyRole("COLLECTOR", "ADMIN")
