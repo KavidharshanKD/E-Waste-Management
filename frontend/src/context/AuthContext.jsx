@@ -5,7 +5,7 @@ const AuthContext = createContext(null)
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
-  const [token, setToken] = useState(localStorage.getItem('jwt_token') || null)
+  const [token, setToken] = useState(localStorage.getItem('jwt_token') || localStorage.getItem('token') || null)
   const [loading, setLoading] = useState(true)
 
   if (import.meta.env.VITE_API_BASE_URL) {
@@ -40,6 +40,7 @@ export const AuthProvider = ({ children }) => {
     const res = await axios.post('/api/auth/login', credentials)
     const { accessToken, user: userData } = res.data
     localStorage.setItem('jwt_token', accessToken)
+    localStorage.setItem('token', accessToken)
     axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
     setToken(accessToken)
     setUser(userData)
@@ -50,6 +51,7 @@ export const AuthProvider = ({ children }) => {
     const res = await axios.post('/api/auth/register', registerData)
     const { accessToken, user: userData } = res.data
     localStorage.setItem('jwt_token', accessToken)
+    localStorage.setItem('token', accessToken)
     axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
     setToken(accessToken)
     setUser(userData)
@@ -58,6 +60,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('jwt_token')
+    localStorage.removeItem('token')
     delete axios.defaults.headers.common['Authorization']
     setToken(null)
     setUser(null)
