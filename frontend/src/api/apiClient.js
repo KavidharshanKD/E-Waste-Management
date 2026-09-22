@@ -9,7 +9,7 @@ import axios from 'axios';
 
 // 1. Create a dedicated Axios instance
 export const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '',
+  baseURL: (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL) || '',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -120,7 +120,18 @@ export const orderApi = {
       params: { reason },
     });
   },
+
+  // Aliases for clear marketplace namespace
+  getOrders() {
+    return this.getMyOrders();
+  },
+
+  getOrder(id) {
+    return this.getOrderDetail(id);
+  },
 };
+
+export const marketplaceOrderApi = orderApi;
 
 // =============================================================================
 // RECYCLER FACILITY WORKFLOW API

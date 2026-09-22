@@ -267,8 +267,14 @@ export default function Checkout() {
 
           {/* Action Navigation */}
           <div className="d-flex flex-wrap gap-3 mt-4 pt-3 border-top border-secondary border-opacity-15">
-            <Link to="/marketplace" className="btn btn-primary-custom py-2 px-4">
-              Continue Shopping ↗
+            <Link to={`/orders/${placedOrder.id}`} className="btn btn-primary-custom py-2 px-4">
+              View Order &amp; Tracking ↗
+            </Link>
+            <Link to="/orders" className="btn btn-outline-custom py-2 px-4">
+              My Orders
+            </Link>
+            <Link to="/marketplace" className="btn btn-outline-secondary py-2 px-4">
+              Continue Shopping
             </Link>
           </div>
         </div>

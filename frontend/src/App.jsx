@@ -25,6 +25,8 @@ import Marketplace from './pages/Marketplace'
 import ProductDetail from './pages/ProductDetail'
 import Cart from './pages/Cart'
 import Checkout from './pages/Checkout'
+import Orders from './pages/Orders'
+import OrderDetail from './pages/OrderDetail'
 
 import { CartProvider, useCart } from './context/CartContext'
 import NotificationBell from './components/NotificationBell'
@@ -102,6 +104,11 @@ function HeaderNav() {
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Dashboard
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/orders" className="nav-link-item" onClick={() => setMobileMenuOpen(false)}>
+                    Orders
                   </Link>
                 </li>
                 {user.profile?.userType === 'INSTITUTION' && (
@@ -535,6 +542,22 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <Checkout />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/orders"
+                element={
+                  <ProtectedRoute>
+                    <Orders />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/orders/:id"
+                element={
+                  <ProtectedRoute>
+                    <OrderDetail />
                   </ProtectedRoute>
                 }
               />
