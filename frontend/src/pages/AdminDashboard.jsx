@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
-import { formatIndianDate } from '../utils/workflowHelpers'
+import { formatIndianDate, formatCurrency } from '../utils/workflowHelpers'
+import { adminApi, getApiErrorMessage } from '../api/apiClient'
+import {
+  MARKETPLACE_LISTING_STATUS_MAP,
+  COSMETIC_GRADE_MAP,
+  EWASTE_CATEGORY_MAP,
+  getEnumLabel,
+  getEnumBadgeClass,
+} from '../utils/enumMappings'
 
 export default function AdminDashboard() {
   const { user } = useAuth()
@@ -17,10 +25,19 @@ export default function AdminDashboard() {
   const [collectors, setCollectors] = useState([])
   const [centers, setCenters] = useState([])
   const [certificates, setCertificates] = useState([])
+  const [marketplaceListings, setMarketplaceListings] = useState([])
 
   const [loading, setLoading] = useState(true)
+  const [actionLoading, setActionLoading] = useState(false)
   const [error, setError] = useState(null)
   const [successMsg, setSuccessMsg] = useState(null)
+
+  // Marketplace Review States
+  const [listingFilter, setListingFilter] = useState('PENDING_APPROVAL')
+  const [selectedReviewListing, setSelectedReviewListing] = useState(null)
+  const [approvalDecision, setApprovalDecision] = useState(true)
+  const [rejectionReason, setRejectionReason] = useState('')
+  const [adjustedPrice, setAdjustedPrice] = useState('')
 
   // Filters & Search
   const [userSearch, setUserSearch] = useState('')
@@ -62,7 +79,8 @@ export default function AdminDashboard() {
         pickupsRes,
         collectorsRes,
         centersRes,
-        certificatesRes
+        certificatesRes,
+        listingsRes,
       ] = await Promise.all([
         axios.get('/api/admin/stats', { headers }),
         axios.get('/api/admin/users', { headers }),
@@ -70,7 +88,8 @@ export default function AdminDashboard() {
         axios.get('/api/admin/pickups', { headers }),
         axios.get('/api/admin/collectors', { headers }),
         axios.get('/api/recycling-centers', { headers }),
-        axios.get('/api/admin/certificates', { headers })
+        axios.get('/api/admin/certificates', { headers }),
+        adminApi.getAllListings().catch(() => ({ data: [] })),
       ])
 
       setStats(statsRes.data || null)
@@ -80,11 +99,52 @@ export default function AdminDashboard() {
       setCollectors(collectorsRes.data || [])
       setCenters(centersRes.data || [])
       setCertificates(certificatesRes.data || [])
+      setMarketplaceListings(listingsRes.data || [])
     } catch (err) {
       console.error('Failed to load admin dashboard data:', err)
       setError(err.response?.data?.error || 'Failed to load administrator dashboard data.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleOpenReviewModal = (listing) => {
+    setSelectedReviewListing(listing)
+    setApprovalDecision(true)
+    setRejectionReason('')
+    setAdjustedPrice(listing.sellingPrice ? String(listing.sellingPrice) : '')
+  }
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault()
+    if (!selectedReviewListing) return
+
+    if (!approvalDecision && !rejectionReason.trim()) {
+      setError('A mandatory rejection reason must be provided when rejecting a listing.')
+      return
+    }
+
+    try {
+      setActionLoading(true)
+      setError(null)
+      const payload = {
+        approved: approvalDecision,
+        rejectionReason: !approvalDecision ? rejectionReason.trim() : null,
+        adjustedSellingPrice: approvalDecision && adjustedPrice ? Number(adjustedPrice) : null,
+      }
+
+      await adminApi.reviewListing(selectedReviewListing.id, payload)
+      setSuccessMsg(
+        approvalDecision
+          ? `Listing #${selectedReviewListing.id} approved and published to the public marketplace.`
+          : `Listing #${selectedReviewListing.id} rejected with feedback.`
+      )
+      setSelectedReviewListing(null)
+      await fetchAllData()
+    } catch (err) {
+      setError(getApiErrorMessage(err, 'Failed to review marketplace listing.'))
+    } finally {
+      setActionLoading(false)
     }
   }
 
@@ -241,6 +301,12 @@ export default function AdminDashboard() {
           onClick={() => setActiveTab('centers')}
         >
           Centers ({centers.length})
+        </button>
+        <button
+          className={`btn ${activeTab === 'marketplace' ? 'btn-primary-custom' : 'btn-outline-custom'}`}
+          onClick={() => setActiveTab('marketplace')}
+        >
+          Marketplace Review ({marketplaceListings.filter((l) => l.listingStatus === 'PENDING_APPROVAL').length})
         </button>
       </div>
 
@@ -463,6 +529,235 @@ export default function AdminDashboard() {
             ))}
           </div>
         </section>
+      )}
+
+      {/* MARKETPLACE REVIEW TAB */}
+      {activeTab === 'marketplace' && (
+        <section className="py-3">
+          <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div>
+              <h2 className="h4 text-uppercase fw-bold m-0">REFURBISHED MARKETPLACE REVIEW</h2>
+              <p className="text-secondary small m-0 mt-1">
+                Admin review pipeline: Verify technical refurbishment standards, cosmetic grading, and pricing before authorizing publication to the public marketplace.
+              </p>
+            </div>
+
+            <div className="d-flex gap-2 flex-wrap">
+              {['ALL', 'PENDING_APPROVAL', 'APPROVED', 'PUBLISHED', 'REJECTED', 'WITHDRAWN'].map((st) => (
+                <button
+                  key={st}
+                  type="button"
+                  onClick={() => setListingFilter(st)}
+                  className={`btn btn-sm ${listingFilter === st ? 'btn-dark' : 'btn-outline-secondary'}`}
+                >
+                  {st}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {marketplaceListings
+            .filter((l) => listingFilter === 'ALL' || l.listingStatus === listingFilter)
+            .length === 0 ? (
+            <div className="p-4 border border-secondary border-opacity-25 bg-light text-muted small">
+              No marketplace listings found matching filter: {listingFilter}.
+            </div>
+          ) : (
+            <div className="table-responsive">
+              <table className="editorial-table">
+                <thead>
+                  <tr>
+                    <th>LISTING TITLE</th>
+                    <th>FACILITY CENTER</th>
+                    <th>COSMETIC GRADE</th>
+                    <th>REQUESTED PRICE</th>
+                    <th>WARRANTY</th>
+                    <th>STATUS</th>
+                    <th>ADMIN ACTION</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {marketplaceListings
+                    .filter((l) => listingFilter === 'ALL' || l.listingStatus === listingFilter)
+                    .map((listing) => (
+                      <tr key={listing.id}>
+                        <td>
+                          <strong className="text-dark">{listing.title}</strong>
+                          <div className="extra-small text-muted">{listing.brand} {listing.model}</div>
+                        </td>
+                        <td>
+                          <div className="fw-semibold text-dark">{listing.centerName}</div>
+                          <div className="extra-small text-muted">{listing.centerCity}</div>
+                        </td>
+                        <td>
+                          <span className={getEnumBadgeClass(COSMETIC_GRADE_MAP, listing.cosmeticGrade)}>
+                            {getEnumLabel(COSMETIC_GRADE_MAP, listing.cosmeticGrade)}
+                          </span>
+                        </td>
+                        <td>
+                          <strong className="text-dark font-monospace">{formatCurrency(listing.sellingPrice)}</strong>
+                        </td>
+                        <td className="small">{listing.warrantyDays || 0} Days</td>
+                        <td>
+                          <span className={getEnumBadgeClass(MARKETPLACE_LISTING_STATUS_MAP, listing.listingStatus)}>
+                            {getEnumLabel(MARKETPLACE_LISTING_STATUS_MAP, listing.listingStatus)}
+                          </span>
+                        </td>
+                        <td>
+                          {listing.listingStatus === 'PENDING_APPROVAL' ? (
+                            <button
+                              type="button"
+                              onClick={() => handleOpenReviewModal(listing)}
+                              className="btn btn-primary-custom btn-sm py-1 px-3"
+                            >
+                              Review &amp; Authorize ↗
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleOpenReviewModal(listing)}
+                              className="btn btn-outline-secondary btn-sm py-1 px-2"
+                            >
+                              Inspect Details
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* REVIEW MODAL */}
+      {selectedReviewListing && (
+        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }} tabIndex="-1">
+          <div className="modal-dialog modal-lg modal-dialog-scrollable">
+            <div className="modal-content rounded-0 border border-dark">
+              <div className="modal-header border-bottom border-dark">
+                <h5 className="modal-title text-uppercase fw-bold">
+                  Listing Review — #{selectedReviewListing.id} ({selectedReviewListing.title})
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setSelectedReviewListing(null)}
+                ></button>
+              </div>
+
+              <form onSubmit={handleReviewSubmit}>
+                <div className="modal-body p-4">
+                  <div className="p-3 border border-dark bg-light mb-4">
+                    <div className="row g-2 small">
+                      <div className="col-md-6">
+                        <strong>Facility Center:</strong> {selectedReviewListing.centerName} ({selectedReviewListing.centerCity})
+                      </div>
+                      <div className="col-md-6">
+                        <strong>Certified Cosmetic Grade:</strong> {selectedReviewListing.cosmeticGrade}
+                      </div>
+                      <div className="col-md-6">
+                        <strong>Requested Selling Price:</strong> {formatCurrency(selectedReviewListing.sellingPrice)}
+                      </div>
+                      <div className="col-md-6">
+                        <strong>Facility Warranty:</strong> {selectedReviewListing.warrantyDays || 0} Days
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label extra-small text-uppercase fw-bold">Review Decision *</label>
+                    <div className="d-flex gap-4">
+                      <div className="form-check">
+                        <input
+                          className="form-check-input"
+                          type="radio"
+                          name="approvalDecision"
+                          id="decApprove"
+                          checked={approvalDecision === true}
+                          onChange={() => setApprovalDecision(true)}
+                        />
+                        <label className="form-check-label fw-bold text-success" htmlFor="decApprove">
+                          Approve &amp; Publish to Public Marketplace
+                        </label>
+                      </div>
+
+                      <div className="form-check">
+                        <input
+                          className="form-check-input"
+                          type="radio"
+                          name="approvalDecision"
+                          id="decReject"
+                          checked={approvalDecision === false}
+                          onChange={() => setApprovalDecision(false)}
+                        />
+                        <label className="form-check-label fw-bold text-danger" htmlFor="decReject">
+                          Reject Listing (Requires Reason)
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {approvalDecision ? (
+                    <div className="mb-3">
+                      <label className="form-label extra-small text-uppercase fw-bold">
+                        Admin Adjusted Selling Price (₹) — Optional
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        step="0.01"
+                        className="form-control form-control-sm font-monospace"
+                        placeholder={String(selectedReviewListing.sellingPrice || '')}
+                        value={adjustedPrice}
+                        onChange={(e) => setAdjustedPrice(e.target.value)}
+                      />
+                      <div className="extra-small text-muted mt-1">
+                        Leave blank to retain facility requested price of {formatCurrency(selectedReviewListing.sellingPrice)}.
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mb-3">
+                      <label className="form-label extra-small text-uppercase fw-bold text-danger">
+                        Mandatory Rejection Feedback *
+                      </label>
+                      <textarea
+                        rows="3"
+                        className="form-control form-control-sm border-danger"
+                        placeholder="Provide clear technical, pricing, or cosmetic justification for why this listing cannot be published..."
+                        value={rejectionReason}
+                        onChange={(e) => setRejectionReason(e.target.value)}
+                        required={!approvalDecision}
+                      ></textarea>
+                    </div>
+                  )}
+                </div>
+
+                <div className="modal-footer border-top border-dark">
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => setSelectedReviewListing(null)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={actionLoading}
+                    className={`btn ${approvalDecision ? 'btn-primary-custom' : 'btn-danger rounded-0'}`}
+                  >
+                    {actionLoading
+                      ? 'Submitting Verdict...'
+                      : approvalDecision
+                      ? 'Approve & Publish ↗'
+                      : 'Reject Listing ↗'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

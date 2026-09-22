@@ -261,4 +261,17 @@ export const userEWasteApi = {
   },
 };
 
+// =============================================================================
+// COLLECTOR DISPATCH API
+// =============================================================================
+export const collectorApi = {
+  getAssignedPickups() {
+    return apiClient.get('/api/collector/pickups');
+  },
+
+  updatePickupStatus(pickupId, updateDto) {
+    return apiClient.put(`/api/collector/pickups/${pickupId}/status`, updateDto);
+  },
+};
+
 export default apiClient;

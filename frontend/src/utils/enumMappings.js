@@ -324,6 +324,39 @@ export const REPAIRABILITY_STATUS_MAP = {
   NOT_RECOVERABLE: 'Not Recoverable (Direct Recycling)',
 };
 
+export const TECHNICIAN_DECISION_MAP = {
+  REPAIR: { label: 'Repair', badgeClass: 'badge bg-info text-dark' },
+  REFURBISH: { label: 'Refurbish', badgeClass: 'badge bg-primary text-white' },
+  DONATE: { label: 'Donate', badgeClass: 'badge bg-primary text-white' },
+  RECYCLE: { label: 'Recycle Responsibly', badgeClass: 'badge bg-secondary text-white' },
+  SPECIAL_HANDLING: { label: 'Special Hazardous Handling', badgeClass: 'badge bg-danger text-white' },
+};
+
+export const REQUEST_STATUS_MAP = {
+  SUBMITTED: { label: 'Submitted', badgeClass: 'badge bg-warning text-dark' },
+  UNDER_REVIEW: { label: 'Under Review', badgeClass: 'badge bg-info text-dark' },
+  APPROVED: { label: 'Approved', badgeClass: 'badge bg-primary text-white' },
+  REJECTED: { label: 'Rejected', badgeClass: 'badge bg-danger text-white' },
+  PICKUP_ASSIGNED: { label: 'Pickup Assigned', badgeClass: 'badge bg-info text-dark' },
+  COLLECTED: { label: 'Collected', badgeClass: 'badge bg-primary text-white' },
+  AT_RECYCLING_CENTER: { label: 'At Center', badgeClass: 'badge bg-primary text-white' },
+  PROCESSING: { label: 'Processing', badgeClass: 'badge bg-info text-white' },
+  REFURBISHED: { label: 'Refurbished', badgeClass: 'badge bg-emerald text-white' },
+  REUSED: { label: 'Reused (Second Life)', badgeClass: 'badge bg-emerald text-white' },
+  RECYCLED: { label: 'Recycled', badgeClass: 'badge bg-emerald text-white' },
+  COMPLETED: { label: 'Completed', badgeClass: 'badge bg-emerald text-white' },
+  CANCELLED: { label: 'Cancelled', badgeClass: 'badge bg-secondary text-white' },
+};
+
+export const PICKUP_STATUS_MAP = {
+  SCHEDULED: { label: 'Scheduled', badgeClass: 'badge bg-warning text-dark' },
+  ASSIGNED: { label: 'Assigned', badgeClass: 'badge bg-info text-dark' },
+  ON_THE_WAY: { label: 'On The Way', badgeClass: 'badge bg-primary text-white' },
+  COLLECTED: { label: 'Collected', badgeClass: 'badge bg-emerald text-white' },
+  FAILED: { label: 'Pickup Failed', badgeClass: 'badge bg-danger text-white' },
+  CANCELLED: { label: 'Cancelled', badgeClass: 'badge bg-secondary text-white' },
+};
+
 // =============================================================================
 // CONVENIENCE FORMATTER FUNCTIONS
 // =============================================================================
