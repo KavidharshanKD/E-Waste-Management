@@ -21,6 +21,8 @@ import PublicTrack from './pages/PublicTrack'
 import VerifyCertificate from './pages/VerifyCertificate'
 import InstitutionDashboard from './pages/InstitutionDashboard'
 import ComplianceSupport from './pages/ComplianceSupport'
+import Marketplace from './pages/Marketplace'
+import ProductDetail from './pages/ProductDetail'
 
 import NotificationBell from './components/NotificationBell'
 
@@ -65,6 +67,11 @@ function HeaderNav() {
             <li>
               <Link to="/" className="nav-link-item" onClick={() => setMobileMenuOpen(false)}>
                 Home
+              </Link>
+            </li>
+            <li>
+              <Link to="/marketplace" className="nav-link-item" onClick={() => setMobileMenuOpen(false)}>
+                Marketplace
               </Link>
             </li>
             <li>
@@ -490,6 +497,8 @@ export default function App() {
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
+            <Route path="/marketplace" element={<Marketplace />} />
+            <Route path="/marketplace/:id" element={<ProductDetail />} />
             <Route path="/recycling-centers" element={<FindRecyclingCenter />} />
             <Route path="/compliance" element={<ComplianceSupport />} />
             <Route path="/architecture" element={<ArchitectureDocs />} />
