@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Routes, Route, Link, useNavigate } from 'react-router-dom'
+import { Routes, Route, Link, useNavigate, Navigate } from 'react-router-dom'
 import axios from 'axios'
 
 import { AuthProvider, useAuth } from './context/AuthContext'
@@ -27,6 +27,7 @@ import Cart from './pages/Cart'
 import Checkout from './pages/Checkout'
 import Orders from './pages/Orders'
 import OrderDetail from './pages/OrderDetail'
+import NotFound from './pages/NotFound'
 
 import { CartProvider, useCart } from './context/CartContext'
 import NotificationBell from './components/NotificationBell'
@@ -516,6 +517,14 @@ function ArchitectureDocs() {
   )
 }
 
+function DashboardRedirect() {
+  const { user, getDashboardPathByRole } = useAuth()
+  if (!user) {
+    return <Navigate to="/login" replace />
+  }
+  return <Navigate to={getDashboardPathByRole(user.role)} replace />
+}
+
 export default function App() {
   return (
     <AuthProvider>
@@ -663,6 +672,15 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+
+            {/* Quick Role Aliases & Dynamic Dashboard */}
+            <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="/collector" element={<Navigate to="/collector/dashboard" replace />} />
+            <Route path="/recycler" element={<Navigate to="/recycler/dashboard" replace />} />
+            <Route path="/dashboard" element={<DashboardRedirect />} />
+
+            {/* Catch-all Not Found Route */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
       </div>

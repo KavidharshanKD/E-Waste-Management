@@ -269,38 +269,47 @@ docker compose down
 | `POST` | `/api/auth/login` | User Authentication (Returns JWT Token) | Public |
 | `GET` | `/api/public/track/{trackingNumber}` | Public E-Waste Tracking & Recommendation | Public |
 | `GET` | `/api/public/verify-certificate/{certNumber}` | Public Recycling Certificate Verification | Public |
-| `POST` | `/api/user/ewaste` | Submit E-Waste Request | `USER` |
+| `GET` | `/api/marketplace/listings` | Public Refurbished Electronics Catalog | Public |
+| `GET` | `/api/marketplace/listings/{id}` | Public Listing Details & Circular Journey | Public |
+| `POST` | `/api/user/ewaste` | Submit E-Waste Request (ML Assisted) | `USER` |
 | `POST` | `/api/user/pickups` | Schedule Doorstep Pickup | `USER` |
-| `GET` | `/api/notifications` | In-App Lifecycle Notifications | Authenticated |
-| `GET` | `/api/collector/pickups` | View Assigned Pickups | `COLLECTOR` |
-| `PUT` | `/api/collector/pickups/{id}/status` | Update Collection Status | `COLLECTOR` |
-| `PUT` | `/api/recycler/process/{id}` | Receive & Process Shipment | `RECYCLER` |
-| `PUT` | `/api/recycler/complete/{id}` | Complete Recycling & Issue Certificate | `RECYCLER` |
-| `GET` | `/api/admin/dashboard` | Admin Master Dashboard Metrics | `ADMIN` |
-| `PUT` | `/api/admin/requests/{id}/approve` | Approve/Reject Request | `ADMIN` |
-| `PUT` | `/api/admin/pickups/{id}/assign` | Assign Collector to Pickup | `ADMIN` |
+| `GET` | `/api/marketplace/cart` | View Refurbished Cart | Authenticated |
+| `POST` | `/api/marketplace/cart/items` | Add Unique Serialized Device to Cart | Authenticated |
+| `POST` | `/api/marketplace/orders` | Atomic Checkout (Pessimistic Locking) | Authenticated |
+| `GET` | `/api/marketplace/orders` | Customer Order History & Tracking | Authenticated |
+| `GET` | `/api/collector/pickups` | View Assigned Logistics Pickups | `COLLECTOR` |
+| `PUT` | `/api/collector/pickups/{id}/status` | Update Collection Status & Hazard Notes | `COLLECTOR` |
+| `GET` | `/api/recycler/requests/pending-assessment` | Facility Intake Triage Queue | `RECYCLER` |
+| `POST` | `/api/recycler/requests/{id}/assessment` | Record Physical Technician Assessment | `RECYCLER` |
+| `GET` | `/api/recycler/restorations` | Active Restoration & Repair Benches | `RECYCLER` |
+| `PATCH` | `/api/recycler/restorations/{id}/start` | Transition Restoration to In-Progress | `RECYCLER` |
+| `PATCH` | `/api/recycler/restorations/{id}/complete` | Complete Bench Restoration & Log Parts | `RECYCLER` |
+| `POST` | `/api/recycler/restorations/{id}/quality-check` | Submit Multi-Point Bench QC Inspection | `RECYCLER` |
+| `GET` | `/api/recycler/marketplace/candidates` | Eligible Marketplace Candidates | `RECYCLER` |
+| `POST` | `/api/recycler/marketplace/listings` | Create Recycler Listing Draft | `RECYCLER` |
+| `POST` | `/api/recycler/marketplace/listings/{id}/submit` | Submit Draft for Admin Review | `RECYCLER` |
+| `POST` | `/api/admin/marketplace/listings/{id}/review` | Admin Approve/Publish or Reject Listing | `ADMIN` |
+| `GET` | `/api/admin/marketplace/orders` | Master Order Ledger Across Centers | `ADMIN` |
 
 ---
 
-## 🔒 Security Implementation
+## 🌐 Production Architecture & Deployment Topology
 
-- **Password Hashing**: BCrypt strong password hashing for all user accounts.
-- **Stateless Authentication**: JWT bearer tokens signed using HMAC SHA-256 keys.
-- **Role-Based Access Control (RBAC)**: Backend endpoint protection restricting routes to specific roles (`ADMIN`, `COLLECTOR`, `RECYCLER`, `USER`).
-- **Data Isolation**: Strict user-level authorization preventing unauthorized access to other users' requests or pickup records.
-- **Secrets Management**: Zero plain-text credentials logged or exposed; externalized environment configurations via `.env`.
-- **CORS & Input Sanitization**: Secure headers and sanitized inputs protecting against XSS and SQL injection.
+- **Frontend (`Vercel`)**: React 18 + Vite SPA client with `vercel.json` rewrite routing, CSS design system, and dynamic role-based console routing.
+- **Backend (`Render`)**: Spring Boot 3 + Java 17 REST API container with Flyway migration automation (V1 through V15), Spring Security stateless JWT authentication, and CORS origin pattern matching (`https://*.vercel.app`).
+- **Database (`Supabase`)**: Managed PostgreSQL 15 cloud database maintaining referential integrity across users, requests, assessments, quality checks, listings, and orders.
+- **ML Inference (`FastAPI / Local Docker`)**: Python Scikit-learn microservice (`http://localhost:8000/predict`) containerized with automated fallback to deterministic rule engines upon network timeout or server unavailability.
 
 ---
 
-## 🚀 Future Enhancements
+## ⚠️ Genuine Architectural Boundaries & Current System Limitations
 
-- **Image-Based Device Recognition**: AI computer vision model to automatically detect device category and estimate working condition from uploaded photos.
-- **Mobile Application**: Native iOS & Android application built with React Native for collectors and citizens.
-- **Route Optimization**: Automated route planning and GPS navigation integration for pickup collectors.
-- **Verified Recycler Integration**: Direct API integration with CPCB/State Pollution Control Board databases for live accreditation checks.
-- **Automated Email & SMS Notifications**: Integration with Twilio / AWS SES for instant SMS and email notifications.
-- **AI Recommendation Engine**: Advanced machine learning model to estimate component repairability and resale market value.
+To preserve absolute engineering integrity, the system adheres to truthful state reporting:
+1. **No Real Payment Gateway Integration**: There is no live commercial payment processor (e.g. Razorpay or Stripe). All marketplace orders are placed in an honest `PENDING` payment status. The system explicitly maintains the invariant **`SOLD ≠ PAID`** and never fabricates transaction identifiers or fake bank confirmations.
+2. **Deterministic Safety Precedence**: Stage 0 safety rules (swollen batteries, leaking cells, fire evidence) immediately enforce `SPECIAL_HANDLING` containment and bypass all ML models and refurbishment workflows.
+3. **Operator-Determined Commercial Pricing**: Resale prices and warranty durations are set by authorized recycling facility technicians and audited by system administrators; no synthetic pricing formulas or fake discounts are fabricated.
+4. **Physical Cosmetic Grading**: Grades (`GRADE_A`, `GRADE_B`, `GRADE_C`) are assigned through hands-on bench functional and cosmetic testing during Quality Control, not predicted by AI algorithms.
+5. **Zero Citizen PII in Public Journey**: The circular device journey displays genuine facility processing timestamps while strictly redacting citizen donor names, addresses, and contact numbers.
 
 ---
 
