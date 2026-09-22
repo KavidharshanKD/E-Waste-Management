@@ -216,4 +216,13 @@ export const adminApi = {
   },
 };
 
+// =============================================================================
+// USER PROFILE API (PREFILL DELIVERY ADDRESS)
+// =============================================================================
+export const userProfileApi = {
+  getProfile() {
+    return apiClient.get('/api/user/profile');
+  },
+};
+
 export default apiClient;

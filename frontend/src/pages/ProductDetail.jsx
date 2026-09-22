@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom'
-import { marketplaceApi, cartApi, getApiErrorMessage } from '../api/apiClient'
+import { marketplaceApi, getApiErrorMessage } from '../api/apiClient'
 import { useAuth } from '../context/AuthContext'
+import { useCart } from '../context/CartContext'
 import {
   COSMETIC_GRADE_MAP,
   MARKETPLACE_STOCK_STATUS_MAP,
@@ -18,6 +19,7 @@ import MarketplaceLoading from '../components/marketplace/MarketplaceLoading'
 export default function ProductDetail() {
   const { id } = useParams()
   const { user } = useAuth()
+  const { addToCart } = useCart()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -84,7 +86,7 @@ export default function ProductDetail() {
       setCartSuccess(null)
       setCartError(null)
 
-      await cartApi.addToCart(listing.id)
+      await addToCart(listing.id)
       setCartSuccess('This refurbished physical device has been added to your cart.')
     } catch (err) {
       console.error('Add to cart failed:', err)
@@ -245,8 +247,13 @@ export default function ProductDetail() {
 
             {/* Cart Feedback Alerts */}
             {cartSuccess && (
-              <div className="alert alert-success py-2 px-3 mb-3 small" role="alert">
-                <i className="bi bi-check-circle-fill me-1.5"></i> {cartSuccess}
+              <div className="alert alert-success py-2 px-3 mb-3 small d-flex align-items-center justify-content-between flex-wrap gap-2" role="alert">
+                <span>
+                  <i className="bi bi-check-circle-fill me-1.5"></i> {cartSuccess}
+                </span>
+                <Link to="/cart" className="fw-bold text-success text-decoration-underline text-nowrap">
+                  View in Cart ↗
+                </Link>
               </div>
             )}
 

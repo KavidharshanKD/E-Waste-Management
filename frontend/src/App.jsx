@@ -23,11 +23,15 @@ import InstitutionDashboard from './pages/InstitutionDashboard'
 import ComplianceSupport from './pages/ComplianceSupport'
 import Marketplace from './pages/Marketplace'
 import ProductDetail from './pages/ProductDetail'
+import Cart from './pages/Cart'
+import Checkout from './pages/Checkout'
 
+import { CartProvider, useCart } from './context/CartContext'
 import NotificationBell from './components/NotificationBell'
 
 function HeaderNav() {
   const { user, logout, getDashboardPathByRole } = useAuth()
+  const { itemCount } = useCart()
   const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -119,6 +123,11 @@ function HeaderNav() {
                         My Requests
                       </Link>
                     </li>
+                    <li className="d-lg-none">
+                      <Link to="/cart" className="nav-link-item" onClick={() => setMobileMenuOpen(false)}>
+                        Cart {itemCount > 0 ? `(${itemCount})` : ''}
+                      </Link>
+                    </li>
                   </>
                 )}
               </>
@@ -128,6 +137,19 @@ function HeaderNav() {
           <div className="d-flex align-items-center gap-2 gap-lg-3 mt-3 mt-lg-0 flex-shrink-0 text-nowrap">
             {user ? (
               <div className="d-flex align-items-center gap-2 gap-lg-3 text-nowrap">
+                <Link
+                  to="/cart"
+                  className="btn btn-outline-custom py-1 px-2.5 btn-sm position-relative d-inline-flex align-items-center gap-1.5"
+                  aria-label={`Cart with ${itemCount} items`}
+                >
+                  <i className="bi bi-cart3"></i>
+                  <span className="d-none d-sm-inline">Cart</span>
+                  {itemCount > 0 && (
+                    <span className="badge bg-dark text-white rounded-pill px-1.5 py-0.5 extra-small">
+                      {itemCount}
+                    </span>
+                  )}
+                </Link>
                 <NotificationBell />
                 <span className="status-dot-item text-truncate d-inline-block align-middle me-1" style={{ maxWidth: '140px' }}>
                   <span className="status-dot status-dot-emerald me-1"></span>
@@ -490,16 +512,33 @@ function ArchitectureDocs() {
 export default function App() {
   return (
     <AuthProvider>
-      <div className="app-wrapper">
-        <HeaderNav />
+      <CartProvider>
+        <div className="app-wrapper">
+          <HeaderNav />
 
-        <main className="main-content">
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<Home />} />
-            <Route path="/marketplace" element={<Marketplace />} />
-            <Route path="/marketplace/:id" element={<ProductDetail />} />
-            <Route path="/recycling-centers" element={<FindRecyclingCenter />} />
+          <main className="main-content">
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<Home />} />
+              <Route path="/marketplace" element={<Marketplace />} />
+              <Route path="/marketplace/:id" element={<ProductDetail />} />
+              <Route
+                path="/cart"
+                element={
+                  <ProtectedRoute>
+                    <Cart />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/checkout"
+                element={
+                  <ProtectedRoute>
+                    <Checkout />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/recycling-centers" element={<FindRecyclingCenter />} />
             <Route path="/compliance" element={<ComplianceSupport />} />
             <Route path="/architecture" element={<ArchitectureDocs />} />
             <Route path="/track/:trackingId" element={<PublicTrack />} />
@@ -604,6 +643,7 @@ export default function App() {
           </Routes>
         </main>
       </div>
+      </CartProvider>
     </AuthProvider>
   )
 }
