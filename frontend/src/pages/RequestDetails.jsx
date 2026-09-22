@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import axios from 'axios'
 import { formatIndianDate } from '../utils/workflowHelpers'
+import RecommendationResult from '../components/RecommendationResult'
 
 export default function RequestDetails() {
   const { id } = useParams()
@@ -210,16 +211,8 @@ export default function RequestDetails() {
         </div>
       )}
 
-      {/* Recommendation Panel */}
-      <div className="my-4 pb-4 border-bottom border-dark">
-        <div className="editorial-tag">RECOMMENDED DISPOSAL ACTION</div>
-        <h2 className="h1 text-uppercase fw-bold mb-2">
-          {request.recommendedAction ? request.recommendedAction.replace(/_/g, ' ') : 'RESPONSIBLE RECYCLING'}
-        </h2>
-        <p className="fs-5 text-secondary">
-          {request.recommendationExplanation || 'Directed to zero-landfill material recovery facilities.'}
-        </p>
-      </div>
+      {/* Explainable Circular Recommendation & Safety Audit */}
+      <RecommendationResult request={request} showActions={false} />
 
       <div className="grid-split-60-40 my-4">
         {/* Left Column: Equipment & Location */}

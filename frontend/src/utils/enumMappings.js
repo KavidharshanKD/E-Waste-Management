@@ -105,6 +105,27 @@ export const DISPOSAL_ACTION_MAP = {
 };
 
 // =============================================================================
+// RECOMMENDATION SOURCE MAPPING (ML vs RULE vs SAFETY)
+// =============================================================================
+export const RECOMMENDATION_SOURCE_MAP = {
+  ML: {
+    label: 'Model-Assisted Recommendation',
+    badgeClass: 'badge bg-primary text-white',
+    description: 'Inference produced by trained circular pathway machine learning model.',
+  },
+  RULE_BASED_FALLBACK: {
+    label: 'Rule-Based Fallback',
+    badgeClass: 'badge bg-secondary text-white',
+    description: 'Deterministic circular hierarchy rules applied as fallback.',
+  },
+  SAFETY_RULE: {
+    label: 'Deterministic Safety Rule',
+    badgeClass: 'badge bg-danger text-white',
+    description: 'Stage 0 safety gate: hazardous battery/damage requires specialized containment.',
+  },
+};
+
+// =============================================================================
 // E-WASTE CATEGORY LABELS
 // =============================================================================
 export const EWASTE_CATEGORY_MAP = {

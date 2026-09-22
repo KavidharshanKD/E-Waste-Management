@@ -236,4 +236,29 @@ export const userProfileApi = {
   },
 };
 
+// =============================================================================
+// USER E-WASTE & RECOMMENDATION API
+// =============================================================================
+export const userEWasteApi = {
+  createRequest(formData) {
+    return apiClient.post('/api/user/ewaste', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+
+  getUserRequests() {
+    return apiClient.get('/api/user/ewaste');
+  },
+
+  getRequestById(id) {
+    return apiClient.get(`/api/user/ewaste/${id}`);
+  },
+
+  cancelRequest(id) {
+    return apiClient.delete(`/api/user/ewaste/${id}`);
+  },
+};
+
 export default apiClient;

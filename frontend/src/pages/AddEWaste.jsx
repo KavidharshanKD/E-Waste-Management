@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import axios from 'axios'
+import RecommendationResult from '../components/RecommendationResult'
+import {
+  isScreenRelevant,
+  isBatteryRelevant,
+  isPowerStatusRelevant,
+  isStandaloneBattery as checkStandaloneBattery,
+  DEFAULT_USER_INTENTION,
+} from '../utils/recommendationHelpers'
 
 const EWASTE_CATEGORIES = [
   { value: 'MOBILE_PHONE', label: 'Mobile Phone' },
@@ -120,10 +128,10 @@ export default function AddEWaste() {
   // Smart Recommendation Result State
   const [createdRequest, setCreatedRequest] = useState(null)
 
-  const hasScreen = ['MOBILE_PHONE', 'LAPTOP', 'MONITOR', 'TELEVISION'].includes(formData.category)
-  const hasBattery = ['MOBILE_PHONE', 'LAPTOP', 'BATTERY'].includes(formData.category)
-  const isPowered = !['CABLE', 'KEYBOARD', 'MOUSE'].includes(formData.category)
-  const isStandaloneBattery = formData.category === 'BATTERY'
+  const hasScreen = isScreenRelevant(formData.category)
+  const hasBattery = isBatteryRelevant(formData.category)
+  const isPowered = isPowerStatusRelevant(formData.category)
+  const isStandaloneBattery = checkStandaloneBattery(formData.category)
 
   useEffect(() => {
     axios.get('/api/user/profile')
@@ -292,10 +300,11 @@ export default function AddEWaste() {
     }
   }
 
-  // Full-Width Editorial Outcome Recommendation Display
+  // Editorial Outcome Recommendation Display with Explainable ML/Safety Details
   if (createdRequest) {
-    const selectedIntentionObj = USER_INTENTIONS.find(i => i.value === createdRequest.userIntention)
-    const isSpecialHandling = createdRequest.recommendedAction === 'SPECIAL_HANDLING'
+    const isSpecialHandling =
+      createdRequest.recommendedAction === 'SPECIAL_HANDLING' ||
+      createdRequest.recommendationSource === 'SAFETY_RULE'
 
     return (
       <div className="py-4">
@@ -303,91 +312,33 @@ export default function AddEWaste() {
         
         <div className="my-4 pb-4 border-bottom border-dark">
           <div className="text-uppercase small fw-bold text-muted">TRACKING NUMBER</div>
-          <div className={`display-hero-title my-2 ${isSpecialHandling ? 'text-danger' : 'text-success'}`}>
+          <div className={`display-hero-title my-2 ${isSpecialHandling ? 'text-danger' : 'text-dark'}`}>
             {createdRequest.trackingNumber}
           </div>
           <p className="fs-5 text-secondary">
-            Request logged successfully. The system has analyzed both your intended device outcome and physical diagnostics.
+            Request logged successfully. The system has analyzed your declared intent, physical diagnostics, and circular recovery rules.
           </p>
         </div>
 
-        <div className="grid-split-60-40 my-5">
-          <div>
-            <h2 className="h1 text-uppercase fw-bold mb-3">
-              RECOMMENDED ACTION:<br />
-              {createdRequest.recommendedAction ? createdRequest.recommendedAction.replace(/_/g, ' ') : 'RESPONSIBLE RECYCLING'}
-            </h2>
-            <p className="fs-5 text-secondary mb-4">
-              {createdRequest.recommendationExplanation || 'Based on age, condition, and declared intent, this device will be routed to an authorized facility for optimal circular resource recovery.'}
-            </p>
-            {createdRequest.handlingAdvice && (
-              <div className={`p-3 bg-white border ${isSpecialHandling ? 'border-danger' : 'border-dark'} mb-4`}>
-                <div className={`fw-bold text-uppercase small mb-1 ${isSpecialHandling ? 'text-danger' : ''}`}>
-                  {isSpecialHandling ? '⚠ CRITICAL HANDLING ADVICE' : 'HANDLING ADVICE'}
-                </div>
-                <div className="small text-secondary">{createdRequest.handlingAdvice}</div>
-              </div>
-            )}
-            <div className="d-flex gap-3 flex-wrap">
-              <Link to={`/user/requests/${createdRequest.id}`} className="btn btn-primary-custom">
-                View Request Stream ↗
-              </Link>
-              <button
-                onClick={() => {
-                  setCreatedRequest(null)
-                  setFormData(prev => ({
-                    ...prev,
-                    deviceName: '',
-                    description: '',
-                    functionalIssues: '',
-                    batterySwollen: false,
-                    batteryLeaking: false,
-                    overheatingEvidence: false,
-                    severePhysicalDamage: false,
-                    userIntention: 'UNSURE',
-                  }))
-                  setImageFile(null)
-                  setImagePreview(null)
-                }}
-                className="btn btn-outline-custom"
-              >
-                Add Another Device ↗
-              </button>
-            </div>
-          </div>
-
-          <div className="border-start ps-md-4 pt-3 pt-md-0">
-            <h3 className="h5 text-uppercase fw-bold mb-3">INTAKE ASSESSMENT SUMMARY</h3>
-            <div className="d-flex flex-column gap-2 text-secondary fs-6">
-              <div className="d-flex justify-content-between pb-2 border-bottom">
-                <span>Equipment:</span>
-                <strong className="text-dark">{createdRequest.items?.[0]?.deviceName || formData.deviceName}</strong>
-              </div>
-              <div className="d-flex justify-content-between pb-2 border-bottom">
-                <span>Brand:</span>
-                <strong className="text-dark">{createdRequest.items?.[0]?.brand || formData.brand}</strong>
-              </div>
-              <div className="d-flex justify-content-between pb-2 border-bottom">
-                <span>Your Intent:</span>
-                <strong className="text-dark">{selectedIntentionObj ? selectedIntentionObj.title : (createdRequest.userIntention || 'Unsure')}</strong>
-              </div>
-              <div className="d-flex justify-content-between pb-2 border-bottom">
-                <span>Recommended:</span>
-                <strong className={isSpecialHandling ? 'text-danger' : 'text-success'}>
-                  {createdRequest.recommendedAction ? createdRequest.recommendedAction.replace(/_/g, ' ') : 'RECYCLE'}
-                </strong>
-              </div>
-              <div className="d-flex justify-content-between pb-2 border-bottom">
-                <span>Pickup Location:</span>
-                <strong className="text-dark">{createdRequest.pickupCity}, {createdRequest.pickupState}</strong>
-              </div>
-              <div className="d-flex justify-content-between">
-                <span>Estimated Reward:</span>
-                <strong className="text-success">+{formData.quantity * 50} PTS</strong>
-              </div>
-            </div>
-          </div>
-        </div>
+        <RecommendationResult
+          request={createdRequest}
+          onAddAnother={() => {
+            setCreatedRequest(null)
+            setFormData(prev => ({
+              ...prev,
+              deviceName: '',
+              description: '',
+              functionalIssues: '',
+              batterySwollen: false,
+              batteryLeaking: false,
+              overheatingEvidence: false,
+              severePhysicalDamage: false,
+              userIntention: 'UNSURE',
+            }))
+            setImageFile(null)
+            setImagePreview(null)
+          }}
+        />
       </div>
     )
   }
