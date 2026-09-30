@@ -58,6 +58,31 @@ export const AuthProvider = ({ children }) => {
     return userData
   }
 
+  const refreshUser = async () => {
+    if (token) {
+      try {
+        const res = await axios.get('/api/auth/me')
+        setUser(res.data)
+        return res.data
+      } catch (err) {
+        console.error('Failed to refresh user:', err)
+      }
+    }
+  }
+
+  const updateUserProfile = (updatedProfile) => {
+    setUser(prev => {
+      if (!prev) return prev
+      const newProfile = { ...(prev.profile || {}), ...updatedProfile }
+      const newFullName = `${newProfile.firstName || ''} ${newProfile.lastName || ''}`.trim() || prev.fullName
+      return {
+        ...prev,
+        fullName: newFullName,
+        profile: newProfile
+      }
+    })
+  }
+
   const logout = () => {
     localStorage.removeItem('jwt_token')
     localStorage.removeItem('token')
@@ -82,7 +107,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, getDashboardPathByRole }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, getDashboardPathByRole, refreshUser, updateUserProfile }}>
       {children}
     </AuthContext.Provider>
   )

@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 public class UserDTO {
     private Long id;
     private String email;
+    private String fullName;
     private UserRole role;
     private boolean active;
     private Integer rewardPointsBalance;
@@ -20,6 +21,9 @@ public class UserDTO {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+
+    public String getFullName() { return fullName; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
 
     public UserRole getRole() { return role; }
     public void setRole(UserRole role) { this.role = role; }

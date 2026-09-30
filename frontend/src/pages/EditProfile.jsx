@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext'
 
 export default function EditProfile() {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, updateUserProfile, refreshUser, getDashboardPathByRole } = useAuth()
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -93,10 +93,16 @@ export default function EditProfile() {
     try {
       setSubmitting(true)
       const res = await axios.put('/api/user/profile', formData)
-      setSuccessMsg('Profile updated successfully!')
+      if (res.data) {
+        updateUserProfile(res.data)
+        if (typeof refreshUser === 'function') {
+          await refreshUser()
+        }
+      }
+      setSuccessMsg('Profile updated successfully! Changes are reflected immediately.')
     } catch (err) {
       console.error('Failed to update profile', err)
-      setServerError(err.response?.data?.error || 'Failed to update profile. Please try again.')
+      setServerError(err.response?.data?.message || err.response?.data?.error || 'Failed to update profile. Please try again.')
     } finally {
       setSubmitting(false)
     }
@@ -120,7 +126,7 @@ export default function EditProfile() {
             Manage your personal profile, primary contact details, and pickup address.
           </p>
         </div>
-        <button onClick={() => navigate('/user/dashboard')} className="btn btn-outline-custom">
+        <button onClick={() => navigate(getDashboardPathByRole(user))} className="btn btn-outline-custom">
           <i className="bi bi-arrow-left me-1"></i> Dashboard
         </button>
       </div>

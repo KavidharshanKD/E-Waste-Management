@@ -13,6 +13,7 @@ import AddEWaste from './pages/AddEWaste'
 import MyRequests from './pages/MyRequests'
 import RequestDetails from './pages/RequestDetails'
 import EditProfile from './pages/EditProfile'
+import ForgotPassword from './pages/ForgotPassword'
 import FindRecyclingCenter from './pages/FindRecyclingCenter'
 import CollectorDashboard from './pages/CollectorDashboard'
 import RecyclerDashboard from './pages/RecyclerDashboard'
@@ -42,6 +43,10 @@ function HeaderNav() {
     logout()
     navigate('/login')
   }
+
+  const userDisplayName = (user?.profile?.firstName || user?.profile?.lastName)
+    ? `${user?.profile?.firstName || ''} ${user?.profile?.lastName || ''}`.trim()
+    : user?.fullName || (user?.email ? user.email.split('@')[0] : 'Profile')
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen)
@@ -159,10 +164,17 @@ function HeaderNav() {
                   )}
                 </Link>
                 <NotificationBell />
-                <span className="status-dot-item text-truncate d-inline-block align-middle me-1" style={{ maxWidth: '140px' }}>
-                  <span className="status-dot status-dot-emerald me-1"></span>
-                  {user.email}
-                </span>
+                <Link
+                  to="/user/profile"
+                  className="status-dot-item text-truncate d-inline-flex align-items-center me-1 text-decoration-none text-reset"
+                  style={{ maxWidth: '160px', cursor: 'pointer' }}
+                  title={`View Profile: ${userDisplayName} (${user.email})`}
+                  aria-label={`Open profile page for ${userDisplayName}`}
+                >
+                  <span className="status-dot status-dot-emerald me-1.5 flex-shrink-0"></span>
+                  <i className="bi bi-person-circle me-1 text-muted"></i>
+                  <span className="text-truncate fw-semibold">{userDisplayName}</span>
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="btn btn-outline-custom py-1 px-2.5 btn-sm text-nowrap"
@@ -577,6 +589,7 @@ export default function App() {
             <Route path="/verify-certificate/:certificateNumber?" element={<VerifyCertificate />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
 
             {/* Protected User Citizen Routes */}
             <Route
@@ -623,7 +636,17 @@ export default function App() {
               path="/user/profile"
               element={
                 <ProtectedRoute>
-                  <RoleProtectedRoute allowedRoles={['USER', 'ADMIN']}>
+                  <RoleProtectedRoute allowedRoles={['USER', 'ADMIN', 'COLLECTOR', 'RECYCLER']}>
+                    <EditProfile />
+                  </RoleProtectedRoute>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <RoleProtectedRoute allowedRoles={['USER', 'ADMIN', 'COLLECTOR', 'RECYCLER']}>
                     <EditProfile />
                   </RoleProtectedRoute>
                 </ProtectedRoute>

@@ -27,7 +27,11 @@ export default function Login() {
       const redirectPath = location.state?.from?.pathname || getDashboardPathByRole(user.role)
       navigate(redirectPath, { replace: true })
     } catch (err) {
-      const errMsg = err.response?.data?.message || err.response?.data?.error || 'Invalid credentials. Please check your email and password.'
+      const rawMsg = err.response?.data?.message || err.response?.data?.error
+      let errMsg = 'Invalid email or password. Please verify your credentials and try again.'
+      if (rawMsg && !rawMsg.toLowerCase().includes('forbidden') && !rawMsg.toLowerCase().includes('access denied')) {
+        errMsg = rawMsg
+      }
       setError(errMsg)
     } finally {
       setIsSubmitting(false)
@@ -67,7 +71,12 @@ export default function Login() {
             </div>
 
             <div>
-              <label htmlFor="login-password">Password *</label>
+              <div className="d-flex justify-content-between align-items-center mb-1">
+                <label htmlFor="login-password" className="mb-0">Password *</label>
+                <Link to="/forgot-password" className="text-muted extra-small text-decoration-none hover-underline">
+                  Forgot Password?
+                </Link>
+              </div>
               <input
                 id="login-password"
                 type="password"

@@ -14,7 +14,7 @@ The system comprises three coordinated services:
 | **Backend API** | Spring Boot 3 + Java 17 + Flyway | `8080` | [http://localhost:8080/api/v1/health](http://localhost:8080/api/v1/health) |
 | **ML Inference Service** | Python 3 + FastAPI + Scikit-Learn | `8000` | [http://localhost:8000/health](http://localhost:8000/health) |
 
-> **Note:** By default, the backend runs with an embedded **H2 in-memory database** and auto-executes all Flyway migrations (`V1` through `V15`). Zero external database setup is required to run the full application locally!
+> **Note:** By default, the backend runs with an embedded **H2 in-memory database** and auto-executes all Flyway migrations (`V1` through `V16`). Zero external database setup is required to run the full application locally!
 
 ---
 
@@ -141,7 +141,7 @@ Experience the complete lifecycle from citizen donation to certified refurbished
 
 ## 🧪 Running Automated Tests
 
-### Frontend Tests (77 tests across 8 suites)
+### Frontend Tests (84 tests across 8 suites)
 ```bash
 cd frontend
 npm test
@@ -153,7 +153,7 @@ cd frontend
 npm run build
 ```
 
-### Backend Regression Tests (167 tests, 0 failures)
+### Backend Regression Tests (172 tests, 0 failures)
 ```bash
 cd backend
 mvn test
@@ -169,6 +169,12 @@ mvn test
 - JWT Secret: `${JWT_SECRET:...}`
 - Frontend Origin: `${APP_FRONTEND_URL:http://localhost:5173}`
 - ML Service URL: `${ML_SERVICE_BASE_URL:http://localhost:8000}`
+- SMTP Mail Host: `${SPRING_MAIL_HOST:smtp.gmail.com}`
+- SMTP Mail Port: `${SPRING_MAIL_PORT:587}`
+- SMTP Username: `${SPRING_MAIL_USERNAME:your-email@gmail.com}`
+- SMTP App Password: `${SPRING_MAIL_PASSWORD:your-app-passcode}`
+
+> **Local Development Fallback:** If SMTP username and password are not set, the system automatically logs the generated 6-digit password reset OTP directly to the backend console/terminal, allowing seamless local development and testing without an immediate SMTP configuration!
 
 ### Frontend (`frontend/.env`)
 Create `frontend/.env` to override the API target if needed:

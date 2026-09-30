@@ -25,6 +25,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Collections;
 import java.util.Optional;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -42,6 +43,11 @@ class AuthServiceTest {
     @Mock
     private AuthenticationManager authenticationManager;
 
+    @Mock
+    private com.ewaste.management.repository.PasswordResetTokenRepository passwordResetTokenRepository;
+
+    private EmailService emailService;
+
     private JwtTokenProvider realTokenProvider;
 
     private AuthService authService;
@@ -50,11 +56,12 @@ class AuthServiceTest {
 
     @BeforeEach
     void setUp() {
+        emailService = new EmailService(null);
         realTokenProvider = new JwtTokenProvider();
         ReflectionTestUtils.setField(realTokenProvider, "jwtSecret", "dGhpcyBpcyBhIHZhbGlkIGJhc2U2NCBzZWNyZXQga2V5IDEyMzQ1Njc4OTA=");
         ReflectionTestUtils.setField(realTokenProvider, "jwtExpirationMs", 3600000L);
 
-        authService = new AuthService(userRepository, passwordEncoder, authenticationManager, realTokenProvider);
+        authService = new AuthService(userRepository, passwordEncoder, authenticationManager, realTokenProvider, passwordResetTokenRepository, emailService);
 
         registerRequest = new RegisterRequest();
         registerRequest.setEmail("newuser@example.com");
@@ -175,5 +182,46 @@ class AuthServiceTest {
         assertNotNull(response.getAccessToken());
         assertEquals("user@example.com", response.getUser().getEmail());
         assertEquals("Priya", response.getUser().getProfile().getFirstName());
+        assertEquals("Priya Sharma", response.getUser().getFullName());
+    }
+
+    @Test
+    @DisplayName("Should create reset token on forgot password request")
+    void testForgotPasswordSuccess() {
+        User user = new User("user@example.com", "pass", UserRole.USER);
+        when(userRepository.findByEmail("user@example.com")).thenReturn(Optional.of(user));
+
+        com.ewaste.management.dto.ForgotPasswordRequest request =
+                new com.ewaste.management.dto.ForgotPasswordRequest("user@example.com");
+
+        Map<String, Object> result = authService.forgotPassword(request);
+
+        assertNotNull(result);
+        assertEquals("user@example.com", result.get("email"));
+        verify(passwordResetTokenRepository, times(1)).save(any(com.ewaste.management.entity.PasswordResetToken.class));
+    }
+
+    @Test
+    @DisplayName("Should successfully reset password when valid token provided")
+    void testResetPasswordSuccess() {
+        com.ewaste.management.entity.PasswordResetToken token =
+                new com.ewaste.management.entity.PasswordResetToken("user@example.com", "123456", java.time.LocalDateTime.now().plusMinutes(10));
+
+        User user = new User("user@example.com", "oldPass", UserRole.USER);
+        when(passwordResetTokenRepository.findFirstByEmailAndTokenAndUsedFalseOrderByCreatedAtDesc("user@example.com", "123456"))
+                .thenReturn(Optional.of(token));
+        when(userRepository.findByEmail("user@example.com")).thenReturn(Optional.of(user));
+        when(passwordEncoder.encode("newSecretPass")).thenReturn("encodedNewSecretPass");
+
+        com.ewaste.management.dto.ResetPasswordRequest request =
+                new com.ewaste.management.dto.ResetPasswordRequest("user@example.com", "123456", "newSecretPass");
+
+        Map<String, Object> result = authService.resetPassword(request);
+
+        assertNotNull(result);
+        assertTrue(token.isUsed());
+        assertEquals("encodedNewSecretPass", user.getPassword());
+        verify(userRepository, times(1)).save(user);
+        verify(passwordResetTokenRepository, times(1)).save(token);
     }
 }
