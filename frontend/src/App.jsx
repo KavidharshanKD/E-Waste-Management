@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Routes, Route, Link, useNavigate, Navigate } from 'react-router-dom'
+import { Routes, Route, Link, useNavigate, Navigate, useLocation } from 'react-router-dom'
 import axios from 'axios'
 
 import { AuthProvider, useAuth } from './context/AuthContext'
@@ -37,6 +37,7 @@ function HeaderNav() {
   const { user, logout, getDashboardPathByRole } = useAuth()
   const { itemCount } = useCart()
   const navigate = useNavigate()
+  const location = useLocation()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleLogout = () => {
@@ -50,6 +51,25 @@ function HeaderNav() {
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen)
+  }
+
+  const isRouteActive = (path, exact = false) => {
+    if (exact || path === '/') {
+      return location.pathname === path
+    }
+    return location.pathname === path || location.pathname.startsWith(`${path}/`)
+  }
+
+  const isDashboardActive = () => {
+    const dashPath = getDashboardPathByRole(user)
+    return (
+      location.pathname === dashPath ||
+      location.pathname === '/user/dashboard' ||
+      location.pathname === '/admin/dashboard' ||
+      location.pathname === '/collector/dashboard' ||
+      location.pathname === '/recycler/dashboard' ||
+      (location.pathname === '/institution/dashboard' && user?.profile?.userType !== 'INSTITUTION')
+    )
   }
 
   return (
@@ -77,27 +97,47 @@ function HeaderNav() {
         <div className={`nav-links-wrapper ${mobileMenuOpen ? 'mobile-open' : ''}`}>
           <ul className="nav-links">
             <li>
-              <Link to="/" className="nav-link-item" onClick={() => setMobileMenuOpen(false)}>
+              <Link
+                to="/"
+                className={`nav-link-item ${isRouteActive('/', true) ? 'active' : ''}`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
                 Home
               </Link>
             </li>
             <li>
-              <Link to="/marketplace" className="nav-link-item" onClick={() => setMobileMenuOpen(false)}>
+              <Link
+                to="/marketplace"
+                className={`nav-link-item ${isRouteActive('/marketplace') ? 'active' : ''}`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
                 Marketplace
               </Link>
             </li>
             <li>
-              <Link to="/recycling-centers" className="nav-link-item" onClick={() => setMobileMenuOpen(false)}>
+              <Link
+                to="/recycling-centers"
+                className={`nav-link-item ${isRouteActive('/recycling-centers') ? 'active' : ''}`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
                 Find Centers
               </Link>
             </li>
             <li>
-              <Link to="/compliance" className="nav-link-item" onClick={() => setMobileMenuOpen(false)}>
+              <Link
+                to="/compliance"
+                className={`nav-link-item ${isRouteActive('/compliance') ? 'active' : ''}`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
                 Compliance Guide
               </Link>
             </li>
             <li>
-              <Link to="/architecture" className="nav-link-item" onClick={() => setMobileMenuOpen(false)}>
+              <Link
+                to="/architecture"
+                className={`nav-link-item ${isRouteActive('/architecture') ? 'active' : ''}`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
                 Architecture
               </Link>
             </li>
@@ -106,20 +146,28 @@ function HeaderNav() {
                 <li>
                   <Link
                     to={getDashboardPathByRole(user.role)}
-                    className="nav-link-item active"
+                    className={`nav-link-item ${isDashboardActive() ? 'active' : ''}`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Dashboard
                   </Link>
                 </li>
                 <li>
-                  <Link to="/orders" className="nav-link-item" onClick={() => setMobileMenuOpen(false)}>
+                  <Link
+                    to="/orders"
+                    className={`nav-link-item ${isRouteActive('/orders') ? 'active' : ''}`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
                     Orders
                   </Link>
                 </li>
                 {user.profile?.userType === 'INSTITUTION' && (
                   <li>
-                    <Link to="/institution/dashboard" className="nav-link-item" onClick={() => setMobileMenuOpen(false)}>
+                    <Link
+                      to="/institution/dashboard"
+                      className={`nav-link-item ${location.pathname === '/institution/dashboard' ? 'active' : ''}`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
                       Bulk Portal
                     </Link>
                   </li>
@@ -127,17 +175,29 @@ function HeaderNav() {
                 {(user.role === 'USER' || user.role === 'ADMIN') && (
                   <>
                     <li>
-                      <Link to="/user/ewaste/add" className="nav-link-item" onClick={() => setMobileMenuOpen(false)}>
+                      <Link
+                        to="/user/ewaste/add"
+                        className={`nav-link-item ${isRouteActive('/user/ewaste/add') ? 'active' : ''}`}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
                         Dispose E-Waste
                       </Link>
                     </li>
                     <li>
-                      <Link to="/user/requests" className="nav-link-item" onClick={() => setMobileMenuOpen(false)}>
+                      <Link
+                        to="/user/requests"
+                        className={`nav-link-item ${isRouteActive('/user/requests') ? 'active' : ''}`}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
                         My Requests
                       </Link>
                     </li>
                     <li className="d-lg-none">
-                      <Link to="/cart" className="nav-link-item" onClick={() => setMobileMenuOpen(false)}>
+                      <Link
+                        to="/cart"
+                        className={`nav-link-item ${isRouteActive('/cart') ? 'active' : ''}`}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
                         Cart {itemCount > 0 ? `(${itemCount})` : ''}
                       </Link>
                     </li>
@@ -147,12 +207,12 @@ function HeaderNav() {
             )}
           </ul>
 
-          <div className="d-flex align-items-center gap-2 gap-lg-3 mt-3 mt-lg-0 flex-shrink-0 text-nowrap">
+          <div className="nav-actions d-flex align-items-center gap-1.5 gap-sm-2 gap-lg-2.5 mt-3 mt-lg-0 flex-shrink-0">
             {user ? (
-              <div className="d-flex align-items-center gap-2 gap-lg-3 text-nowrap">
+              <div className="d-flex align-items-center gap-1.5 gap-sm-2 gap-lg-2.5 text-nowrap flex-nowrap">
                 <Link
                   to="/cart"
-                  className="btn btn-outline-custom py-1 px-2.5 btn-sm position-relative d-inline-flex align-items-center gap-1.5"
+                  className={`btn btn-outline-custom py-1 px-2.5 btn-sm position-relative d-inline-flex align-items-center gap-1.5 flex-shrink-0 ${isRouteActive('/cart') ? 'active' : ''}`}
                   aria-label={`Cart with ${itemCount} items`}
                 >
                   <i className="bi bi-cart3"></i>
@@ -163,21 +223,22 @@ function HeaderNav() {
                     </span>
                   )}
                 </Link>
-                <NotificationBell />
+                <div className="flex-shrink-0">
+                  <NotificationBell />
+                </div>
                 <Link
                   to="/user/profile"
-                  className="status-dot-item text-truncate d-inline-flex align-items-center me-1 text-decoration-none text-reset"
-                  style={{ maxWidth: '160px', cursor: 'pointer' }}
+                  className={`nav-user-badge d-inline-flex align-items-center text-decoration-none text-reset flex-shrink-1 ${isRouteActive('/user/profile') || isRouteActive('/profile') ? 'active' : ''}`}
                   title={`View Profile: ${userDisplayName} (${user.email})`}
                   aria-label={`Open profile page for ${userDisplayName}`}
                 >
-                  <span className="status-dot status-dot-emerald me-1.5 flex-shrink-0"></span>
-                  <i className="bi bi-person-circle me-1 text-muted"></i>
-                  <span className="text-truncate fw-semibold">{userDisplayName}</span>
+                  <span className="status-dot status-dot-emerald me-1 flex-shrink-0"></span>
+                  <i className="bi bi-person-circle me-1 text-muted flex-shrink-0"></i>
+                  <span className="nav-user-name fw-semibold">{userDisplayName}</span>
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="btn btn-outline-custom py-1 px-2.5 btn-sm text-nowrap"
+                  className="btn btn-outline-custom py-1 px-2.5 btn-sm text-nowrap flex-shrink-0"
                   aria-label="Log out of account"
                 >
                   Logout

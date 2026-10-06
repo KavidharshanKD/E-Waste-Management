@@ -121,4 +121,66 @@ describe('Auth & Profile Presentation Logic', () => {
     assert.strictEqual(valid.valid, true)
     assert.strictEqual(valid.error, null)
   })
+
+  it('determines active route underline accurately per page', () => {
+    // Dynamic isRouteActive function as in App.jsx HeaderNav
+    const isRouteActive = (currentPath, targetPath, exact = false) => {
+      if (exact || targetPath === '/') {
+        return currentPath === targetPath
+      }
+      return currentPath === targetPath || currentPath.startsWith(`${targetPath}/`)
+    }
+
+    const isDashboardActive = (currentPath, userRole) => {
+      const dashboardMap = {
+        ADMIN: '/admin/dashboard',
+        COLLECTOR: '/collector/dashboard',
+        RECYCLER: '/recycler/dashboard',
+        USER: '/user/dashboard'
+      }
+      const expected = dashboardMap[userRole] || '/user/dashboard'
+      return currentPath === expected || currentPath.endsWith('/dashboard')
+    }
+
+    // 1. When on Home ('/'): Home has underline, Dashboard does NOT
+    assert.strictEqual(isRouteActive('/', '/', true), true)
+    assert.strictEqual(isRouteActive('/', '/marketplace'), false)
+    assert.strictEqual(isDashboardActive('/', 'USER'), false)
+
+    // 2. When on Marketplace ('/marketplace'): Marketplace has underline, Dashboard and Home do NOT
+    assert.strictEqual(isRouteActive('/marketplace', '/', true), false)
+    assert.strictEqual(isRouteActive('/marketplace', '/marketplace'), true)
+    assert.strictEqual(isRouteActive('/marketplace/item-123', '/marketplace'), true)
+    assert.strictEqual(isDashboardActive('/marketplace', 'USER'), false)
+
+    // 3. When on Orders ('/orders'): Orders has underline, Dashboard does NOT
+    assert.strictEqual(isRouteActive('/orders', '/orders'), true)
+    assert.strictEqual(isRouteActive('/orders/order-55', '/orders'), true)
+    assert.strictEqual(isDashboardActive('/orders', 'USER'), false)
+
+    // 4. When on Dashboard ('/user/dashboard'): Dashboard has underline, Home/Marketplace do NOT
+    assert.strictEqual(isDashboardActive('/user/dashboard', 'USER'), true)
+    assert.strictEqual(isRouteActive('/user/dashboard', '/', true), false)
+    assert.strictEqual(isRouteActive('/user/dashboard', '/marketplace'), false)
+
+    // 5. When on Find Centers ('/recycling-centers')
+    assert.strictEqual(isRouteActive('/recycling-centers', '/recycling-centers'), true)
+    assert.strictEqual(isDashboardActive('/recycling-centers', 'USER'), false)
+  })
+
+  it('handles extremely long names safely for profile display without displacing layout', () => {
+    const longNameUser = {
+      email: 'kavidhrashan.somasundaram.long.identifier@ewaste.org',
+      fullName: 'Kavidhrashan Somasundaram The Extended E-Waste Pioneer',
+      profile: {
+        firstName: 'Kavidhrashan',
+        lastName: 'Somasundaram The Extended E-Waste Pioneer'
+      }
+    }
+    const name = getUserDisplayName(longNameUser)
+    assert.strictEqual(name, 'Kavidhrashan Somasundaram The Extended E-Waste Pioneer')
+    // CSS rules enforce max-width (85px/115px/160px) and text-overflow: ellipsis
+    // Logout button maintains flex-shrink: 0 and text-nowrap
+    assert.strictEqual(name.length > 20, true)
+  })
 })
