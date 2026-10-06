@@ -91,36 +91,45 @@ export default function ComplianceSupport() {
   const displayTopics = guidelines.length > 0 ? guidelines : defaultTopics
 
   return (
-    <div className="container py-4">
-      {/* Top Banner Card */}
-      <div className="hero-card shadow-lg p-4 mb-4 rounded-4 position-relative overflow-hidden">
-        <div className="position-relative z-1">
-          <span className="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 px-3 py-1.5 rounded-pill fw-bold small mb-2 d-inline-block">
-            <i className="bi bi-shield-check me-1"></i> INDIA E-WASTE REGULATORY FRAMEWORK
-          </span>
-          <h2 className="hero-title h3 mb-2 text-white">
-            E-Waste Compliance &amp; Statutory Guidance Support
-          </h2>
-          <p className="hero-description text-muted small mb-0">
-            Educational guidance on Extended Producer Responsibility (EPR), registered recyclers, safe hazardous handling, and environmentally sound disposal in India.
-          </p>
+    <div className="py-4">
+      {/* Editorial Category Tag & Header Banner */}
+      <div className="editorial-tag mb-1">REGULATORY &amp; STATUTORY STANDARDS</div>
+      <div className="compliance-hero-banner mb-4">
+        <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+          <div>
+            <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-1.5 rounded-pill fw-bold small mb-2 d-inline-flex align-items-center">
+              <i className="bi bi-shield-check me-1.5"></i> INDIA E-WASTE REGULATORY FRAMEWORK
+            </span>
+            <h1 className="h2 text-uppercase fw-bold text-dark mb-1">
+              E-Waste Compliance &amp; Statutory Guidance
+            </h1>
+            <p className="text-secondary small mb-0" style={{ maxWidth: '780px', lineHeight: '1.6' }}>
+              Educational guidance on Extended Producer Responsibility (EPR), registered recyclers, safe hazardous handling, and environmentally sound disposal in India (MoEFCC &amp; CPCB statutory framework).
+            </p>
+          </div>
+          <div className="d-flex align-items-center gap-2 flex-shrink-0">
+            <span className="status-dot-item px-3 py-2 bg-white border border-secondary border-opacity-20 rounded-pill small fw-medium shadow-sm">
+              <span className="status-dot status-dot-emerald"></span>
+              Rules, 2022 Verified
+            </span>
+          </div>
         </div>
       </div>
 
       {/* MANDATORY STATUTORY DISCLAIMER BANNER */}
-      <div className="alert bg-dark border border-warning border-opacity-50 text-white rounded-4 p-4 mb-4 shadow-sm">
+      <div className="compliance-notice-banner mb-4">
         <div className="d-flex gap-3 align-items-start">
-          <div className="rounded-3 p-2 bg-warning bg-opacity-10 text-warning fs-3 flex-shrink-0">
-            <i className="bi bi-exclamation-triangle-fill"></i>
+          <div className="rounded-3 p-2 bg-warning bg-opacity-25 text-warning-emphasis fs-4 flex-shrink-0 d-flex align-items-center justify-content-center" style={{ width: '42px', height: '42px' }}>
+            <i className="bi bi-exclamation-triangle-fill text-warning"></i>
           </div>
           <div>
-            <h5 className="text-warning fw-bold h6 mb-1">
+            <h2 className="text-dark fw-bold h6 mb-1">
               Statutory Notice &amp; Independent Verification Disclaimer
-            </h5>
-            <p className="mb-2 text-muted small">
-              <strong>"Registration information should be independently verified with the relevant authority."</strong>
+            </h2>
+            <p className="mb-2 text-dark small fw-semibold">
+              "Registration information should be independently verified with the relevant authority."
             </p>
-            <p className="mb-0 text-muted small opacity-75" style={{ fontSize: '0.85rem' }}>
+            <p className="mb-0 text-secondary small opacity-90" style={{ fontSize: '0.86rem', lineHeight: '1.6' }}>
               This portal provides information and logistics support aligned with India's <em>E-Waste (Management) Rules, 2022</em> (MoEFCC / CPCB framework). This platform is an independent compliance assistance tool and does <strong>not</strong> claim direct real-time statutory integration with the Central Pollution Control Board (CPCB) or State Pollution Control Boards (SPCBs) unless explicitly integrated via official APIs. All registration numbers and validity dates must be independently cross-verified on the official CPCB EPR portal.
             </p>
           </div>
@@ -131,35 +140,35 @@ export default function ComplianceSupport() {
       <div className="row g-4 mb-5">
         {displayTopics.map((topic, idx) => (
           <div key={idx} className="col-12 col-lg-6">
-            <div className="bg-dark rounded-4 p-4 border border-secondary border-opacity-25 h-100 shadow-sm d-flex flex-column justify-content-between">
+            <div className="compliance-card h-100 d-flex flex-column justify-content-between">
               <div>
-                <div className="d-flex justify-content-between align-items-start mb-2">
-                  <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2.5 py-1 rounded-2 font-monospace small">
-                    SECTION {idx + 1}
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2.5 py-1 rounded-2 font-monospace small fw-bold">
+                    SECTION 0{idx + 1}
                   </span>
-                  <span className="text-muted small">
-                    <i className="bi bi-book me-1"></i> MoEFCC Guideline
+                  <span className="text-secondary small fw-medium">
+                    <i className="bi bi-journal-bookmark me-1 text-success"></i> MoEFCC Guideline
                   </span>
                 </div>
 
-                <h4 className="text-white h5 fw-bold mb-2">{topic.title}</h4>
-                <p className="text-muted small fw-medium mb-3">{topic.summary}</p>
+                <h3 className="text-dark h5 fw-bold mb-2">{topic.title}</h3>
+                <p className="text-secondary small fw-medium mb-3">{topic.summary}</p>
 
-                <div className="p-3 bg-dark bg-opacity-50 rounded-3 border border-secondary border-opacity-25 mb-3 text-muted small">
+                <div className="compliance-content-box mb-3">
                   {topic.detailedContent}
                 </div>
               </div>
 
               <div>
-                <div className="p-2.5 rounded-3 bg-secondary bg-opacity-10 border border-secondary border-opacity-25 mb-2">
-                  <div className="text-success small fw-semibold">
-                    <i className="bi bi-journal-text me-1"></i> Regulatory Reference:
+                <div className="compliance-ref-box mb-2">
+                  <div className="text-success small fw-bold mb-1">
+                    <i className="bi bi-bank2 me-1"></i> Legal &amp; Regulatory Reference:
                   </div>
-                  <div className="text-white small opacity-90">{topic.legalFrameworkReference}</div>
+                  <div className="text-dark small fw-medium">{topic.legalFrameworkReference}</div>
                 </div>
 
-                <div className="text-warning small fst-italic opacity-75" style={{ fontSize: '0.78rem' }}>
-                  <i className="bi bi-info-circle me-1"></i> {topic.disclaimerText}
+                <div className="text-muted small fst-italic" style={{ fontSize: '0.8rem' }}>
+                  <i className="bi bi-info-circle me-1 text-secondary"></i> {topic.disclaimerText}
                 </div>
               </div>
             </div>
@@ -168,31 +177,31 @@ export default function ComplianceSupport() {
       </div>
 
       {/* Registered Recycler Verification Reference Section */}
-      <div className="bg-dark rounded-4 p-4 border border-secondary border-opacity-25 shadow-sm">
-        <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+      <div className="compliance-directory-card">
+        <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 pb-3 border-bottom border-secondary border-opacity-15">
           <div>
-            <h4 className="text-white h5 mb-1 fw-bold">
-              <i className="bi bi-patch-check-fill text-success me-2"></i> Authorized Registered Recycler Directory Reference
-            </h4>
-            <p className="text-muted small mb-0">
-              Directory reference for CPCB / State PCB registered recycler facilities and accepted waste categories.
+            <h2 className="text-dark h5 mb-1 fw-bold d-flex align-items-center gap-2">
+              <i className="bi bi-patch-check-fill text-success"></i> Authorized Registered Recycler Directory Reference
+            </h2>
+            <p className="text-secondary small mb-0">
+              Directory reference for CPCB / State PCB registered recycler facilities and accepted waste categories across India.
             </p>
           </div>
 
           <div className="d-flex flex-wrap gap-2">
             <input
               type="text"
-              className="form-control form-control-sm bg-dark text-white border-secondary"
+              className="form-control form-control-sm bg-white text-dark border-secondary border-opacity-25"
               placeholder="Search by city, state, or CPCB ref..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ width: '220px' }}
+              style={{ width: '230px' }}
             />
             <select
-              className="form-select form-select-sm bg-dark text-white border-secondary"
+              className="form-select form-select-sm bg-white text-dark border-secondary border-opacity-25"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              style={{ width: '160px' }}
+              style={{ width: '170px' }}
             >
               <option value="">All Categories</option>
               <option value="MONITOR">Monitors / Screens</option>
@@ -206,9 +215,9 @@ export default function ComplianceSupport() {
 
         {/* Directory Table */}
         <div className="table-responsive">
-          <table className="table table-dark table-hover align-middle mb-0 text-white">
+          <table className="table table-hover align-middle mb-0 editorial-table">
             <thead>
-              <tr className="text-muted small border-secondary">
+              <tr>
                 <th>Facility &amp; Location</th>
                 <th>CPCB / SPCB Registration Ref</th>
                 <th>Registration Validity</th>
@@ -226,17 +235,17 @@ export default function ComplianceSupport() {
                 </tr>
               ) : (
                 filteredRecyclers.map((r, idx) => (
-                  <tr key={idx} className="border-secondary">
+                  <tr key={idx}>
                     <td>
-                      <div className="fw-bold text-white">{r.name}</div>
-                      <div className="small text-muted">{r.city}, {r.state} ({r.postalCode})</div>
+                      <div className="fw-bold text-dark">{r.name}</div>
+                      <div className="small text-secondary">{r.city}, {r.state} ({r.postalCode})</div>
                     </td>
                     <td>
-                      <span className="badge bg-success bg-opacity-25 text-success font-monospace border border-success border-opacity-25 px-2.5 py-1">
+                      <span className="badge bg-success bg-opacity-10 text-success font-monospace border border-success border-opacity-25 px-2.5 py-1">
                         {r.cpcbRegistrationRef || r.registrationNumber || 'CPCB/EW-RECY/AUTH-REF'}
                       </span>
                     </td>
-                    <td className="small text-white">
+                    <td className="small text-dark">
                       {r.registrationValidityDate ? (
                         <span>
                           <i className="bi bi-calendar-check text-success me-1"></i>
@@ -245,24 +254,24 @@ export default function ComplianceSupport() {
                           })}
                         </span>
                       ) : (
-                        <span className="text-muted">Statutory Verification Required</span>
+                        <span className="text-secondary">Statutory Verification Required</span>
                       )}
                     </td>
-                    <td className="small text-white">
+                    <td className="small text-dark fw-medium">
                       {r.authorizedCapacityTonsPerAnnum ? (
                         <span>{r.authorizedCapacityTonsPerAnnum} TPA</span>
                       ) : (
-                        <span className="text-muted">{r.processingCapacityKgPerDay ? `${r.processingCapacityKgPerDay} kg/day` : 'N/A'}</span>
+                        <span className="text-secondary">{r.processingCapacityKgPerDay ? `${r.processingCapacityKgPerDay} kg/day` : 'N/A'}</span>
                       )}
                     </td>
-                    <td className="small" style={{ maxWidth: '200px' }}>
-                      <span className="text-truncate d-block text-muted">
+                    <td className="small" style={{ maxWidth: '220px' }}>
+                      <span className="text-truncate d-block text-secondary">
                         {r.acceptedWasteCategories || 'E-Waste (All Categories)'}
                       </span>
                     </td>
                     <td>
-                      <span className="badge bg-warning text-dark px-2 py-1 small" title="Always independently verify with SPCB/CPCB">
-                        <i className="bi bi-info-circle me-1"></i> Verify with Authority
+                      <span className="badge bg-warning bg-opacity-15 text-dark border border-warning border-opacity-40 px-2 py-1 small fw-semibold" title="Always independently verify with SPCB/CPCB">
+                        <i className="bi bi-shield-check me-1 text-warning-emphasis"></i> Verify with Authority
                       </span>
                     </td>
                   </tr>
@@ -272,10 +281,12 @@ export default function ComplianceSupport() {
           </table>
         </div>
 
-        <div className="mt-3 p-3 bg-dark border border-secondary border-opacity-25 rounded-3 text-muted small text-center">
-          <i className="bi bi-shield-exclamation text-warning me-1"></i>
-          <strong>Notice:</strong> Facility details and statutory registration numbers displayed above serve as compliance reference information.
-          Registration information should be independently verified with the relevant authority (CPCB / SPCB).
+        <div className="compliance-footer-notice mt-4 d-flex align-items-center gap-2">
+          <i className="bi bi-shield-exclamation text-warning fs-5 flex-shrink-0"></i>
+          <div>
+            <strong>Notice:</strong> Facility details and statutory registration numbers displayed above serve as compliance reference information.
+            Registration information should be independently verified with the relevant authority (CPCB / SPCB).
+          </div>
         </div>
       </div>
     </div>
