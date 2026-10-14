@@ -55,6 +55,10 @@ export default function Checkout() {
 
   // Modal state for sandbox payment simulation when live keys aren't set
   const [pendingPaymentOrder, setPendingPaymentOrder] = useState(null);
+  const [sandboxTab, setSandboxTab] = useState('UPI');
+  const [testCardNumber, setTestCardNumber] = useState('4111 1111 1111 1111');
+  const [testCardExpiry, setTestCardExpiry] = useState('12/30');
+  const [testCardCvv, setTestCardCvv] = useState('123');
 
   // Fetch payment configuration on mount
   useEffect(() => {
@@ -817,78 +821,250 @@ export default function Checkout() {
         </div>
       </div>
 
-      {/* Razorpay Sandbox Test Simulator Dialog */}
+      {/* Razorpay Realistic Dummy Sandbox Checkout Modal */}
       {pendingPaymentOrder && (
         <div
           className="modal d-block"
           tabIndex="-1"
-          style={{ backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1060 }}
+          style={{ backgroundColor: 'rgba(12, 35, 64, 0.75)', zIndex: 1060, backdropFilter: 'blur(3px)' }}
           role="dialog"
           aria-modal="true"
         >
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content border border-dark rounded-0 p-3">
-              <div className="modal-header border-bottom border-dark pb-2">
-                <div className="d-flex align-items-center gap-2">
-                  <span className="badge bg-emerald text-white">Razorpay Sandbox</span>
-                  <h5 className="modal-title h6 text-uppercase fw-bold text-dark m-0">
-                    Test Mode Payment Gateway
-                  </h5>
+          <div className="modal-dialog modal-dialog-centered modal-lg">
+            <div className="modal-content rounded-0 border-0 shadow-lg overflow-hidden" style={{ fontFamily: 'system-ui, sans-serif' }}>
+              {/* Razorpay Signature Branded Header */}
+              <div
+                className="p-3.5 d-flex justify-content-between align-items-center text-white"
+                style={{ backgroundColor: '#0c2340', borderBottom: '3px solid #0284c7' }}
+              >
+                <div className="d-flex align-items-center gap-3">
+                  <div
+                    className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm"
+                    style={{ width: '42px', height: '42px', backgroundColor: '#0284c7', fontSize: '1.2rem' }}
+                  >
+                    ₹
+                  </div>
+                  <div>
+                    <div className="d-flex align-items-center gap-2">
+                      <span className="fw-bold fs-6">EcoCycle Refurbished Marketplace</span>
+                      <span className="badge bg-primary text-white" style={{ fontSize: '0.65rem', letterSpacing: '0.5px' }}>
+                        TEST MODE (DUMMY GATEWAY)
+                      </span>
+                    </div>
+                    <div className="extra-small text-light text-opacity-75">
+                      Order #{pendingPaymentOrder.order.orderNumber || pendingPaymentOrder.order.id} • Secured by Razorpay
+                    </div>
+                  </div>
+                </div>
+
+                <div className="d-flex align-items-center gap-3">
+                  <div className="text-end">
+                    <div className="extra-small text-light text-opacity-75 text-uppercase">Payable Amount</div>
+                    <div className="fw-bold fs-5 text-white">
+                      {formatCurrency(pendingPaymentOrder.order.totalAmount || pendingPaymentOrder.order.subtotal)}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-outline-light border-0 rounded-circle"
+                    onClick={handleSkipSandboxPayment}
+                    style={{ fontSize: '1.2rem', lineHeight: '1', padding: '4px 8px' }}
+                    aria-label="Close"
+                  >
+                    ✕
+                  </button>
                 </div>
               </div>
 
-              <div className="modal-body py-3 small text-secondary">
-                <p className="mb-2">
-                  Simulating Razorpay Payment Gateway for <strong>Order #{pendingPaymentOrder.order.orderNumber || pendingPaymentOrder.order.id}</strong>.
-                </p>
-
-                <div className="p-3 bg-light border border-secondary border-opacity-25 mb-3">
-                  <div className="d-flex justify-content-between mb-1">
-                    <span>Payable Amount:</span>
-                    <strong className="text-dark">{formatCurrency(pendingPaymentOrder.order.totalAmount || pendingPaymentOrder.order.subtotal)}</strong>
-                  </div>
-                  <div className="d-flex justify-content-between mb-1">
-                    <span>Currency:</span>
-                    <span className="badge bg-secondary text-white">{pendingPaymentOrder.paymentData.currency}</span>
-                  </div>
-                  <div className="d-flex justify-content-between mb-1">
-                    <span>Gateway Order ID:</span>
-                    <code>{pendingPaymentOrder.paymentData.razorpayOrderId}</code>
-                  </div>
-                  <div className="d-flex justify-content-between">
-                    <span>Active Gateway Mode:</span>
-                    <span className="text-emerald fw-bold">Test Sandbox</span>
-                  </div>
+              {/* Notice Banner */}
+              <div className="py-1.5 px-3 bg-light border-bottom border-secondary border-opacity-15 d-flex justify-content-between align-items-center flex-wrap gap-2 extra-small text-muted">
+                <div>
+                  <i className="bi bi-shield-check text-success me-1"></i>
+                  <strong>Dummy Sandbox Active:</strong> No PAN card or real banking credentials required. You can test payment right here!
                 </div>
-
-                <div className="extra-small text-muted">
-                  <i className="bi bi-info-circle me-1"></i>
-                  In test sandbox mode, you can immediately simulate a successful payment settlement without charging actual funds. When live Razorpay credentials are added in <code>application.yml</code> or <code>.env</code>, this will open the real Razorpay popup checkout!
+                <div>
+                  Gateway Order ID: <code>{pendingPaymentOrder.paymentData.razorpayOrderId}</code>
                 </div>
               </div>
 
-              <div className="modal-footer border-top border-secondary border-opacity-15 pt-2 d-flex justify-content-between">
+              {/* Modal Body with Left Tabs and Right Content */}
+              <div className="modal-body p-0">
+                <div className="row g-0">
+                  {/* Left Column: Payment Methods List */}
+                  <div className="col-12 col-md-4 border-end border-secondary border-opacity-15 bg-light p-2">
+                    <div className="d-flex flex-column gap-1">
+                      <button
+                        type="button"
+                        className={`btn text-start p-2.5 rounded-0 border-0 d-flex align-items-center gap-2 small ${
+                          sandboxTab === 'UPI' ? 'bg-white fw-bold shadow-sm border-start border-4 border-primary' : 'text-secondary'
+                        }`}
+                        onClick={() => setSandboxTab('UPI')}
+                      >
+                        <i className="bi bi-qr-code text-primary fs-5"></i>
+                        <div>
+                          <div>UPI / QR Code</div>
+                          <div className="extra-small text-muted">GPay, PhonePe, Paytm, BHIM</div>
+                        </div>
+                      </button>
+
+                      <button
+                        type="button"
+                        className={`btn text-start p-2.5 rounded-0 border-0 d-flex align-items-center gap-2 small ${
+                          sandboxTab === 'CARD' ? 'bg-white fw-bold shadow-sm border-start border-4 border-primary' : 'text-secondary'
+                        }`}
+                        onClick={() => setSandboxTab('CARD')}
+                      >
+                        <i className="bi bi-credit-card-2-front text-primary fs-5"></i>
+                        <div>
+                          <div>Cards</div>
+                          <div className="extra-small text-muted">Visa, MasterCard, RuPay</div>
+                        </div>
+                      </button>
+
+                      <button
+                        type="button"
+                        className={`btn text-start p-2.5 rounded-0 border-0 d-flex align-items-center gap-2 small ${
+                          sandboxTab === 'NETBANKING' ? 'bg-white fw-bold shadow-sm border-start border-4 border-primary' : 'text-secondary'
+                        }`}
+                        onClick={() => setSandboxTab('NETBANKING')}
+                      >
+                        <i className="bi bi-bank text-primary fs-5"></i>
+                        <div>
+                          <div>NetBanking</div>
+                          <div className="extra-small text-muted">SBI, HDFC, ICICI, Axis</div>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Right Column: Active Payment Method Form */}
+                  <div className="col-12 col-md-8 p-4 bg-white">
+                    {sandboxTab === 'UPI' && (
+                      <div className="d-flex flex-column align-items-center text-center">
+                        <div className="p-3 border rounded bg-light mb-3 text-center" style={{ width: '180px', height: '180px' }}>
+                          <i className="bi bi-qr-code text-dark" style={{ fontSize: '7rem', lineHeight: '1' }}></i>
+                        </div>
+                        <div className="small fw-bold text-dark mb-1">Scan QR with any UPI App</div>
+                        <div className="extra-small text-muted mb-3">Google Pay • PhonePe • Paytm • Any Bank UPI App</div>
+                        <div className="p-2 bg-light border border-secondary border-opacity-25 rounded w-100 mb-3 extra-small text-muted text-start">
+                          <i className="bi bi-info-circle text-primary me-1"></i>
+                          In dummy mode, clicking <strong>Confirm &amp; Pay</strong> below will instantly simulate an authorized UPI approval from NPCI/Bank.
+                        </div>
+                      </div>
+                    )}
+
+                    {sandboxTab === 'CARD' && (
+                      <div>
+                        <div className="d-flex justify-content-between align-items-center mb-3">
+                          <span className="small fw-bold text-dark">Enter Card Details (Test Simulator)</span>
+                          <button
+                            type="button"
+                            className="btn btn-outline-primary btn-sm py-0.5 px-2 extra-small"
+                            onClick={() => {
+                              setTestCardNumber('4111 1111 1111 1111');
+                              setTestCardExpiry('12/30');
+                              setTestCardCvv('123');
+                            }}
+                          >
+                            Fill Test Card
+                          </button>
+                        </div>
+
+                        <div className="row g-2 mb-3">
+                          <div className="col-12">
+                            <label className="form-label extra-small text-muted mb-1">Card Number</label>
+                            <input
+                              type="text"
+                              className="form-control form-control-sm"
+                              value={testCardNumber}
+                              onChange={(e) => setTestCardNumber(e.target.value)}
+                              placeholder="4111 1111 1111 1111"
+                            />
+                          </div>
+                          <div className="col-6">
+                            <label className="form-label extra-small text-muted mb-1">Valid Thru (MM/YY)</label>
+                            <input
+                              type="text"
+                              className="form-control form-control-sm"
+                              value={testCardExpiry}
+                              onChange={(e) => setTestCardExpiry(e.target.value)}
+                              placeholder="12/30"
+                            />
+                          </div>
+                          <div className="col-6">
+                            <label className="form-label extra-small text-muted mb-1">CVV</label>
+                            <input
+                              type="password"
+                              className="form-control form-control-sm"
+                              value={testCardCvv}
+                              onChange={(e) => setTestCardCvv(e.target.value)}
+                              placeholder="123"
+                              maxLength="4"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="p-2 bg-light border border-secondary border-opacity-25 rounded extra-small text-muted">
+                          <i className="bi bi-shield-lock-fill text-success me-1"></i>
+                          Standard Razorpay sandbox test card credentials are supported. No real money or bank accounts are accessed.
+                        </div>
+                      </div>
+                    )}
+
+                    {sandboxTab === 'NETBANKING' && (
+                      <div>
+                        <div className="small fw-bold text-dark mb-2">Select Popular Bank (Test Simulator)</div>
+                        <div className="row g-2 mb-3">
+                          {['State Bank of India', 'HDFC Bank', 'ICICI Bank', 'Axis Bank'].map((bank) => (
+                            <div key={bank} className="col-6">
+                              <button
+                                type="button"
+                                className="btn btn-outline-secondary btn-sm w-100 p-2 text-start text-dark extra-small border-secondary border-opacity-25"
+                                onClick={() => handleCompleteSandboxPayment()}
+                              >
+                                <i className="bi bi-building me-1.5 text-primary"></i>
+                                {bank}
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="extra-small text-muted">
+                          Select any bank to simulate an instant authorized netbanking gateway response.
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer with Primary Razorpay Green Pay Button */}
+              <div className="p-3 bg-light border-top border-secondary border-opacity-15 d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <button
                   type="button"
                   className="btn btn-outline-secondary btn-sm py-1.5 px-3"
                   onClick={handleSkipSandboxPayment}
                   disabled={processingPayment}
                 >
-                  Keep as Pending
+                  Cancel / Pay Later
                 </button>
+
                 <button
                   type="button"
-                  className="btn btn-primary-custom btn-sm py-1.5 px-3"
+                  className="btn btn-success py-2 px-4 fw-bold shadow-sm d-flex align-items-center gap-2"
+                  style={{ backgroundColor: '#10b981', borderColor: '#059669' }}
                   onClick={handleCompleteSandboxPayment}
                   disabled={processingPayment}
                 >
                   {processingPayment ? (
                     <>
                       <span className="spinner-border spinner-border-sm me-1" role="status"></span>
-                      Settling Payment...
+                      Verifying Payment...
                     </>
                   ) : (
-                    'Simulate Successful Payment (Test) ✓'
+                    <>
+                      <i className="bi bi-lock-fill"></i>
+                      Pay {formatCurrency(pendingPaymentOrder.order.totalAmount || pendingPaymentOrder.order.subtotal)} ✓
+                    </>
                   )}
                 </button>
               </div>
