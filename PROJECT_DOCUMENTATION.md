@@ -1,364 +1,268 @@
 # Smart E-Waste Collection & Circular Recycling Management System
-## Complete System Architecture, Engineering Specification & Future Roadmap
+## Comprehensive System Engineering Specification, Technical Architecture & Faculty Defense Guide
 
 ---
 
-## 1. Executive Summary & Vision
+## 1. Executive Summary & Problem Formulation
 
-The **Smart E-Waste Collection & Circular Recycling Management System** is an enterprise-grade, full-stack digital platform engineered to tackle one of the fastest-growing environmental crises in the world: **electronic waste (e-waste)**.
+### 1.1 Project Title & Domain
+* **Project Title:** Smart E-Waste Collection & Circular Recycling Management System
+* **Domain:** Circular Economy, Sustainable Computing, Environmental Software Engineering, Applied Machine Learning, Enterprise Web Applications
+* **Target Audience:** Individual Citizens, Commercial & Educational Institutions, Logistics Field Collectors, Certified Recycling & Refurbishment Facilities, Statutory Auditors (CPCB/SPCB), and System Administrators.
 
-Every year, millions of metric tons of discarded laptops, smartphones, monitors, batteries, and home appliances end up in informal scrap yards, municipal landfills, or illegal open-burning facilities. This exposes workers to lethal heavy metals (mercury, cadmium, lead, arsenic) and releases carcinogenic dioxins into the atmosphere, while squandering billions of dollars worth of critical raw materials (gold, copper, lithium, cobalt, rare earth elements).
+### 1.2 The Real-World Problem
+Electronic waste (e-waste) is the fastest-growing domestic waste stream on Earth, compounding at **4–5% annually**. 
+* **Toxicity:** E-waste comprises heavy metals (lead, cadmium, mercury, hexavalent chromium) and persistent organic pollutants (flame retardants in circuit boards). Primitive disposal in unorganized scrap yards leads to groundwater contamination and carcinogenic atmospheric emissions from open burning.
+* **Loss of Strategic Minerals:** Discarded PCBs contain concentrations of gold, silver, copper, and rare earth elements up to **40–50 times higher** than raw natural ores.
+* **Lack of Formalized Circularity:** Over 85% of electronics are disposed of without formal assessment, preventing salvageable devices from being refurbished, repaired, or redistributed.
 
-### Core Mission
-1. **Divert Electronics from Landfills**: Provide individual citizens and corporate institutions with an accessible, digitized pathway to dispose of, repair, donate, refurbish, or recycle their obsolete electronics.
-2. **Empower with Machine Learning**: Automate diagnostic assessments using trained ML models to recommend the optimal circular action (Repair, Reuse, Donate, Refurbish, or Recycle) based on age, condition, category, and battery health.
-3. **Establish Complete Traceability**: Implement a transparent, tamper-evident custody chain—from doorstep pickup to technician restoration or material recovery—accessible via public QR tracking.
-4. **Foster a Circular Marketplace**: Enable verified, quality-tested refurbished devices to re-enter the consumer economy with warranties and transparent cosmetic grades, reducing demand for new manufacturing.
-5. **Reward & Educate**: Incentivize sustainable behavior through gamified eco-credits (Green Points), verifiable digital recycling certificates for ESG reporting, and comprehensive compliance guidance aligned with India's **E-Waste (Management) Rules, 2022**.
-
----
-
-## 2. Problem Statement & Statutory Regulatory Context
-
-### 2.1 The E-Waste Crisis
-- **Explosive Volume Growth**: Driven by planned obsolescence, consumer electronics upgrades occur every 18–36 months, compounding e-waste volumes at ~4–5% annually.
-- **Informal Sector Dominance**: In developing nations, over 80–90% of discarded electronics pass through informal scrap aggregators employing primitive extraction methods: open acid baths, cyanide leaching, and open-pit wire burning.
-- **Ecological & Public Health Hazards**: Heavy metal leaching contaminates groundwater tables; mercury vapor from broken fluorescent backlights damages neurological systems; Li-ion battery punctures cause catastrophic warehouse fires.
-- **Loss of Precious Minerals**: Extracting 1 gram of gold from high-grade e-waste printed circuit boards (PCBs) consumes 80% less energy and water than mining 1 ton of raw ore.
-
-### 2.2 India's Statutory Regulatory Framework
-The system is architected in accordance with the **Ministry of Environment, Forest and Climate Change (MoEFCC)** and the **Central Pollution Control Board (CPCB)** guidelines:
-- **E-Waste (Management) Rules, 2022**:
-  - Mandates **Extended Producer Responsibility (EPR)**: Producers, importers, and brand owners (PIBOs) must meet targeted recycling quotas through registered recycling entities.
-  - Requires standardized **Environmentally Sound Management (ESM)** protocols.
-  - Mandates digital certificates and verifiable audit trails for bulk and commercial disposers.
-- **Battery Waste Management Rules, 2022**:
-  - Strict classification and safety isolation for damaged or swollen Lithium-ion and Lead-acid battery chemistries.
-- **Public Disclaimer & Verification Invariant**:
-  - The platform operates as an independent compliance assistance tool. All facility registration numbers, CPCB authorization references, and processing limits are cross-referenced with official statutory records.
+### 1.3 Project Objectives
+1. **Intelligent Intake & ML Decision Support:** Leverage a Multi-Class Machine Learning model combined with a deterministic safety gate to automatically recommend optimal circular paths (*Repair, Reuse, Donate, Refurbish, Recycle*).
+2. **End-to-End Chain-of-Custody:** Establish an unbroken 13-stage custody pipeline from citizen doorstep collection to certified material recovery or refurbished marketplace resale.
+3. **Hardware Provenance & Public QR Verification:** Provide tamper-evident, anonymized circular tracking for every device without exposing donor personally identifiable information (PII).
+4. **Refurbished Marketplace with Concurrency Safety:** Build an e-commerce platform for unique serialized units with atomic locking to prevent race conditions.
+5. **Integrated Payment Gateway:** Integrate Razorpay with HMAC-SHA256 cryptographic verification and a zero-configuration sandbox simulator.
+6. **Regulatory Compliance:** Implement digital audit trails aligned with India's **E-Waste (Management) Rules, 2022** and **Battery Waste Management Rules, 2022**.
 
 ---
 
-## 3. High-Level System Architecture
+## 2. High-Level System Architecture
 
-The platform adopts a decoupled, multi-tier microservice and client-server architecture:
+The project employs a decoupled **3-Tier Distributed Microservices Architecture**:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                            CLIENT TIER (Vite + React 18)                    │
-│   • Responsive Editorial UI        • Role-Based Dashboards (User/Admin/etc) │
-│   • Marketplace & Cart             • Public QR Tracker & Certificate Verifier│
+│                       1. PRESENTATION TIER (Single-Page App)                │
+│   • Technology: React 18 + Vite 6 + React Router 6 + Axios + Bootstrap Grid │
+│   • Aesthetics: Mineral & Forest Green Editorial Design System              │
+│   • Role Consoles: Citizen Portal, Collector Dashboard, Recycler Benches,   │
+│     Admin Console, Public Marketplace, Order Tracking, QR Cert Verifier     │
 └──────────────────────────────────────┬──────────────────────────────────────┘
-                                       │ HTTPS / JSON / JWT
+                                       │ HTTPS / REST / JSON (Stateless JWT)
 ┌──────────────────────────────────────▼──────────────────────────────────────┐
-│                    APPLICATION BACKEND TIER (Spring Boot 3.4)                │
-│   • Spring Security + JJWT (RBAC)           • Flyway Versioned Migrations   │
-│   • Circular State Machine Engine           • Logistics & Scheduling Service│
-│   • Refurbishment & QC Workflow Manager     • Honest Payment & Orders API   │
-│   • Green Points & Certificate Authority    • Audit & Environmental Metrics │
+│                    2. APPLICATION BACKEND TIER (Spring Boot 3.4)             │
+│   • Technology: Java 17, Spring Boot 3.4, Spring Security, Hibernate/JPA   │
+│   • Core Modules:                                                           │
+│     - Security Filter Chain: Stateless JWT authentication & RBAC            │
+│     - State Machine Engine: 13-stage circular custody lifecycle             │
+│     - 3-Tier Hybrid Engine: Safety Gate -> ML Client -> Fallback Rule Engine│
+│     - Technician Benches: Diagnostic Intake, Restoration Jobs & Multi-Pt QC │
+│     - Refurbished Marketplace: Serialized unit inventory & Cart checkout    │
+│     - Payment Gateway: Razorpay initiation & HMAC-SHA256 signature verifier │
+│     - ESG Authority: Verifiable PDF/QR Recycling Certificates & Eco-Credits │
 └───────────────────────┬───────────────────────────────┬─────────────────────┘
-                        │ SQL / JPA                     │ HTTP REST / JSON
+                        │ SQL (Hibernate / JDBC)        │ HTTP REST / JSON
 ┌───────────────────────▼─────────────┐ ┌───────────────▼─────────────────────┐
-│       DATABASE TIER (PostgreSQL)    │ │      ML INFERENCE MICROSERVICE      │
-│   • Supabase PostgreSQL (Production)│ │      (Python 3.10+ / FastAPI)       │
-│   • H2 In-Memory (Dev & Local Test) │ │   • Random Forest Multi-Classifier  │
-│   • Flyway Migrations (V1 to V17)   │ │   • Fallback Rule Engine            │
-│   • Referential Integrity & Indexes │ │   • Confidence & Safety Auditing    │
+│    3A. DATABASE PERSISTENCE TIER    │ │     3B. MACHINE LEARNING ENGINE     │
+│   • PostgreSQL (Production/Supabase)│ │   • Python 3.10+ / FastAPI / Uvicorn│
+│   • H2 In-Memory (Dev/Testing)      │ │   • Random Forest Multi-Classifier  │
+│   • 23 Relational Tables in 3NF     │ │   • Model Versioning & Probabilities│
+│   • Flyway Migrations (V1 to V17)   │ │   • Health & Diagnostic Metrics     │
 └─────────────────────────────────────┘ └─────────────────────────────────────┘
 ```
 
 ---
 
-## 4. End-to-End Circular Lifecycle & State Machine
+## 3. Technology Stack Justification (Why These Technologies?)
 
-The core business logic governs a 13-stage continuous lifecycle from initial citizen submission to certified completion:
+| Component | Selected Technology | Technical Justification for Faculty Review |
+|---|---|---|
+| **Backend Core** | **Java 17 & Spring Boot 3.4** | Enterprise stability, type safety, automatic thread pooling, transactional rollbacks (`@Transactional`), and dependency injection. |
+| **Security** | **Spring Security 6 + JJWT** | Stateless session management via signed JSON Web Tokens (HMAC-SHA512). Eliminates server-side session memory consumption and supports horizontal scaling. |
+| **Database Migration**| **Flyway Database Migrations** | Deterministic, version-controlled schema evolution (`V1` to `V17`). Eliminates out-of-sync database errors between team environments and production. |
+| **Frontend UI** | **React 18 + Vite 6** | Ultra-fast Hot Module Replacement (HMR), Virtual DOM for smooth reactivity, modular component tree, and production bundle minification (< 1.2s build). |
+| **API Communication**| **Axios with Interceptors** | Centralized request interceptor automatically attaches the bearer token; response interceptor uniformly formats backend exception payloads. |
+| **ML Microservice** | **Python 3 + FastAPI** | Asynchronous ASGI request handling via Starlette/Uvicorn, fast execution, automatic Pydantic request validation, and OpenAPI documentation. |
+| **ML Algorithm** | **Random Forest Classifier** | Handles non-linear feature interactions, resistant to overfitting via bootstrap aggregating (bagging), provides class probabilities, and executes inference in < 15ms. |
+| **Payment Gateway** | **Razorpay + HMAC-SHA256** | Standard payment gateway for Indian Rupee (INR), supporting UPI, Cards, and NetBanking with server-side cryptographic signature validation. |
+
+---
+
+## 4. Database Architecture & Complete Relational Schema (23 Tables in 3NF)
+
+The database schema is fully normalized up to **Third Normal Form (3NF)** and versioned through **Flyway Migrations (`V1` through `V17`)**:
+
+```
+                                  [users]
+                                     │ 1:1
+                              [user_profiles]
+                                     │ 1:N
+        ┌────────────────────────────┼────────────────────────────┐
+        ▼                            ▼                            ▼
+ [disposal_requests]        [reward_transactions]           [marketplace_orders]
+        │ 1:N                        │                            │ 1:N
+  [ewaste_items]             [notifications]             [marketplace_order_items]
+        │ 1:1                                                     │
+   [pickups]                                                      │ M:1
+        │ 1:1                                                     ▼
+[device_assessments] ────────► [restoration_jobs] ────────► [marketplace_listings]
+                                     │ 1:1                        │ 1:N
+                               [quality_checks]          [marketplace_listing_images]
+```
+
+### Table Dictionary Summary
+
+| # | Table Name | Purpose | Primary Key | Key Foreign Keys & Constraints |
+|---|---|---|---|---|
+| 1 | `users` | Master authentication and RBAC credentials | `id` (BIGINT) | `email` (UNIQUE), `role` (`USER`, `COLLECTOR`, `RECYCLER`, `ADMIN`) |
+| 2 | `user_profiles` | Citizen demographic and contact details | `id` (BIGINT) | `user_id` $\rightarrow$ `users(id)` (UNIQUE) |
+| 3 | `recycling_centers`| Registered municipal & commercial facilities | `id` (BIGINT) | `license_number` (UNIQUE), coordinates, capacity limits |
+| 4 | `recyclers` | Recycler enterprise metadata | `id` (BIGINT) | `user_id` $\rightarrow$ `users(id)`, `center_id` $\rightarrow$ `recycling_centers(id)` |
+| 5 | `disposal_requests`| Customer e-waste disposal intake requests | `id` (BIGINT) | `user_id` $\rightarrow$ `users(id)`, `status`, `tracking_id` (UNIQUE) |
+| 6 | `ewaste_items` | Individual physical electronic hardware units | `id` (BIGINT) | `request_id` $\rightarrow$ `disposal_requests(id)`, `category`, `condition` |
+| 7 | `pickups` | Doorstep logistics transit records | `id` (BIGINT) | `request_id` (UNIQUE), `collector_id` $\rightarrow$ `users(id)`, status |
+| 8 | `disposal_status_histories`| Audit log of all lifecycle transitions | `id` (BIGINT) | `request_id` $\rightarrow$ `disposal_requests(id)`, timestamp, actor |
+| 9 | `reward_transactions`| Gamified Green Points ledger | `id` (BIGINT) | `user_id` $\rightarrow$ `users(id)`, `points_earned`, `eco_tier` |
+| 10| `notifications` | Role-based system alerts and dispatch notes | `id` (BIGINT) | `user_id` $\rightarrow$ `users(id)`, `read_status` |
+| 11| `recycling_certificates`| Official tamper-evident ESG certificates | `id` (BIGINT) | `certificate_number` (UNIQUE), `qr_code_hash`, CPCB ref |
+| 12| `environmental_factors`| Coefficients for carbon & metal recovery | `id` (BIGINT) | `category` (UNIQUE), `co2_kg_factor`, `gold_recovery_g` |
+| 13| `compliance_guidelines`| CPCB statutory rulebook references | `id` (BIGINT) | `rule_code`, `category`, `legal_reference` |
+| 14| `bulk_institution_requests`| Corporate & university bulk disposals | `id` (BIGINT) | `user_id` $\rightarrow$ `users(id)`, `csv_data`, `asset_count` |
+| 15| `device_assessments`| Technician physical diagnostics at facility | `id` (BIGINT) | `request_id` (UNIQUE), `power_status`, `screen_condition` |
+| 16| `restoration_jobs` | Bench repair & refurbishing records | `id` (BIGINT) | `assessment_id` $\rightarrow$ `device_assessments(id)`, parts cost, hours |
+| 17| `quality_checks` | Multi-point testing & cosmetic grading | `id` (BIGINT) | `job_id` (UNIQUE), `safety_test_passed`, `result` (`PASS`/`FAIL`) |
+| 18| `marketplace_listings`| Refurbished devices offered for resale | `id` (BIGINT) | `quality_check_id` (UNIQUE), `price`, `stock_status` (`AVAILABLE`/`SOLD`) |
+| 19| `marketplace_listing_images`| Visual product photos | `id` (BIGINT) | `listing_id` $\rightarrow$ `marketplace_listings(id)` |
+| 20| `carts` | User shopping basket | `id` (BIGINT) | `user_id` $\rightarrow$ `users(id)` (UNIQUE) |
+| 21| `cart_items` | Devices staged for atomic checkout | `id` (BIGINT) | `cart_id` $\rightarrow$ `carts(id)`, `listing_id` (UNIQUE per cart) |
+| 22| `marketplace_orders`| Finalized customer purchases | `id` (BIGINT) | `order_number` (UNIQUE), `user_id`, `payment_status`, `payment_tx_id` |
+| 23| `marketplace_order_items`| Serialized units allocated to an order | `id` (BIGINT) | `order_id` $\rightarrow$ `marketplace_orders(id)`, `listing_id` |
+| 24| `password_reset_tokens`| 6-digit OTP verification table | `id` (BIGINT) | `email`, `otp_hash`, `expiry_time` |
+
+---
+
+## 5. Machine Learning Architecture & 3-Tier Resilient Decision Engine
+
+### 5.1 The 3-Tier Architecture
+To ensure zero system downtime, the recommendation system implements a **3-tier fault-tolerant hierarchy**:
+
+```mermaid
+graph TD
+    A[Citizen Submits Device Attributes] --> B{Tier 1: Deterministic Java Safety Gate}
+    B -- Hazard Detected: Swelling / Leaking / Burn --> C[Return SPECIAL_HANDLING & Emergency Safety Alert]
+    B -- Safety Gate Passed --> D{Tier 2: Python FastAPI ML Microservice}
+    D -- Healthy REST Response in < 2000ms --> E[Return ML Random Forest Prediction + Probabilities]
+    D -- Timeout / Network Failure / Service Down --> F{Tier 3: Rule-Based Fallback Engine}
+    F -- Deterministic Evaluation --> G[Return Heuristic Fallback Recommendation]
+```
+
+### 5.2 Mathematical Formulation of the Random Forest Classifier
+* **Problem Type:** Multi-Class Supervised Classification.
+* **Target Classes ($Y$):**
+  1. `REPAIR` (Minor fault, high economic recovery potential)
+  2. `REUSE` (Working condition, direct transfer)
+  3. `DONATE` (Functional computing equipment, educational redistribution)
+  4. `REFURBISH` (Cosmetic or minor hardware defect, commercial salvage)
+  5. `RECYCLE` (Non-functional, hazardous, obsolete, material recovery)
+* **Feature Vector ($X$):**
+  $$X = [\text{Category}, \text{AgeYears}, \text{Condition}, \text{BatteryHealthPct}, \text{ScreenDamage}, \text{OriginalChargerAvailable}, \text{UserIntention}]$$
+* **Ensemble Voting:** An ensemble of $B = 100$ Decision Trees trained with Bootstrap Aggregation (Bagging). For each tree $t_b$, node splits minimize **Gini Impurity**:
+  $$I_G(p) = 1 - \sum_{k=1}^{K} p_k^2$$
+  Final prediction probability for class $k$:
+  $$P(Y = k \mid X) = \frac{1}{B} \sum_{b=1}^{B} I\left(\hat{y}_b(X) = k\right)$$
+
+---
+
+## 6. End-to-End Circular Lifecycle & State Machine
+
+The complete lifecycle consists of **13 deterministic state transitions**:
 
 ```mermaid
 stateDiagram-v2
-    [*] --> SUBMITTED: Citizen / Institution submits device
-    SUBMITTED --> APPROVED: Admin approves intake
-    SUBMITTED --> REJECTED: Rejected (invalid / hazardous)
-    APPROVED --> SCHEDULED: Pickup time-slot allocated
-    SCHEDULED --> ON_THE_WAY: Collector dispatched
-    ON_THE_WAY --> COLLECTED: Physical device acquired
-    COLLECTED --> IN_TRANSIT: Transported to authorized center
-    IN_TRANSIT --> PROCESSING: Facility intake & triage
-
+    [*] --> SUBMITTED: Citizen registers device
+    SUBMITTED --> APPROVED: Admin validates intake
+    SUBMITTED --> REJECTED: Ineligible or contaminated
+    APPROVED --> SCHEDULED: Collector assigned
+    SCHEDULED --> ON_THE_WAY: Collector in transit
+    ON_THE_WAY --> COLLECTED: Device custody acquired
+    COLLECTED --> IN_TRANSIT: Routed to recycling facility
+    IN_TRANSIT --> PROCESSING: Facility intake & physical diagnostic
+    
     state PROCESSING {
-        [*] --> TRIAGE
-        TRIAGE --> REPAIR_REFURBISH: Refurbishment candidate
-        TRIAGE --> MATERIAL_RECOVERY: Direct recycling
+        [*] --> DIAGNOSTIC_ASSESSMENT
+        DIAGNOSTIC_ASSESSMENT --> BENCH_REPAIR: Salvageable hardware
+        DIAGNOSTIC_ASSESSMENT --> MATERIAL_RECOVERY: Obsolete or damaged
     }
 
-    state REPAIR_REFURBISH {
-        [*] --> RESTORATION_IN_PROGRESS
-        RESTORATION_IN_PROGRESS --> QC_INSPECTION
-        QC_INSPECTION --> PASS: Safety & functional tests pass
-        QC_INSPECTION --> FAIL: Failed -> Routed to recycling
-        PASS --> MARKETPLACE_LISTED: Listed on catalog
-        MARKETPLACE_LISTED --> SOLD: Purchased by buyer
+    state BENCH_REPAIR {
+        [*] --> RESTORATION_WORK
+        RESTORATION_WORK --> QC_TESTING: Multi-point inspection
+        QC_TESTING --> QC_PASS: Safety & performance verified
+        QC_TESTING --> QC_FAIL: Rerouted to material recovery
+        QC_PASS --> MARKETPLACE_LISTED: Approved for resale
     }
 
-    state MATERIAL_RECOVERY {
-        [*] --> DISMANTLING
-        DISMANTLING --> SHREDDING
-        SHREDDING --> HAZARDOUS_TREATMENT
-        HAZARDOUS_TREATMENT --> RECYCLING_COMPLETE
-    }
-
-    SOLD --> COMPLETED
-    RECYCLING_COMPLETE --> COMPLETED: Green Points credited & Certificate generated
+    MARKETPLACE_LISTED --> ORDERED: Customer completes checkout
+    ORDERED --> COMPLETED: Payment settled & unit delivered
+    MATERIAL_RECOVERY --> RECYCLING_COMPLETE: Minerals extracted
+    RECYCLING_COMPLETE --> COMPLETED: Green Points & Certificate issued
     COMPLETED --> [*]
 ```
 
 ---
 
-## 5. Module-by-Module Technical Breakdown
+## 7. Refurbished Marketplace & Payment Gateway Engineering
 
-### Module 1: Citizen Intake, Diagnostics & Safety Gates
-- **Category-Aware Assessment**: Dynamically presents relevant diagnostic fields based on device type:
-  - *Smartphones/Laptops*: Battery health percentage, screen cracks, power-on status, original charger availability.
-  - *Appliances*: Compressor functionality, coolant leakage check, motor condition.
-  - *Batteries/Cables*: Chemistry type, terminal damage, insulation integrity.
-- **Physical Safety Gate (`SPECIAL_HANDLING`)**:
-  - Automatically identifies physical hazards: swollen/punctured batteries, exposed live wires, broken CRT phosphor screens, or chemical leakage.
-  - Forces an instant **Hazard Containment Advisory**: suppresses direct donation/refurbishment and routes the item to hazardous waste handling.
-- **User Intention Mapping**: Captures citizen preferences (`RECYCLE`, `REFURBISH`, `DONATE`, or `UNSURE`) without overriding technical recommendations.
+### 7.1 Concurrency Control & The "SOLD ≠ PAID" Invariant
+Refurbished electronic equipment differs from standard retail: **every physical unit is unique and serialized**.
+1. **Cart Quantity Invariant:** A user can only purchase a quantity of `1` for any given listing.
+2. **Race Condition Protection:** When an order is placed, the backend locks the inventory listing atomically (`stock_status = 'RESERVED'`). If a concurrent user attempts to check out the same unit, the database rejects the transaction with an HTTP `409 Conflict`.
+3. **Honest Payment Lifecycle:**
+   - Placing an order transitions status to `PLACED` and payment status to `PENDING`.
+   - The hardware is reserved, but the order is **never marked `PAID`** until cryptographic proof is verified.
 
-### Module 2 & 2.5: ML Dataset Foundation & Real Data Audit
-- **Dataset Synthesis & Curation**: Engineered training dataset modeling 10,000+ realistic e-waste scenarios across 15 electronic categories.
-- **Feature Schema**:
-  - Numerical: `device_age_months`, `battery_health_percentage`, `market_residual_value_estimate`, `estimated_weight_kg`.
-  - Categorical: `category`, `brand_tier`, `cosmetic_condition` (`EXCELLENT`, `GOOD`, `FAIR`, `POOR`), `operational_status` (`WORKING`, `PARTIAL`, `DEAD`).
-  - Boolean: `has_charger`, `screen_intact`, `is_battery_swollen`, `liquid_damage_present`.
-- **Target Actions**: `REPAIR`, `REUSE`, `DONATE`, `REFURBISH`, `RECYCLE`.
-
-### Modules 3 & 4: Machine Learning Model Pipeline
-- **Algorithm**: Multi-Class Random Forest & Gradient Boosting Classifier with balanced class weights.
-- **Pipeline Architecture**:
-  - Imputation & scaling (`StandardScaler` for age and battery health).
-  - One-Hot Encoding for categorical features with zero data leakage.
-  - Model calibration ensuring reliable confidence scores.
-- **Evaluation Metrics**:
-  - Macro F1-Score: `> 0.91`
-  - High recall on hazardous e-waste containment (`> 0.99` safety recall).
-  - Model artifacts exported via `joblib` along with training metadata and schema signatures.
-
-### Modules 5 & 6: Production Inference Service & Spring Boot Client
-- **FastAPI Python Service (`ml-service/`)**:
-  - High-throughput asynchronous REST endpoint (`/api/v1/recommend`).
-  - Pydantic schema validation for incoming device attributes.
-  - Health checks (`/health`) reporting model status and version tags.
-- **Spring Boot Resilient Client (`backend/`)**:
-  - `RestTemplate` / `WebClient` integration with configurable HTTP timeouts (2000ms).
-  - **Fail-Safe Fallback Engine**: If the ML service is unreachable, the backend automatically falls back to deterministic rule-based evaluation. The UI transparently identifies whether the recommendation originated from `ML`, `RULE_BASED_FALLBACK`, or `SAFETY_RULE`.
-
-### Module 7: Technician Refurbishment & Quality Control (QC)
-- **Facility Intake**: Authorized recyclers log physical arrival, weigh shipments, and assign certified technicians.
-- **Restoration Job Lifecycle**:
-  - Track parts replaced (batteries, SSDs, capacitors, display panels).
-  - Log technician labor hours and repair costs.
-- **Strict Quality Control (QC) Invariants**:
-  - Devices cannot be approved for resale without a 100% completed restoration job.
-  - Comprehensive inspection covering: Electrical safety test, battery load endurance, stress test, Wi-Fi/Bluetooth connectivity, and cosmetic grading.
-  - Mandatory Cosmetic Grading: `GRADE_A` (Flawless), `GRADE_B` (Minor signs of use), `GRADE_C` (Visible cosmetic wear, 100% functionally sound).
-
-### Modules 8 & 8.1: Circular Refurbished Marketplace & Payment Gateway
-- **Serialized Unit Inventory**: Each refurbished device is a unique, physical piece of hardware with its own serial number, QC inspection ID, and battery health report.
-- **Concurrency & Cart Invariant**:
-  - Prevents race conditions: Since serialized units are unique, quantity in the cart is strictly locked to `1`.
-  - If a device is checked out or purchased by another user, conflicting carts are automatically alerted with an inventory conflict.
-- **Razorpay Payment Gateway Integration**:
-  - **Payment Initiation**: Generates a standard Razorpay order (`order_...`) with amount in Paisa (INR) and dynamic client key injection.
-  - **Cryptographic Verification**: Server-side HMAC-SHA256 signature calculation verifies that payment signatures match the secret key before marking orders as `PAID` with recorded transaction IDs.
-  - **Frictionless Sandbox Mode**: Operates in zero-setup test sandbox simulation mode when API keys are pending, allowing full end-to-end testing without blocking developers.
-  - **Honest Payment Lifecycle**: Initial state is `PENDING` until cryptographic proof is verified, transitioning status to `CONFIRMED` and payment status to `PAID`.
-  - **Order Cancellation Contract**: Permitted strictly during `PLACED`, `CONFIRMED`, and `PROCESSING` stages.
-
-### Modules 9A–9F: Modern Responsive Frontend Architecture
-- **Tech Stack**: React 18, Vite 6, React Router DOM 6, Axios, Vanilla CSS + Bootstrap 5 utility grid.
-- **Aesthetic Philosophy**: Mineral and graphite modern editorial design system (`var(--bg-mineral: #f4f3ef)`, forest green `--brand-green: #1b4332`, high legibility, zero harsh black boxes).
-- **Key Views**:
-  1. *Dynamic Header*: Active route indicator automatically tracks location; responsive profile badge truncates long usernames gracefully without displacing the Logout action.
-  2. *Marketplace Catalog (`/marketplace`)*: Filter by category, cosmetic grade, price range, and warranty length.
-  3. *Device Detail (`/marketplace/product/:id`)*: Shows full circular journey timeline (from donation date to testing date) and technical health score without exposing donor personal data.
-  4. *Profile & Security (`/user/profile`, `/forgot-password`)*: In-place profile updating, role viewer, and 6-digit OTP email password reset powered by Spring Mail.
-  5. *Compliance Guide (`/compliance`)*: CPCB statutory reference directory, MoEFCC rules breakdown, searchable facility register, and advisory disclaimers.
-
-### Module 10: System Integration, Security & Audit Invariants
-- **10 Core System Invariants**:
-  1. Complete circular lifecycle state machine coverage across all 13 states.
-  2. Strict physical hazard safety gate enforcement.
-  3. Separation of citizen intention, ML recommendation, and technician decision.
-  4. QC inspection eligibility requires completed restoration.
-  5. Marketplace candidate eligibility requires safety test pass, zero open hazards, and recommendation clearance.
-  6. Public catalog exposure restricted strictly to `PUBLISHED` & `AVAILABLE` listings.
-  7. Honest payment presentation preserving `PENDING` status.
-  8. Non-negative price and non-negative warranty validation.
-  9. Strict physical evaluation cosmetic grading without arbitrary star ratings.
-  10. Anonymized device journey events shielding donor PII from public buyers.
+### 7.2 Razorpay Payment Gateway & Cryptographic Verification
+* **Payment Initiation:** The backend issues a signed Razorpay Order with the total payable amount converted to **Paisa** (1 INR = 100 Paisa).
+* **Cryptographic Verification (HMAC-SHA256):** When the payment completes, Razorpay returns:
+  - `razorpay_order_id`
+  - `razorpay_payment_id`
+  - `razorpay_signature`
+* The backend independently computes the HMAC signature:
+  $$\text{Expected Signature} = \text{HMAC-SHA256}(\text{razorpay\_order\_id} + "|" + \text{razorpay\_payment\_id}, \text{Secret Key})$$
+  Only when `Expected Signature == razorpay_signature` is the order marked `PAID` and `CONFIRMED`.
+* **Zero-Setup Dummy Sandbox Mode:** If real API keys are not supplied (e.g., student evaluation without a PAN card), the application automatically opens a **realistic dummy Razorpay modal** with UPI QR, Test Cards, and NetBanking, simulating complete settlement without failing.
 
 ---
 
-## 6. User Roles & Access Control Matrix
+## 8. Software Design Patterns Implemented in Codebase
 
-The application implements strict Role-Based Access Control (RBAC) via Spring Security:
-
-| Feature / Action | `USER` (Citizen / Inst.) | `COLLECTOR` | `RECYCLER` | `ADMIN` |
-|---|:---:|:---:|:---:|:---:|
-| Submit E-Waste Request & Diagnostics | ✅ | ❌ | ❌ | ✅ |
-| Upload Bulk CSV Asset Disposals | ✅ *(Institution)* | ❌ | ❌ | ✅ |
-| Track Request via QR Code / URL | ✅ | ✅ | ✅ | ✅ |
-| Browse & Buy from Refurbished Marketplace | ✅ | ✅ | ✅ | ✅ |
-| View Assigned Pickup Tasks | ❌ | ✅ | ❌ | ✅ |
-| Update Logistics Status (`ON_THE_WAY`, `COLLECTED`) | ❌ | ✅ | ❌ | ✅ |
-| Intake Shipments & Log Weights | ❌ | ❌ | ✅ | ✅ |
-| Manage Refurbishment Jobs & Perform QC | ❌ | ❌ | ✅ | ✅ |
-| Approve / Reject Disposal Requests | ❌ | ❌ | ❌ | ✅ |
-| Approve / Reject Marketplace Listings | ❌ | ❌ | ❌ | ✅ |
-| Manage System Users, Centers & Compliance Records | ❌ | ❌ | ❌ | ✅ |
-| View Environmental & Carbon Offset Analytics | ✅ *(Own)* | ❌ | ✅ *(Facility)*| ✅ *(Global)*|
+| Design Pattern | Where It Is Used | Implementation Code Reference |
+|---|---|---|
+| **Strategy Pattern** | Recommendation Engine | `HybridRecommendationEngine.java` dynamically delegates to `MLInferenceClient` or `RuleBasedRecommendationEngine`. |
+| **State Machine Pattern**| 13-Stage Custody Lifecycle | `DisposalRequestService.java` enforces permissible state transitions and rejects illegal skips. |
+| **Data Transfer Object (DTO)**| API Boundary Segregation | `OrderDetailDTO.java`, `CreateOrderDTO.java` prevent exposing JPA entities or internal database schemas. |
+| **Repository Pattern**| Database Access | Spring Data JPA interfaces (`MarketplaceOrderRepository`, `EWasteItemRepository`). |
+| **Facade Pattern** | Workflow Orchestration | `TechnicianWorkflowService.java` coordinates assessments, restoration jobs, and QC inspections behind a unified interface. |
+| **Interceptor Pattern** | Client & Security Filter Chain | `apiClient.js` Axios interceptors for JWT token injection and HTTP error normalization. |
 
 ---
 
-## 7. Database Entity Relationship Model
+## 9. Comprehensive Faculty Viva / Defense Q&A Cheatsheet
 
-The schema is maintained through 16 versioned Flyway migrations (`V1__init_schema.sql` through `V16`):
+### Q1: Why did you choose Random Forest instead of a Deep Neural Network (CNN/RNN)?
+> **Answer:** "Our dataset consists of tabular, heterogeneous diagnostic features (category, age, battery health, damage state) rather than raw pixels or time-series audio. For tabular data, tree-based ensemble methods like Random Forest consistently outperform deep neural networks without requiring millions of samples. Furthermore, Random Forest executes inference in less than 15 milliseconds, is resilient to overfitting through feature bagging, and provides interpretable class probabilities."
 
-```mermaid
-erDiagram
-    USERS ||--o| USER_PROFILES : "has profile"
-    USERS ||--o{ EWASTE_REQUESTS : "submits"
-    USERS ||--o{ ORDERS : "places"
-    USERS ||--o{ CART_ITEMS : "adds to cart"
-    USERS ||--o{ GREEN_POINTS : "earns"
-    USERS ||--o{ CERTIFICATES : "receives"
+### Q2: What happens if your Python Machine Learning microservice crashes during production?
+> **Answer:** "Our platform incorporates a 3-tier resilient hybrid architecture. If the Python microservice is offline, times out (configurable 2000ms threshold), or returns a network error, the Spring Boot backend automatically falls back to the deterministic Rule-Based Recommendation Engine without crashing. The response honestly informs the user that the advice originated from the rule-based fallback rather than fabricating an AI source."
 
-    EWASTE_REQUESTS ||--o| PICKUPS : "scheduled for"
-    EWASTE_REQUESTS ||--o| DISPOSAL_ACTIONS : "evaluated by"
-    EWASTE_REQUESTS ||--o| REFURBISHMENT_JOBS : "assigned to"
+### Q3: How do you handle race conditions if two customers click 'Buy Now' on the same refurbished laptop simultaneously?
+> **Answer:** "Unlike mass-manufactured goods, each refurbished device is a unique serialized hardware unit. When a user initiates checkout, Spring Boot handles the transaction within an isolated `@Transactional` boundary. We verify the unit's stock status. The first transaction atomically transitions the status from `AVAILABLE` to `RESERVED`, locking the record. The second concurrent transaction detects the status change and immediately returns an HTTP 409 Conflict, alerting the second buyer that another customer has reserved the device."
 
-    REFURBISHMENT_JOBS ||--o| QC_INSPECTIONS : "validated by"
-    REFURBISHMENT_JOBS ||--o| MARKETPLACE_LISTINGS : "listed as"
+### Q4: How does the payment gateway guarantee that a user cannot fake a successful payment?
+> **Answer:** "We use server-side cryptographic HMAC-SHA256 signature verification. When Razorpay processes a payment, it generates a signature using our private secret key. The frontend sends the transaction ID, order ID, and signature to our backend. The backend concatenates the order ID and payment ID, computes the HMAC-SHA256 hash using our secret key, and compares it to the incoming signature. Because the secret key is strictly stored on the server, a client cannot forge a valid signature."
 
-    MARKETPLACE_LISTINGS ||--o{ CART_ITEMS : "reserved in"
-    MARKETPLACE_LISTINGS ||--o{ ORDER_ITEMS : "purchased as"
+### Q5: How does your system support India's E-Waste (Management) Rules, 2022?
+> **Answer:** "Under MoEFCC and CPCB regulations, bulk consumers and recyclers must maintain verified audit trails to prove Extended Producer Responsibility (EPR) quotas. Our platform generates tamper-evident digital recycling certificates with cryptographic hashes and QR codes, logs full chain-of-custody timestamps, computes carbon offset metrics based on material recovery factors, and isolates hazardous battery waste under the Battery Waste Management Rules, 2022."
 
-    ORDERS ||--|{ ORDER_ITEMS : "contains"
-    RECYCLING_CENTERS ||--o{ PICKUPS : "receives"
-```
+### Q6: Why did you use Flyway for database management?
+> **Answer:** "Flyway enables database version control. All schema changes and demo seeds are stored as sequential SQL migrations (`V1` to `V17`) in source control. When the backend boots, Flyway inspects the `flyway_schema_history` table and applies unapplied scripts in order. This ensures that every team member, evaluator, and deployment server runs an identical database schema."
 
 ---
 
-## 8. REST API Reference (Core Endpoints)
+## 10. Future Roadmap & Limitations
 
-### 8.1 Authentication & Security
-- `POST /api/auth/register` — Citizen / Institution user registration
-- `POST /api/auth/login` — JWT credential validation and token generation
-- `POST /api/auth/forgot-password/request-otp` — Generates 6-digit OTP sent via SMTP
-- `POST /api/auth/forgot-password/verify-and-reset` — Verifies OTP and updates BCrypt password
-
-### 8.2 Device Submission & ML Diagnostics
-- `POST /api/ewaste/request` — Submits new device with technical diagnostic fields
-- `POST /api/ewaste/bulk-csv` — Institutional multi-item CSV intake
-- `POST /api/ml/recommend` — Backend proxy evaluating device attributes via ML model
-
-### 8.3 Logistics & Processing
-- `GET /api/pickups/assigned` — Retrieves pickups for logged-in collector
-- `PATCH /api/pickups/:id/status` — Updates logistics status (`ON_THE_WAY`, `COLLECTED`)
-- `POST /api/recycler/intake/:requestId` — Recycler facility intake and weighing
-- `POST /api/technician/jobs` — Creates refurbishment task
-- `POST /api/technician/qc` — Submits QC checklist and cosmetic grading
-
-### 8.4 Marketplace & Orders
-- `GET /api/marketplace/products` — Paginated list of `PUBLISHED` & `AVAILABLE` items
-- `GET /api/marketplace/products/:id` — Detailed product view with journey timeline
-- `POST /api/cart/items` — Adds serialized hardware unit to user's cart
-- `POST /api/orders` — Creates order with honest `PENDING` payment state
-- `POST /api/orders/:id/cancel` — Cancels eligible order and releases serialized inventory
-
-### 8.5 Public Verification & Compliance
-- `GET /api/public/track/:trackingId` — Unauthenticated lifecycle tracking lookup
-- `GET /api/public/certificates/verify/:certNumber` — Cryptographic certificate verification
-- `GET /api/compliance/guidelines` — Regulatory rules and statutory guidelines
-- `GET /api/recycling-centers` — Geographic search by city, state, postal code, and category
-
----
-
-## 9. Testing, Verification & Code Quality
-
-The system is fortified by comprehensive, multi-layer automated test suites:
-
-### Backend Testing (172+ Tests Passing)
-- **Unit & Service Tests**: Validates state machine transitions, reward calculations, and pricing rules.
-- **Integration Tests (MockMvc + Spring Security)**: Tests authenticated controller endpoints, JWT validation, and RBAC role boundaries.
-- **Flyway Migration Validation**: Tests clean migration roll-forwards across all 16 SQL schema scripts.
-
-### Frontend Testing (86 Tests Passing across 8 Suites)
-- **State Machine & Lifecycle Invariants**: Verifies all 13 circular transitions.
-- **Cart & Concurrency Rules**: Confirms single serialized unit constraints and payment state preservation.
-- **Category-Aware Diagnostics**: Tests field visibility and mandatory hazard safety gates.
-- **Presentation Logic**: Validates Indian currency formatting (INR `₹`), date formats, tracking ID uppercase sanitization, and responsive navbar truncation for long usernames.
-
----
-
-## 10. Comprehensive Future Enhancements Roadmap
-
-To evolve this platform into an international industry standard for circular electronic asset disposition (ITAD) and urban mining, the following enhancement roadmap is planned:
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         FUTURE ENHANCEMENT ROADMAP                          │
-├──────────────────────┬──────────────────────┬───────────────────────────────┤
-│  PHASE 1 (Near-Term) │  PHASE 2 (Mid-Term)  │    PHASE 3 & 4 (Long-Term)    │
-│  Diagnostics & CV    │  Smart Logistics     │    Blockchain, IoT & ERP      │
-├──────────────────────┼──────────────────────┼───────────────────────────────┤
-│ • Computer Vision AI │ • Route Optimization │ • Blockchain ESG Certificates │
-│ • Automated Battery  │ • Collector Dynamic  │ • Smart Drop-off IoT Bins     │
-│   Health USB Sync      Dispatching          │ • CPCB Govt. API Gateway      │
-│ • Reverse Buyback    │ • Live GPS Telematics│ • Native Android / iOS Apps   │
-│   Escrow Payments    │   Tracking Map       │ • Enterprise ITAD Connectors  │
-└──────────────────────┴──────────────────────┴───────────────────────────────┘
-```
-
-### Phase 1: Advanced AI Diagnostics & Computer Vision (Near-Term)
-1. **Computer Vision for Cosmetic Grading & Damage Detection**:
-   - Integrate a lightweight visual model (e.g., MobileNet / YOLO) allowing users to upload 4 photos of their device (front, back, edges, screen on).
-   - Automatically detect screen cracks, chassis dents, deep scratches, and camera lens fractures, automatically determining cosmetic grade (`GRADE_A`, `GRADE_B`, or `GRADE_C`) before physical pickup.
-2. **WebUSB / WebADB Hardware Diagnostic Tool**:
-   - Provide a browser-based one-click diagnostic tool using WebUSB. When a user plugs in their phone or laptop, the tool automatically reads true battery cycle count, capacity retention, storage wear, and genuine component serials.
-3. **Automated Reverse Buyback Escrow**:
-   - Integrate with banking/UPI APIs (Razorpay / Stripe) to provide an automated reverse escrow. When a user's device is verified and refurbished, the estimated buyback amount is instantly credited to their UPI ID or bank account.
-
-### Phase 2: Dynamic Logistics & Fleet Telematics (Mid-Term)
-1. **Vehicle Route Optimization Engine**:
-   - Integrate a Traveling Salesperson Problem (TSP) / Vehicle Routing Problem (VRP) solver using Genetic Algorithms or Google Maps Distance Matrix API.
-   - Automatically cluster daily pickup requests by geography, traffic windows, and vehicle cargo capacity to minimize fuel consumption and carbon footprint for collector vans.
-2. **Live Collector Telematics & Turn-by-Turn Navigation**:
-   - Real-time WebSockets integration enabling citizens to track their assigned collector van on an interactive map when status transitions to `ON_THE_WAY`.
-
-### Phase 3: Blockchain ESG Audits & Government Integration (Long-Term)
-1. **Decentralized Verifiable Credentials for ESG & EPR Audits**:
-   - Anchor digital recycling certificates onto a low-cost carbon-neutral blockchain (e.g., Polygon or Hyperledger Fabric).
-   - Allows multinational enterprises and colleges to present immutable, cryptographically verifiable environmental audit trails to auditors and shareholders without risk of forgery.
-2. **Direct CPCB EPR Portal API Synchronization**:
-   - Build automated connectors to the official Central Pollution Control Board (CPCB) EPR portal.
-   - When recyclers weigh and process batch shipments, official EPR certificates and recycling credits are automatically filed and reconciled with statutory government databases.
-
-### Phase 4: IoT Smart E-Waste Bins & Mobile Applications (Long-Term)
-1. **IoT Smart Deposit Bins for Small Electronics**:
-   - Deploy solar-powered, connected smart drop-off bins at universities, metro stations, and tech parks.
-   - Equipped with load cells (weighing sensors), ultrasonic fill-level sensors, and an optical barcode scanner:
-     - Citizen scans their app QR code at the bin.
-     - Drop-off door unlocks, user deposits cables/phones/batteries.
-     - Bin weighs the item and automatically issues Green Points to the user's account within 5 seconds.
-2. **Native Mobile Apps (Android & iOS)**:
-   - React Native / Flutter mobile applications supporting offline pickup logging for collectors in low-connectivity rural zones, Bluetooth receipt printing, and push notification updates.
-3. **Enterprise ITAD Connector (SAP / Oracle / ServiceNow)**:
-   - Enterprise API connector that allows corporate IT departments to sync hundreds of retired workstations directly from their IT Asset Management (ITAM) systems into bulk disposal requests with one click.
-
----
-
-## 11. Conclusion
-
-The **Smart E-Waste Collection & Circular Recycling Management System** delivers an end-to-end, scientifically grounded, and legally compliant solution to modern electronic waste management. By unifying machine learning decision support, transparent logistics tracking, strict technician refurbishment protocols, and an honest circular marketplace, the platform transforms electronic waste from an ecological burden into a valuable resource for a sustainable digital economy.
+1. **Computer Vision for Automated Cosmetic Grading:** Train a MobileNet / YOLO model allowing citizens to upload 4 device photos to automatically detect chassis cracks, screen bleeding, and dents before pickup.
+2. **WebUSB Direct Hardware Diagnostics:** Build a browser-based diagnostic tool via WebUSB to directly read battery cycle counts and storage SMART health upon plugging in a phone or laptop.
+3. **Vehicle Routing Problem (VRP) Logistics Optimization:** Integrate Google Maps Distance Matrix API with a genetic algorithm to cluster daily pickup requests and minimize collector fuel consumption.
+4. **Blockchain ESG Certificates:** Anchor recycling certificate hashes to a carbon-neutral public ledger (e.g., Polygon) to provide tamper-proof environmental audit records for corporate ESG reporting.
+5. **Direct CPCB Portal API Integration:** Build automated REST connectors to push EPR recycling credits directly to the national Central Pollution Control Board portal.
