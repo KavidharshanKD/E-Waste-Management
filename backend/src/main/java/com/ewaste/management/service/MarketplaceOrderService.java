@@ -272,6 +272,8 @@ public class MarketplaceOrderService {
         dto.setStatus(order.getStatus());
         dto.setPaymentStatus(order.getPaymentStatus());
         dto.setPaymentMethod(order.getPaymentMethod());
+        dto.setPaymentTransactionId(order.getPaymentTransactionId());
+        dto.setRazorpayOrderId(order.getRazorpayOrderId());
         dto.setSubtotal(order.getSubtotal());
         dto.setTotalAmount(order.getTotalAmount());
         dto.setRecipientName(order.getRecipientName());

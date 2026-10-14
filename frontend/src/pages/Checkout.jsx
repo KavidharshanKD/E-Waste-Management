@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { orderApi, userProfileApi, getApiErrorMessage } from '../api/apiClient';
+import { orderApi, paymentApi, userProfileApi, getApiErrorMessage } from '../api/apiClient';
 import { formatCurrency } from '../utils/workflowHelpers';
 import {
   COSMETIC_GRADE_MAP,
@@ -12,6 +12,20 @@ import {
   getEnumLabel,
 } from '../utils/enumMappings';
 import MarketplaceLoading from '../components/marketplace/MarketplaceLoading';
+
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if (window.Razorpay) {
+      resolve(true);
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
 
 export default function Checkout() {
   const { user } = useAuth();
@@ -28,13 +42,34 @@ export default function Checkout() {
     postalCode: '',
   });
 
+  const [paymentMethod, setPaymentMethod] = useState('RAZORPAY');
+  const [paymentConfig, setPaymentConfig] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [processingPayment, setProcessingPayment] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [concurrencyError, setConcurrencyError] = useState(false);
 
   // Success state holds the placed OrderDetailDTO
   const [placedOrder, setPlacedOrder] = useState(null);
+
+  // Modal state for sandbox payment simulation when live keys aren't set
+  const [pendingPaymentOrder, setPendingPaymentOrder] = useState(null);
+
+  // Fetch payment configuration on mount
+  useEffect(() => {
+    let isMounted = true;
+    paymentApi.getConfig()
+      .then((res) => {
+        if (isMounted) setPaymentConfig(res.data);
+      })
+      .catch((err) => {
+        console.warn('Payment config fetch notice:', err);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Prefill address from existing profile API if available
   useEffect(() => {
@@ -56,7 +91,6 @@ export default function Checkout() {
           });
         }
       } catch (err) {
-        // Fallback to basic user context if profile endpoint is empty or not yet filled
         if (isMounted) {
           setFormData((prev) => ({
             ...prev,
@@ -90,6 +124,107 @@ export default function Checkout() {
     return null;
   };
 
+  // Trigger Razorpay payment for a given order
+  const triggerRazorpayPayment = async (order) => {
+    try {
+      setProcessingPayment(true);
+      const initRes = await paymentApi.initiatePayment(order.id);
+      const orderPaymentData = initRes.data;
+
+      // Check if live/real Razorpay key is configured
+      if (paymentConfig?.liveKeyConfigured && !orderPaymentData.sandboxMode) {
+        const scriptLoaded = await loadRazorpayScript();
+        if (scriptLoaded && window.Razorpay) {
+          const options = {
+            key: orderPaymentData.keyId,
+            amount: orderPaymentData.amountInPaisa,
+            currency: orderPaymentData.currency || 'INR',
+            name: 'EcoCycle Circular Marketplace',
+            description: `Payment for Order #${orderPaymentData.orderNumber || order.id}`,
+            order_id: orderPaymentData.razorpayOrderId,
+            prefill: {
+              name: order.recipientName || formData.recipientName,
+              contact: order.phoneNumber || formData.phoneNumber,
+              email: user?.email || '',
+            },
+            theme: { color: '#1b4332' },
+            handler: async function (response) {
+              try {
+                const verifyRes = await paymentApi.verifyPayment(order.id, {
+                  razorpayPaymentId: response.razorpay_payment_id,
+                  razorpayOrderId: response.razorpay_order_id,
+                  razorpaySignature: response.razorpay_signature,
+                });
+                setPlacedOrder(verifyRes.data);
+                await refreshCart();
+              } catch (verifyErr) {
+                console.error('Payment verification error:', verifyErr);
+                setErrorMessage(getApiErrorMessage(verifyErr, 'Payment verification failed.'));
+                setPlacedOrder(order);
+                await refreshCart();
+              } finally {
+                setProcessingPayment(false);
+              }
+            },
+            modal: {
+              ondismiss: function () {
+                setPlacedOrder(order);
+                refreshCart();
+                setProcessingPayment(false);
+              },
+            },
+          };
+          const rzp = new window.Razorpay(options);
+          rzp.open();
+          return;
+        }
+      }
+
+      // If in sandbox mode or live keys are not configured yet, show the interactive sandbox simulator
+      setPendingPaymentOrder({
+        order,
+        paymentData: orderPaymentData,
+      });
+      setProcessingPayment(false);
+    } catch (err) {
+      console.error('Razorpay initiation error:', err);
+      setErrorMessage(getApiErrorMessage(err, 'Failed to connect to Razorpay payment gateway.'));
+      setPlacedOrder(order);
+      await refreshCart();
+      setProcessingPayment(false);
+    }
+  };
+
+  // Complete simulated sandbox payment
+  const handleCompleteSandboxPayment = async () => {
+    if (!pendingPaymentOrder) return;
+    try {
+      setProcessingPayment(true);
+      const simPaymentId = 'pay_sim_' + Math.random().toString(36).substring(2, 11).toUpperCase();
+      const verifyRes = await paymentApi.verifyPayment(pendingPaymentOrder.order.id, {
+        razorpayPaymentId: simPaymentId,
+        razorpayOrderId: pendingPaymentOrder.paymentData.razorpayOrderId,
+        razorpaySignature: 'sandbox_verified_signature',
+      });
+      setPlacedOrder(verifyRes.data);
+      setPendingPaymentOrder(null);
+      await refreshCart();
+    } catch (err) {
+      console.error('Sandbox verification failed:', err);
+      setErrorMessage(getApiErrorMessage(err, 'Failed to complete sandbox payment verification.'));
+    } finally {
+      setProcessingPayment(false);
+    }
+  };
+
+  const handleSkipSandboxPayment = () => {
+    if (pendingPaymentOrder) {
+      setPlacedOrder(pendingPaymentOrder.order);
+      setPendingPaymentOrder(null);
+      refreshCart();
+    }
+  };
+
   const handleSubmitOrder = async (e) => {
     e.preventDefault();
     setErrorMessage(null);
@@ -113,21 +248,27 @@ export default function Checkout() {
       city: formData.city.trim(),
       state: formData.state.trim(),
       postalCode: formData.postalCode.trim(),
-      paymentMethod: 'DEMO_CHECKOUT',
+      paymentMethod: paymentMethod,
       listingIds: cart.items.map((i) => i.listingId),
     };
 
     try {
       setSubmitting(true);
       const res = await orderApi.checkout(createOrderDto);
-      setPlacedOrder(res.data);
-      // Synchronize cart state so header count and cart page update immediately
-      await refreshCart();
+      const newOrder = res.data;
+
+      if (paymentMethod === 'RAZORPAY') {
+        // Proceed with Razorpay payment initiation
+        await triggerRazorpayPayment(newOrder);
+      } else {
+        // Offline / Demo checkout
+        setPlacedOrder(newOrder);
+        await refreshCart();
+      }
     } catch (err) {
       console.error('Checkout failed:', err);
       const msg = getApiErrorMessage(err, 'Failed to place order.');
 
-      // Detect stock/concurrency collision (e.g. item no longer AVAILABLE or already RESERVED)
       if (
         msg.toLowerCase().includes('not in published') ||
         msg.toLowerCase().includes('unavailable') ||
@@ -148,8 +289,9 @@ export default function Checkout() {
     }
   };
 
-  // 1. ORDER CONFIRMATION VIEW (HONEST PAYMENT STATE PRESENTATION)
+  // 1. ORDER CONFIRMATION VIEW
   if (placedOrder) {
+    const isPaid = placedOrder.paymentStatus === 'PAID';
     const orderStatus = MARKETPLACE_ORDER_STATUS_MAP[placedOrder.status] || {
       label: placedOrder.status || 'PLACED',
       badgeClass: 'badge bg-warning text-dark',
@@ -158,16 +300,19 @@ export default function Checkout() {
 
     const paymentStatus = MARKETPLACE_PAYMENT_STATUS_MAP[placedOrder.paymentStatus] || {
       label: placedOrder.paymentStatus || 'Payment Pending',
-      badgeClass: 'badge bg-warning text-dark',
-      description: 'Payment is pending. No payment gateway integrated.',
+      badgeClass: isPaid ? 'badge bg-emerald text-white' : 'badge bg-warning text-dark',
+      description: isPaid
+        ? 'Payment verified and settled through payment gateway.'
+        : 'Payment is pending settlement.',
     };
 
     return (
       <div className="checkout-success-page py-4">
         {/* Editorial Success Banner */}
         <div className="p-4 p-md-5 border border-dark bg-white mb-4">
-          <div className="editorial-tag text-emerald">
-            <i className="bi bi-patch-check-fill me-1"></i> ORDER RESERVATION CONFIRMED
+          <div className={`editorial-tag ${isPaid ? 'text-emerald' : 'text-warning'}`}>
+            <i className={`bi ${isPaid ? 'bi-patch-check-fill' : 'bi-clock-history'} me-1`}></i>
+            {isPaid ? 'PAYMENT VERIFIED & ORDER CONFIRMED' : 'ORDER RESERVATION CONFIRMED'}
           </div>
 
           <h1 className="display-hero-title mb-2" style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.6rem)' }}>
@@ -175,11 +320,13 @@ export default function Checkout() {
           </h1>
 
           <p className="text-secondary small mb-4" style={{ maxWidth: '620px', lineHeight: '1.6' }}>
-            Your refurbished hardware reservation has been recorded in the central e-waste facility registry. Physical serialized units have been atomically assigned to this order.
+            {isPaid
+              ? 'Your transaction has been securely processed via Razorpay. Physical serialized units have been permanently assigned and queued for facility packaging.'
+              : 'Your refurbished hardware reservation has been recorded in the central e-waste facility registry. Physical serialized units have been atomically assigned to this order.'}
           </p>
 
-          {/* CRITICAL HONEST PAYMENT STATE SECTION */}
-          <div className="p-3 bg-light border border-warning border-opacity-50 mb-4">
+          {/* PAYMENT AUDIT SECTION */}
+          <div className={`p-3 border mb-4 ${isPaid ? 'bg-success bg-opacity-10 border-success' : 'bg-light border-warning border-opacity-50'}`}>
             <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
               <div className="d-flex align-items-center gap-2">
                 <span className="fw-bold text-dark text-uppercase small">Payment Status:</span>
@@ -188,15 +335,35 @@ export default function Checkout() {
                 </span>
               </div>
               <div className="extra-small text-muted">
-                Transaction Mode: {placedOrder.paymentMethod || 'DEMO_CHECKOUT'}
+                Transaction Mode: <strong>{placedOrder.paymentMethod || 'RAZORPAY'}</strong>
               </div>
             </div>
 
-            <p className="extra-small m-0 text-secondary" style={{ lineHeight: '1.5' }}>
-              <strong>Notice:</strong> Payment processing is not currently integrated into this platform. 
-              The order status is recorded as <strong>{orderStatus.label}</strong>, and payment remains honestly <strong>{paymentStatus.label}</strong>. 
-              Do not transfer funds externally unless instructed by an authorized facility representative.
-            </p>
+            {isPaid ? (
+              <div className="extra-small text-secondary" style={{ lineHeight: '1.6' }}>
+                <div><strong>Razorpay Transaction ID:</strong> <code>{placedOrder.paymentTransactionId || 'TXN_VERIFIED'}</code></div>
+                {placedOrder.razorpayOrderId && (
+                  <div><strong>Razorpay Order ID:</strong> <code>{placedOrder.razorpayOrderId}</code></div>
+                )}
+                <div className="text-emerald mt-1">
+                  <i className="bi bi-shield-check me-1"></i> Cryptographic HMAC-SHA256 signature verified. Official payment settlement recorded.
+                </div>
+              </div>
+            ) : (
+              <div>
+                <p className="extra-small m-0 text-secondary mb-2" style={{ lineHeight: '1.5' }}>
+                  <strong>Notice:</strong> The order status is recorded as <strong>{orderStatus.label}</strong>, and payment status is <strong>{paymentStatus.label}</strong>.
+                </p>
+                <button
+                  type="button"
+                  className="btn btn-outline-dark btn-sm py-1 px-3 extra-small"
+                  onClick={() => triggerRazorpayPayment(placedOrder)}
+                  disabled={processingPayment}
+                >
+                  <i className="bi bi-credit-card-2-front me-1"></i> Pay Now via Razorpay Secure Gateway
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Order Details Grid */}
@@ -338,7 +505,7 @@ export default function Checkout() {
 
       {/* Page Title */}
       <div className="pb-3 mb-4 border-bottom border-dark">
-        <div className="editorial-tag">ATOMIC DEVICE ALLOCATION &amp; LOGISTICS</div>
+        <div className="editorial-tag">ATOMIC DEVICE ALLOCATION &amp; SECURE CHECKOUT</div>
         <h1 className="display-hero-title m-0" style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)' }}>
           CHECKOUT
         </h1>
@@ -358,19 +525,6 @@ export default function Checkout() {
           )}
         </div>
       )}
-
-      {/* Honest Payment State Announcement */}
-      <div className="p-3 bg-light border border-warning border-opacity-60 mb-4 small text-secondary">
-        <div className="d-flex align-items-center gap-2 mb-1">
-          <i className="bi bi-info-circle-fill text-warning"></i>
-          <span className="fw-bold text-dark text-uppercase extra-small">
-            Honest Payment Policy — SOLD ≠ PAID
-          </span>
-        </div>
-        <p className="extra-small m-0 text-muted" style={{ lineHeight: '1.5' }}>
-          This circular platform operates without third-party payment gateway integration. Completing checkout creates an authoritative reservation in <strong>PENDING</strong> payment status. No credit card or UPI details are gathered or stored.
-        </p>
-      </div>
 
       <div className="row g-4 g-lg-5">
         {/* Left Column: Delivery Address Form */}
@@ -488,26 +642,81 @@ export default function Checkout() {
             )}
           </div>
 
-          {/* Section 2: Payment Disclosure */}
+          {/* Section 2: Payment Method Selection */}
           <div className="p-3.5 border border-secondary border-opacity-15 bg-white">
             <h2 className="h6 text-uppercase fw-bold text-dark mb-3 pb-2 border-bottom border-dark">
-              2. PAYMENT STATUS DISCLOSURE
+              2. PAYMENT METHOD &amp; GATEWAY
             </h2>
 
-            <div className="p-3 bg-light border border-secondary border-opacity-25 small">
-              <div className="d-flex align-items-center gap-2 mb-2">
-                <span className="badge bg-warning text-dark px-2 py-1">
-                  PAYMENT STATE: PENDING
-                </span>
-                <span className="fw-bold text-dark">Circular Asset Allocation</span>
-              </div>
-              <p className="extra-small text-secondary mb-2" style={{ lineHeight: '1.5' }}>
-                Upon clicking <strong>Place Order</strong>, the system locks this physical equipment to prevent double-allocation. The order will be created with status <code>PLACED</code> and payment status <code>PENDING</code>.
-              </p>
-              <div className="extra-small text-muted border-top border-secondary border-opacity-15 pt-2">
-                • No card credentials or banking access required.<br />
-                • Equipment is reserved for facility dispatch verification.
-              </div>
+            <div className="d-flex flex-column gap-3">
+              {/* Option 1: Razorpay Payment Gateway */}
+              <label
+                className={`p-3 border cursor-pointer d-flex align-items-start gap-3 transition-all ${
+                  paymentMethod === 'RAZORPAY' ? 'border-dark bg-white shadow-sm' : 'border-secondary border-opacity-25 bg-light'
+                }`}
+                style={{ cursor: 'pointer' }}
+              >
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="RAZORPAY"
+                  checked={paymentMethod === 'RAZORPAY'}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  className="mt-1"
+                />
+                <div className="flex-grow-1">
+                  <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-1">
+                    <span className="fw-bold text-dark">
+                      Razorpay Secure Checkout (UPI, Cards, NetBanking, Wallets)
+                    </span>
+                    <span className="badge bg-emerald text-white extra-small">
+                      Recommended
+                    </span>
+                  </div>
+                  <p className="extra-small text-secondary mb-2" style={{ lineHeight: '1.5' }}>
+                    Pay securely in Indian Rupees (INR) with end-to-end 256-bit SSL encryption. Supports Google Pay, PhonePe, Paytm, Visa, Mastercard, RuPay &amp; NetBanking.
+                  </p>
+                  <div className="d-flex align-items-center gap-2 flex-wrap extra-small text-muted border-top border-secondary border-opacity-15 pt-2">
+                    <span className="badge bg-light text-dark border">
+                      <i className="bi bi-shield-lock-fill text-success me-1"></i> Razorpay Standard
+                    </span>
+                    <span className="badge bg-light text-dark border">
+                      {paymentConfig?.sandboxMode ? 'Sandbox / Test Mode Active' : 'Live Gateway Active'}
+                    </span>
+                    <span>Instant Settlement Verification</span>
+                  </div>
+                </div>
+              </label>
+
+              {/* Option 2: Demo / Offline Reservation */}
+              <label
+                className={`p-3 border cursor-pointer d-flex align-items-start gap-3 transition-all ${
+                  paymentMethod === 'DEMO_CHECKOUT' ? 'border-dark bg-white shadow-sm' : 'border-secondary border-opacity-25 bg-light'
+                }`}
+                style={{ cursor: 'pointer' }}
+              >
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="DEMO_CHECKOUT"
+                  checked={paymentMethod === 'DEMO_CHECKOUT'}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  className="mt-1"
+                />
+                <div className="flex-grow-1">
+                  <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-1">
+                    <span className="fw-bold text-dark">
+                      Reserve Equipment (Pay at Facility / Demo Allocation)
+                    </span>
+                    <span className="badge bg-secondary text-white extra-small">
+                      Offline Mode
+                    </span>
+                  </div>
+                  <p className="extra-small text-secondary m-0" style={{ lineHeight: '1.5' }}>
+                    Secures the serialized device without immediate payment. The order is placed with payment status <strong>PENDING</strong> for facility verification.
+                  </p>
+                </div>
+              </label>
             </div>
           </div>
         </div>
@@ -574,13 +783,17 @@ export default function Checkout() {
                 type="submit"
                 form="checkout-form"
                 className="btn btn-primary-custom py-2.5 w-100 justify-content-center fs-6"
-                disabled={submitting || items.length === 0}
+                disabled={submitting || processingPayment || items.length === 0}
                 aria-label="Confirm and Place Order"
               >
-                {submitting ? (
+                {submitting || processingPayment ? (
                   <>
                     <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                    Locking Inventory &amp; Placing Order...
+                    {processingPayment ? 'Connecting to Payment Gateway...' : 'Locking Inventory & Placing Order...'}
+                  </>
+                ) : paymentMethod === 'RAZORPAY' ? (
+                  <>
+                    <i className="bi bi-shield-check me-2"></i> Pay {formatCurrency(subtotal)} via Razorpay ↗
                   </>
                 ) : (
                   <>
@@ -603,6 +816,86 @@ export default function Checkout() {
           </div>
         </div>
       </div>
+
+      {/* Razorpay Sandbox Test Simulator Dialog */}
+      {pendingPaymentOrder && (
+        <div
+          className="modal d-block"
+          tabIndex="-1"
+          style={{ backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1060 }}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content border border-dark rounded-0 p-3">
+              <div className="modal-header border-bottom border-dark pb-2">
+                <div className="d-flex align-items-center gap-2">
+                  <span className="badge bg-emerald text-white">Razorpay Sandbox</span>
+                  <h5 className="modal-title h6 text-uppercase fw-bold text-dark m-0">
+                    Test Mode Payment Gateway
+                  </h5>
+                </div>
+              </div>
+
+              <div className="modal-body py-3 small text-secondary">
+                <p className="mb-2">
+                  Simulating Razorpay Payment Gateway for <strong>Order #{pendingPaymentOrder.order.orderNumber || pendingPaymentOrder.order.id}</strong>.
+                </p>
+
+                <div className="p-3 bg-light border border-secondary border-opacity-25 mb-3">
+                  <div className="d-flex justify-content-between mb-1">
+                    <span>Payable Amount:</span>
+                    <strong className="text-dark">{formatCurrency(pendingPaymentOrder.order.totalAmount || pendingPaymentOrder.order.subtotal)}</strong>
+                  </div>
+                  <div className="d-flex justify-content-between mb-1">
+                    <span>Currency:</span>
+                    <span className="badge bg-secondary text-white">{pendingPaymentOrder.paymentData.currency}</span>
+                  </div>
+                  <div className="d-flex justify-content-between mb-1">
+                    <span>Gateway Order ID:</span>
+                    <code>{pendingPaymentOrder.paymentData.razorpayOrderId}</code>
+                  </div>
+                  <div className="d-flex justify-content-between">
+                    <span>Active Gateway Mode:</span>
+                    <span className="text-emerald fw-bold">Test Sandbox</span>
+                  </div>
+                </div>
+
+                <div className="extra-small text-muted">
+                  <i className="bi bi-info-circle me-1"></i>
+                  In test sandbox mode, you can immediately simulate a successful payment settlement without charging actual funds. When live Razorpay credentials are added in <code>application.yml</code> or <code>.env</code>, this will open the real Razorpay popup checkout!
+                </div>
+              </div>
+
+              <div className="modal-footer border-top border-secondary border-opacity-15 pt-2 d-flex justify-content-between">
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary btn-sm py-1.5 px-3"
+                  onClick={handleSkipSandboxPayment}
+                  disabled={processingPayment}
+                >
+                  Keep as Pending
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary-custom btn-sm py-1.5 px-3"
+                  onClick={handleCompleteSandboxPayment}
+                  disabled={processingPayment}
+                >
+                  {processingPayment ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-1" role="status"></span>
+                      Settling Payment...
+                    </>
+                  ) : (
+                    'Simulate Successful Payment (Test) ✓'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

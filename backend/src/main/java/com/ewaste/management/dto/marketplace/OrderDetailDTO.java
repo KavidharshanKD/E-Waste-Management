@@ -14,6 +14,8 @@ public class OrderDetailDTO {
     private MarketplaceOrderStatus status;
     private MarketplacePaymentStatus paymentStatus;
     private String paymentMethod;
+    private String paymentTransactionId;
+    private String razorpayOrderId;
     private BigDecimal subtotal;
     private BigDecimal totalAmount;
     private String recipientName;
@@ -71,6 +73,22 @@ public class OrderDetailDTO {
 
     public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
+    }
+
+    public String getPaymentTransactionId() {
+        return paymentTransactionId;
+    }
+
+    public void setPaymentTransactionId(String paymentTransactionId) {
+        this.paymentTransactionId = paymentTransactionId;
+    }
+
+    public String getRazorpayOrderId() {
+        return razorpayOrderId;
+    }
+
+    public void setRazorpayOrderId(String razorpayOrderId) {
+        this.razorpayOrderId = razorpayOrderId;
     }
 
     public BigDecimal getSubtotal() {

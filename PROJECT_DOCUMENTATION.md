@@ -62,7 +62,7 @@ The platform adopts a decoupled, multi-tier microservice and client-server archi
 │       DATABASE TIER (PostgreSQL)    │ │      ML INFERENCE MICROSERVICE      │
 │   • Supabase PostgreSQL (Production)│ │      (Python 3.10+ / FastAPI)       │
 │   • H2 In-Memory (Dev & Local Test) │ │   • Random Forest Multi-Classifier  │
-│   • Flyway Migrations (V1 to V16)   │ │   • Fallback Rule Engine            │
+│   • Flyway Migrations (V1 to V17)   │ │   • Fallback Rule Engine            │
 │   • Referential Integrity & Indexes │ │   • Confidence & Safety Auditing    │
 └─────────────────────────────────────┘ └─────────────────────────────────────┘
 ```
@@ -163,15 +163,17 @@ stateDiagram-v2
   - Comprehensive inspection covering: Electrical safety test, battery load endurance, stress test, Wi-Fi/Bluetooth connectivity, and cosmetic grading.
   - Mandatory Cosmetic Grading: `GRADE_A` (Flawless), `GRADE_B` (Minor signs of use), `GRADE_C` (Visible cosmetic wear, 100% functionally sound).
 
-### Modules 8 & 8.1: Circular Refurbished Marketplace Backend
+### Modules 8 & 8.1: Circular Refurbished Marketplace & Payment Gateway
 - **Serialized Unit Inventory**: Each refurbished device is a unique, physical piece of hardware with its own serial number, QC inspection ID, and battery health report.
 - **Concurrency & Cart Invariant**:
   - Prevents race conditions: Since serialized units are unique, quantity in the cart is strictly locked to `1`.
   - If a device is checked out or purchased by another user, conflicting carts are automatically alerted with an inventory conflict.
-- **Honest Payment State Machine**:
-  - Avoids fake instant "PAID" claims without a confirmed transaction.
-  - Initial state: `PENDING` -> verified by payment provider -> `PAID`.
-  - Order cancellation contract: Permitted only during `PLACED`, `CONFIRMED`, and `PROCESSING` stages.
+- **Razorpay Payment Gateway Integration**:
+  - **Payment Initiation**: Generates a standard Razorpay order (`order_...`) with amount in Paisa (INR) and dynamic client key injection.
+  - **Cryptographic Verification**: Server-side HMAC-SHA256 signature calculation verifies that payment signatures match the secret key before marking orders as `PAID` with recorded transaction IDs.
+  - **Frictionless Sandbox Mode**: Operates in zero-setup test sandbox simulation mode when API keys are pending, allowing full end-to-end testing without blocking developers.
+  - **Honest Payment Lifecycle**: Initial state is `PENDING` until cryptographic proof is verified, transitioning status to `CONFIRMED` and payment status to `PAID`.
+  - **Order Cancellation Contract**: Permitted strictly during `PLACED`, `CONFIRMED`, and `PROCESSING` stages.
 
 ### Modules 9A–9F: Modern Responsive Frontend Architecture
 - **Tech Stack**: React 18, Vite 6, React Router DOM 6, Axios, Vanilla CSS + Bootstrap 5 utility grid.

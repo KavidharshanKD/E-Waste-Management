@@ -134,6 +134,24 @@ export const orderApi = {
 export const marketplaceOrderApi = orderApi;
 
 // =============================================================================
+// MARKETPLACE PAYMENT GATEWAY API (RAZORPAY)
+// =============================================================================
+export const paymentApi = {
+  getConfig() {
+    return apiClient.get('/api/marketplace/payments/config');
+  },
+
+  initiatePayment(orderId) {
+    return apiClient.post(`/api/marketplace/payments/initiate/${orderId}`);
+  },
+
+  verifyPayment(orderId, verificationData) {
+    return apiClient.post(`/api/marketplace/payments/verify/${orderId}`, verificationData);
+  },
+};
+
+
+// =============================================================================
 // RECYCLER FACILITY WORKFLOW API
 // =============================================================================
 export const recyclerApi = {

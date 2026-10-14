@@ -55,3 +55,10 @@ ml:
     connect-timeout-ms: ${ML_SERVICE_CONNECT_TIMEOUT_MS:1000}
     read-timeout-ms: ${ML_SERVICE_READ_TIMEOUT_MS:3000}
 
+razorpay:
+  key-id: ${RAZORPAY_KEY_ID:rzp_test_placeholder}
+  key-secret: ${RAZORPAY_KEY_SECRET:rzp_secret_placeholder}
+  currency: ${RAZORPAY_CURRENCY:INR}
+  sandbox-mode: ${RAZORPAY_SANDBOX_MODE:true}
+
+

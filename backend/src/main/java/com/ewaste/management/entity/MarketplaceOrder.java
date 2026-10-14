@@ -40,6 +40,12 @@ public class MarketplaceOrder extends BaseEntity {
     @Column(name = "payment_method", nullable = false, length = 50)
     private String paymentMethod = "DEMO_CHECKOUT";
 
+    @Column(name = "payment_transaction_id", length = 100)
+    private String paymentTransactionId;
+
+    @Column(name = "razorpay_order_id", length = 100)
+    private String razorpayOrderId;
+
     @NotNull
     @Column(name = "subtotal", nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal = BigDecimal.ZERO;
@@ -134,6 +140,22 @@ public class MarketplaceOrder extends BaseEntity {
 
     public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
+    }
+
+    public String getPaymentTransactionId() {
+        return paymentTransactionId;
+    }
+
+    public void setPaymentTransactionId(String paymentTransactionId) {
+        this.paymentTransactionId = paymentTransactionId;
+    }
+
+    public String getRazorpayOrderId() {
+        return razorpayOrderId;
+    }
+
+    public void setRazorpayOrderId(String razorpayOrderId) {
+        this.razorpayOrderId = razorpayOrderId;
     }
 
     public BigDecimal getSubtotal() {

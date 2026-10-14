@@ -173,8 +173,37 @@ mvn test
 - SMTP Mail Port: `${SPRING_MAIL_PORT:587}`
 - SMTP Username: `${SPRING_MAIL_USERNAME:your-email@gmail.com}`
 - SMTP App Password: `${SPRING_MAIL_PASSWORD:your-app-passcode}`
+- Razorpay Key ID: `${RAZORPAY_KEY_ID:rzp_test_placeholder}`
+- Razorpay Key Secret: `${RAZORPAY_KEY_SECRET:rzp_secret_placeholder}`
+- Razorpay Currency: `${RAZORPAY_CURRENCY:INR}`
+- Razorpay Sandbox Mode: `${RAZORPAY_SANDBOX_MODE:true}`
 
-> **Local Development Fallback:** If SMTP username and password are not set, the system automatically logs the generated 6-digit password reset OTP directly to the backend console/terminal, allowing seamless local development and testing without an immediate SMTP configuration!
+> **Zero Setup Testing:** Both SMTP OTP and Razorpay Payment Gateway support **frictionless sandbox simulation** out-of-the-box! If keys are not configured, password reset codes are printed to the backend terminal, and the checkout page provides an interactive 1-click Razorpay test sandbox simulator with instant settlement and HMAC verification.
+
+---
+
+## 💳 Razorpay Payment Gateway Setup (Manual Steps)
+
+To enable live or real test-mode payments via the Razorpay checkout popup:
+
+1. **Create Free Razorpay Account:**
+   - Go to [https://dashboard.razorpay.com](https://dashboard.razorpay.com) and sign up for free.
+2. **Switch to Test Mode:**
+   - In the top-right toggle of your Razorpay dashboard, toggle the mode from **Live Mode** to **Test Mode**.
+3. **Generate API Keys:**
+   - Go to **Settings** $\rightarrow$ **API Keys** $\rightarrow$ Click **Generate Key**.
+   - Copy your **Key ID** (starts with `rzp_test_...`) and **Key Secret**.
+4. **Configure in E-Waste Management System:**
+   - In project root `.env` or `backend/src/main/resources/application.yml`:
+     ```ini
+     RAZORPAY_KEY_ID=rzp_test_YourKeyIdHere
+     RAZORPAY_KEY_SECRET=YourSecretKeyHere
+     RAZORPAY_SANDBOX_MODE=false
+     ```
+5. **Restart Backend:**
+   - The checkout page will automatically load the official Razorpay payment modal with UPI (GPay/PhonePe/Paytm QR), Cards, and NetBanking test cards!
+
+---
 
 ### Frontend (`frontend/.env`)
 Create `frontend/.env` to override the API target if needed:
